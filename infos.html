@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="keywords" content="ICeLAN">
+        <meta name="description" content="25h de tournois de jeux vidéos et jeux de plateau !">
+        <meta name="author" content="Sidonie Bouthors">
+
+        <title>ICeLAN</title>
+
+        <link href="assets/css/styles.css" rel="stylesheet" type="text/css" media="all">
+        <script src="assets/js/scripts.js" defer></script>
+
+        <link rel="shortcut icon" href="assets/img/icon.ico">
+        
+        <meta property="og:title" content="ICeLAN">
+        <meta property="og:description" content="25h de tournois de jeux vidéos et jeux de plateau !">
+        <meta property="og:image" content="assets/img/share-image.jpg">
+        <meta property="og:image:width" content="1200">
+        <meta property="og:image:height" content="630">
+        <meta property="og:url" content="icelan.info">
+    </head> 
+    <body>
+        <header>
+            <a href="/">
+                <img src="assets/img/logo-white.svg" alt="ICeLAN Logo" class="logo">
+            </a>
+            <nav id="main-nav" class="main-nav">
+                <ul>
+                    <li><a href="/">Accueil</a></li>
+                    <li class="highlight-green"><a href="/infos.html">Infos</a></li>
+                    <li class="highlight-blue"><a href="/">Inscriptions</a></li>
+                    <li class=""><a href="/">Staffing</a></li>
+                </ul>
+            </nav>
+            <a class="burger-menu" id="burger-menu" href="#" onclick="changeNav();"><img src="assets/img/icons/burger-menu.svg" class="icon"></a>
+        </header>
+
+        <main>
+        <section class="infos">
+            <h2>Informations Importantes</h2>
+            <div class="info-list">
+                <div class="info-bloc">
+                    <div class="info-title">
+                        <img class="icon" src="assets/img/icons/coin.svg">
+                        <h3>Prix</h3>
+                    </div>
+                    <p class="description">
+                        Le prix est de 15CHF tout compris!
+                        Ça te donne droit à l'accès à l'événement, aux 
+                        activités de l'événement, tous les repas, 
+                        boissons et snacks, et plus encore... 
+                        Viens payer en avance durant nos permanences!
+                    </p>
+                </div>
+                <div class="info-bloc">
+                    <div class="info-title">
+                        <img class="icon" src="assets/img/icons/calendar.svg">
+                        <h3>Lieu & Date</h3>
+                    </div>
+                    <p class="description">
+                        ICeLAN aura lieu au sein du Bâtiment BC de l'EPFL, 
+                        du 9 Décembre 2022 à 17h au 10 Décembre 2022 à 18h, 
+                        en non-stop. <br> Tu peux y accéder avec le Métro M1 (arrêt EPFL), 
+                        les bus 705 (arrêt Piccard), 31 (arrêt Russel), 701 (arrêt Parc Scientifique), ou 1 (arrêt EPFL/Colladon).
+                    </p>
+                </div>
+                <div class="info-bloc">
+                    <div class="info-title">
+                        <img class="icon" src="assets/img/icons/food.svg">
+                        <h3>Nourriture & Boissons</h3>
+                    </div>
+                    <p class="description">
+                        Nous fournissons à chacun de nos participant·e·s un repas du soir le samedi, 
+                        un petit dej', et un repas du midi le dimanche. <br>
+                        Nous te proposons également toutes sortes de boissons 
+                        non-alcoolisées, ainsi que 
+                        des snacks. Le tout inclus dans 
+                        le prix, sans supplément!
+                    </p>
+                </div>
+                <div class="info-bloc">
+                    <div class="info-title">
+                        <img class="icon" src="assets/img/icons/bed.svg">
+                        <h3>Commodités</h3>
+                    </div>
+                    <p class="description">
+                        Sur place, il te sera possible de profiter de douches 
+                        et de toilettes. Il est cependant interdit de dormir 
+                        sur place pour des raisons légales. Tu peux néamoins 
+                        rentrer et sortir du lieu comme tu le sens!
+                    </p>
+                </div>
+                <div class="info-bloc">
+                    <div class="info-title">
+                        <img class="icon" src="assets/img/icons/group.svg">
+                        <h3>Respect & Règles</h3>
+                    </div>
+                    <p class="description">
+                        Lors de ton inscription, il te sera demandé d'accepter 
+                        le règlement de l'événement, ainsi que notre charte. 
+                        En gros, il s'agit de respecter les autres et soi-même, 
+                        et de respecter le matériel et les lieux. 
+                        Nous nous réservons le droit de te virer de l'événement 
+                        en cas de comportement inacceptable.
+                    </p>
+                </div>
+                <div class="info-bloc">
+                    <div class="info-title">
+                        <img class="icon" src="assets/img/icons/question-mark.svg">
+                        <h3>Questions & Remarques</h3>
+                    </div>
+                    <p class="description">
+                        Près d'une quarantaine de staffs seront à ta disposition 
+                        durant tout l'événement. Si néanmoins tu as des questions 
+                        ou des remarques avant, n'hésite pas à nous écrire à 
+                        gamestar.clic@epfl.ch!
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <section class="faq">
+            <h2>Foire Aux Questions</h2>
+            <div class="faq-list">
+                <div class="faq-bloc">
+                    <p class="faq-q">Est-ce que je dois payer en plus pour [truc]?</p>
+                    <p class="faq-a">
+                        Non, le prix d'inscription couvre tout (repas, 
+                        boissons, snacks), hors distributeurs.
+                    </p>
+                </div>
+                <div class="faq-bloc">
+                    <p class="faq-q">
+                        Pour les tournois par équipe, est ce qu'on peut s'incrire 
+                        solo ou il faut forcément avoir une équipe complète pour 
+                        s'inscrire?
+                    </p>
+                    <p class="faq-a">
+                        On a rajouté la possibilité de s'inscrire en "recherchant" une team.
+                    </p>
+                </div>
+                <div class="faq-bloc">
+                    <p class="faq-q">
+                        Est-ce qu’il faut obligatoirement 
+                        une connexion Ethernet?
+                    </p>
+                    <p class="faq-a">
+                        Le WiFi est disponible durant l'événement.
+                    </p>
+                </div>
+                <div class="faq-bloc">
+                    <p class="faq-q">
+                        Est-ce qu'il faut ramener sa propre Nintendo Switch 
+                        ou ses propres jeux pour les tournois?
+                    </p>
+                    <p class="faq-a">
+                        Normalement, nous fournissons les Nintendo Switch 
+                        ainsi que les jeux, mais si cela ne te dérange 
+                        pas de prendre la tienne, c'est avec plaisir!
+                    </p>
+                </div>
+                <div class="faq-bloc">
+                    <p class="faq-q">
+                        C'est quoi les visiteurs? 
+                        On peut participer à [truc]?
+                    </p>
+                    <p class="faq-a">
+                        Les visiteur·euse·s sont les gens qui viennent dire 
+                        bonjour durant l'événement! C'est ouvert de 7h à 22h, 
+                        après malheureusement on ferme le lieu.
+                        Pour participer aux activités, il n'y a pas de souci, 
+                        mais priorité aux gens inscrit·e·s. Les tournois sont 
+                        réservés aux personnes inscrites, cependant!
+                    </p>
+                </div>
+                <div class="faq-bloc">
+                    <p class="faq-q">
+                        Est-ce que c'est possible de payer 
+                        l'inscription pour quelqu'un d'autre?
+                    </p>
+                    <p class="faq-a">
+                        Oui! Il faut venir avec le @ discord de la personne 
+                        concernée et le montant correspondant en cash.
+                    </p>
+                </div>
+                <div class="faq-bloc">
+                    <p class="faq-q">
+                        Est-ce qu'il y a un parking auquel on peut acccéder 
+                        aux alentours ou non?
+                    </p>
+                    <p class="faq-a">
+                        En weekend, les places de parking vertes 
+                        - dont celles à environ 42m de l'entrée 
+                        - sont libres et gratuites!
+                    </p>
+                </div>
+                <div class="faq-bloc">
+                    <p class="faq-q">Est-ce que je dois payer en plus pour [truc]?</p>
+                    <p class="faq-a">
+                        Non, le prix d'inscription couvre tout (repas, 
+                        boissons, snacks), hors distributeurs.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <section class="planning planning-tournois">
+            <h2>Planning des Tournois</h2>
+        </section>
+
+        <section class="planning planning-anim">
+            <h2>Planning des Animations</h2>
+        </section>
+        </main>
+
+        <footer>
+            <div class="container footer-container">
+                <div class="footer-col">
+                    <div class="button-wrapper">
+                        <p>
+                            Les places sont limitées alors n'hésite pas !
+                        </p>
+                        <button class="button button-medium button-blue-flip">S'inscrire</button>
+                    </div>
+                    <br>
+                    <p>
+                        ⓒ Game* 2023
+                    </p>
+                </div>
+                
+    
+                <div class="footer-col">
+                    <h3>Contact</h3>
+                    <ul class="unstyled-list">
+                        <li ><a href="mailto:gamestar.clic@epfl.ch" target="_blank" rel="noopener noreferrer">
+                            <img class="footer-icon"
+                                alt="mail logo"
+                                src="assets/img/icons/email-logo-round.svg"> Email
+                        </a></li>
+                        <li><a href="https://t.me/CLICGameStar" target="_blank" rel="noopener noreferrer">
+                            <img class="footer-icon"
+                            alt="telegram logo"
+                            src="assets/img/icons/telegram-logo-round.svg"> Telegram
+                        </a></li>
+                        <li><a href="https://instagram.com/CLICGameStar" target="_blank" rel="noopener noreferrer">
+                            <img class="footer-icon"
+                            alt="instagram logo"
+                            src="assets/img/icons/instagram-logo-round.svg"> Instagram
+                        </a></li>
+                        <li><a href="https://discord.gg/tMaKxY8V4M" target="_blank" rel="noopener noreferrer">
+                            <img class="footer-icon"
+                            alt="discord logo"
+                            src="assets/img/icons/discord-logo-round.svg"> Discord
+                        </a></li>
+                        
+                    </ul>
+                </div>
+            </div>
+        </footer>
+    </body>
+</html>
