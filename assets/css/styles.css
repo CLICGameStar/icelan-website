@@ -1,4 +1,5 @@
 @import url('kgredhands.css');
+@import url('quicksand.css');
 
 * {
     box-sizing: border-box;
@@ -13,15 +14,15 @@
 }
 body {
     margin: 0;
-    font-family: 'kg_red_handsregular', sans-serif;
+    font-family: 'KG Red Hands', sans-serif;
     text-align: center;
     background-color: var(--background);
     color: #FFF;
 }
 
 p {
-    font-family: 'Open Sans', sans-serif;
-    font-weight: 300;
+    font-family: 'Quicksand', sans-serif;
+    font-weight: 800;
     font-size: 1.3rem;
     text-align: left;
 }
@@ -62,7 +63,9 @@ h1 span{
     h1 {
         font-size:3.7rem;
         margin-top: 1em;
-
+    }
+    h2 {
+        margin: 1em;
     }
 }
 
@@ -91,8 +94,15 @@ a {
 }
 
 .description {
-    margin: 1em auto;
     max-width: 65ch;
+    margin: 0;
+    margin-top: .5em;
+    margin-bottom: .8em;
+}
+
+.description a {
+    color: var(--green);
+    font-weight: 1000;
 }
 
 .icon {
@@ -105,7 +115,7 @@ a {
 .button{
     display: inline-block;
     font-size: 1.15rem;
-    font-family: 'kg_red_handsregular', sans-serif;
+    font-family: 'KG Red Hands', sans-serif;
     letter-spacing: 2.5px;
     text-decoration: none;
     text-transform: uppercase;
@@ -251,6 +261,9 @@ nav ul {
     margin-right: 1em;
     padding:0;
     list-style:none;
+    display: flex;
+    flex-direction: column;
+    align-items:end;
 }
 
 nav li {
@@ -305,6 +318,13 @@ nav a:focus {
         width: auto;
         max-width: 100%;
         max-height: 100%;
+    }
+    nav ul {
+        margin: 1em 0em;
+        margin-right: 1em;
+        padding:0;
+        list-style:none;
+        display: initial;
     }
     nav li {
         margin: .5em .8em;
@@ -444,11 +464,21 @@ main{
     max-width: 50%;
 }
 
+.about-info {
+    max-width: 50ch;
+    margin-top: 1.2em;
+    margin-bottom: .8em;
+}
+
+.about a {
+    margin: 2em;
+}
+
 /* chiffres
 ********************************************/
 
 .chiffres {
-    margin: 6em auto;
+    margin: 4em auto;
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -460,7 +490,7 @@ main{
 
 .compteur {
     color: var(--pink);
-    font-size: 2.5rem;
+    font-size: 3.5rem;
 }
 
 .titre-compteur {
@@ -525,22 +555,36 @@ main{
     align-items: center;
     gap: 2em;
     padding: 2em;
+    flex-wrap: wrap;
 }
 
 .orga-logo {
-    margin: auto;
-    max-width: 25%;
+    max-width: 85%;
+}
+
+@media (min-width:30rem) {
+    .orga-logo {
+        max-width: 60%;
+    }
+}
+@media (min-width:40rem) {
+    .orga-logo {
+        max-width: 40%;
+    }
+    
+}
+@media (min-width:60rem) {
+    .orga-logo {
+        max-width: 22%;
+    }
+    
 }
 
 /* infos importantes (page infos)
 ********************************************/
 
 .infos {
-   margin: 3em; 
-}
-
-.infos h2 {
-    margin: 2em;
+   margin: 1.5em; 
 }
 
 .info-list{
@@ -568,8 +612,15 @@ main{
 .info-title h3 {
     text-align: left;
 }
-
+@media (min-width:30rem) {
+    .infos {
+        margin: 2.5em;
+    }
+}
 @media (min-width:40rem) {
+    .infos {
+        margin: 3em;
+    }
     .info-list{
         flex-direction: row;
         flex-wrap: wrap;
@@ -593,15 +644,10 @@ main{
 ********************************************/
 
 .faq{
-    margin: 3em;
+    margin: 1.5em;
     display: flex;
     flex-direction: column;
     align-items: center;
-}
-
-.faq h2 {
-    margin: 2em;
-    margin-top: 0;
 }
 
 .faq-list {
@@ -619,8 +665,9 @@ main{
 }
 
 .faq-q {
-    font-family: 'kg_red_handsregular', sans-serif;
+    font-family: 'KG Red Hands', sans-serif;
     font-size:large;
+    font-weight: normal;
     letter-spacing: 1px;
     margin: 0;
 }
@@ -629,6 +676,15 @@ main{
     margin:0;
 }
 
+@media (min-width:40rem) {
+    .faq {
+        margin: 3;
+    }
+    .faq h2 {
+        margin: 1em;
+        margin-top: 0;
+    }
+}
 @media (min-width:40rem) {
     .faq-bloc {
         flex-direction: row;
@@ -653,8 +709,37 @@ main{
 /* Plannings (page infos)
 ********************************************/
 
-.planning h2 {
-    margin: 1em;
+.planning {
+    margin: 3em;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.planning .description {
+    max-width: 50ch;
+}
+
+/* Règlement
+********************************************/
+
+.rules {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+.rule-list {
+    max-width: 65ch;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+.rule-list ul {
+    font-family: 'Quicksand';
+    font-size: 1.3rem;
+    font-weight: 800;
+    list-style-type: disc;
+    text-align: left;
 }
 
 /* footer
@@ -663,16 +748,20 @@ main{
 footer {
     background: var(--darkgrey);
     color: #fff;
-    text-align: left;
     padding: 0;
+    padding-top: 1.5em;
     font-size: 1.2rem;
     margin:0;
 }
 footer p {
-    font-family: 'kg_red_handsregular', sans-serif;
+    font-family: 'KG Red Hands', sans-serif;
+    font-weight: normal;
+}
+footer h3 {
+    text-align: left;
 }
 .footer-container {
-    margin: 0 2em;
+    margin: 0 .8em;
     padding-top : 0em;
     padding-bottom: .5em;
     display: flex;
@@ -689,11 +778,12 @@ footer ul {
     display: grid;
     grid-template-columns: repeat(1, auto);
     gap: 1em;
+    padding: 0;
 }
 footer li {
-    width: max-content;
+    width: max-content; 
 }
-footer a {
+.contact-links a {
     display: flex;
     flex-direction: row;
     align-items: center;
@@ -706,10 +796,9 @@ footer a {
     margin-right: 1em;
 }
 
-
-@media (min-width:30rem){
-    footer ul {
-        grid-template-columns: repeat(2, auto);     
+@media (min-width:40rem){
+    .footer-container {
+        margin: 0 2em;
     }
 }
 @media (min-width:40rem){
