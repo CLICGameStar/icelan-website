@@ -20,3 +20,9 @@ To update this website, push any changes to this repository's `master` branch, t
 
 ### Illustrations
 - by the ICeLAN team
+
+## In the Next Update
+
+- [ ] Spelling mistakes
+- [ ] Increment counter on scroll
+- [ ] "Règlement" margins on mobile format
