@@ -103,6 +103,7 @@ a {
 .description a {
     color: var(--green);
     font-weight: 1000;
+    text-decoration: underline;
 }
 
 .icon {
@@ -670,6 +671,11 @@ main{
     font-weight: normal;
     letter-spacing: 1px;
     margin: 0;
+}
+
+.faq-q::before {
+    content: "▶ ";
+    color: var(--pink);
 }
 
 .faq-a {
