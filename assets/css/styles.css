@@ -110,6 +110,26 @@ a {
     width: 5rem;
 }
 
+.container {
+    margin: 1.5em; 
+    max-width: 200ch;
+}
+@media (min-width:30rem) {
+    .container {
+        margin: 2.5em;
+    }
+}
+@media (min-width:40rem) {
+    .container {
+        margin: 3em;
+    } 
+}
+@media (min-width:60rem) {
+    .container {
+        margin: 5em; 
+     }
+}
+
 /* buttons
 ************************************/
 
@@ -337,7 +357,9 @@ nav a:focus {
 
 /****************/
 main{
-    display: block;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
     margin: 0 auto;
     max-width: 100vw;
     overflow: hidden;
@@ -441,7 +463,7 @@ main{
 
 @media (min-width: 60rem){
     .quick-info {
-        margin: 2.5em 35%;
+        margin: 2.5em 25%;
     }
     .quick-info-item {
         padding: .3em;
@@ -479,6 +501,8 @@ main{
 ********************************************/
 
 .chiffres {
+    width: 100%;
+    max-width: 140ch;
     margin: 4em auto;
     display: flex;
     flex-direction: column;
@@ -584,10 +608,6 @@ main{
 /* infos importantes (page infos)
 ********************************************/
 
-.infos {
-   margin: 1.5em; 
-}
-
 .info-list{
     display: flex;
     gap: 2em;
@@ -613,15 +633,7 @@ main{
 .info-title h3 {
     text-align: left;
 }
-@media (min-width:30rem) {
-    .infos {
-        margin: 2.5em;
-    }
-}
 @media (min-width:40rem) {
-    .infos {
-        margin: 3em;
-    }
     .info-list{
         flex-direction: row;
         flex-wrap: wrap;
@@ -633,9 +645,6 @@ main{
 }
 
 @media (min-width:70rem) {
-    .infos {
-        margin: 5em; 
-     }
     .info-bloc {
         max-width: 30%;
     }
@@ -645,7 +654,6 @@ main{
 ********************************************/
 
 .faq{
-    margin: 1.5em;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -662,7 +670,6 @@ main{
     flex-direction: column;
     gap:.7em;
     break-inside: avoid;
-    margin: 1em;
 }
 
 .faq-q {
