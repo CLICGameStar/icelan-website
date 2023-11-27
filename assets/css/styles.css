@@ -730,14 +730,15 @@ main{
 }
 
 .planning .description {
-    max-width: 50ch;
+    max-width: min(50ch, 85%);
 }
 
 .timeline {
     border : none;
-    width: 100%;
+    width: 85vw;
     margin: 2em;
 }
+
 
 /* Règlement
 ********************************************/
