@@ -753,6 +753,7 @@ main{
     .timeline {
         display: flex;
         margin: 1.5em;
+        max-width: 70em;
     }
 
     .timeline-day {
