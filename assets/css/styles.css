@@ -795,7 +795,7 @@ main{
         grid-auto-rows: var(--tl-hour-height);
         grid-auto-columns: 1fr;
         grid-template-areas:
-        "acceuil acceuil acceuil acceuil acceuil acceuil"
+        "accueil accueil accueil accueil accueil accueil"
         "mariokart valorant echecs . hades celeste"
         "mariokart valorant echecs triviapoly hades celeste"
         "mariokart valorant echecs triviapoly hades celeste"
@@ -840,7 +840,7 @@ main{
         background-color: var(--green);
     }
 
-    .tl-acceuil { grid-area: acceuil; }
+    .tl-accueil { grid-area: accueil; }
     .tl-mariokart { grid-area: mariokart; }
     .tl-valorant { grid-area: valorant; }
     .tl-echecs { grid-area: echecs; }
@@ -848,6 +848,7 @@ main{
     .tl-hades { grid-area: hades; }
     .tl-celeste { grid-area: celeste; }
     .tl-babyfoot { grid-area: babyfoot; }
+    .tl-echecs { grid-area: echecs; }
     .tl-lol { grid-area: lol; }
     .tl-overcooked { grid-area: overcooked; }
     .tl-smashbros { grid-area: smashbros; }
