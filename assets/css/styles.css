@@ -11,6 +11,7 @@
     --dark-blue: #126378;
     --dark-green: #6d8317;
     --background: #000000;
+    --tl-hour-height: 55px;
 }
 body {
     margin: 0;
@@ -733,10 +734,138 @@ main{
     max-width: min(50ch, 85%);
 }
 
-.timeline {
+.timeline2 {
     border : none;
     width: 85vw;
     margin: 2em;
+}
+
+.timeline {
+    display: none;
+}
+
+@media (min-width:60rem) {
+
+    .timeline2 {
+        display: none;
+    }
+
+    .timeline {
+        display: flex;
+        margin: 1.5em;
+    }
+
+    .timeline-day {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .tl-day {
+        writing-mode: vertical-rl;
+        text-orientation: upright;
+        text-align: center;
+        padding: 1em;
+        margin: 0 1em;
+    }
+
+    .tl-day-sat {
+        height: calc(7 * var(--tl-hour-height) - 5px);
+        border-right: solid var(--pink);
+    }
+
+    .tl-day-sun {
+        
+        height: calc(19 * var(--tl-hour-height) - 5px);
+        border-right: solid var(--blue);
+    }
+
+    .timeline-hours {
+        margin-right: 1em;
+    }
+
+    .tl-hour {
+        padding-top: .5em;
+        height: var(--tl-hour-height);
+    }
+
+    .timeline-games {
+        display: grid;
+        grid-auto-rows: var(--tl-hour-height);
+        grid-auto-columns: 1fr;
+        grid-template-areas:
+        "acceuil acceuil acceuil acceuil acceuil acceuil"
+        "mariokart valorant echecs . hades celeste"
+        "mariokart valorant echecs triviapoly hades celeste"
+        "mariokart valorant echecs triviapoly hades celeste"
+        "mariokart valorant babyfoot . hades celeste"
+        "lol overcooked babyfoot . hades celeste"
+        "lol overcooked babyfoot . hades celeste"
+        "lol smashbros jass . hades celeste"
+        "lol smashbros jass . hades celeste"
+        ". smashbros jass . hades celeste"
+        "hearthstone smashbros jass . hades celeste"
+        "hearthstone smashbros jass . hades celeste"
+        ". . . . hades celeste"
+        "slapshot . . . hades celeste"
+        "slapshot starcraft . . hades celeste"
+        "pokemonshowdown starcraft . . hades celeste"
+        ". starcraft . altar hades celeste"
+        "geoguessr startcraft streetfighter altar hades celeste"
+        "minecraft startcraft streetfighter altar hades celeste"
+        ". . . altar hades celeste"
+        "overwatch osu smashbros2 altar hades celeste"
+        "overwatch minimetro smashbros2 altar hades celeste"
+        "overwatch minimetro . . . ."
+        "jeumystere jeumystere jeumystere jeumystere jeumystere jeumystere"
+        "remiseprix remiseprix remiseprix remiseprix remiseprix remiseprix"
+        "fin fin fin fin fin fin";
+    }
+
+    .tl-game {
+        /*writing-mode: vertical-rl;
+        text-orientation: upright;
+        text-align: center;*/
+        padding: .4em .3em;
+    }
+
+    .tl-game-pink {
+        background-color: var(--pink);
+    }
+    .tl-game-blue {
+        background-color: var(--blue);
+    }
+    .tl-game-green {
+        background-color: var(--green);
+    }
+
+    .tl-acceuil { grid-area: acceuil; }
+    .tl-mariokart { grid-area: mariokart; }
+    .tl-valorant { grid-area: valorant; }
+    .tl-echecs { grid-area: echecs; }
+    .tl-triviapoly { grid-area: triviapoly; }
+    .tl-hades { grid-area: hades; }
+    .tl-celeste { grid-area: celeste; }
+    .tl-babyfoot { grid-area: babyfoot; }
+    .tl-lol { grid-area: lol; }
+    .tl-overcooked { grid-area: overcooked; }
+    .tl-smashbros { grid-area: smashbros; }
+    .tl-smashbros2 { grid-area: smashbros2; }
+    .tl-jass { grid-area: jass; }
+    .tl-hearthstone { grid-area: hearthstone; }
+    .tl-slapshot { grid-area: slapshot; }
+    .tl-pokemonshowdown { grid-area: pokemonshowdown; }
+    .tl-geoguessr { grid-area: geoguessr; }
+    .tl-minecraft { grid-area: minecraft; }
+    .tl-overwatch { grid-area: overwatch; }
+    .tl-jeumystere { grid-area: jeumystere; }
+    .tl-remiseprix { grid-area: remiseprix; }
+    .tl-fin { grid-area: fin; }
+    .tl-starcraft { grid-area: starcraft; }
+    .tl-osu { grid-area: osu; }
+    .tl-minimetro { grid-area: minimetro; }
+    .tl-streetfighter { grid-area: streetfighter; }
+    .tl-altar { grid-area: altar; }
 }
 
 
