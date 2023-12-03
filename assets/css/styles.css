@@ -735,9 +735,7 @@ main{
 }
 
 .timeline2 {
-    border : none;
-    width: 85vw;
-    margin: 2em;
+    max-width: min(65ch, 100%);
 }
 
 .timeline {
