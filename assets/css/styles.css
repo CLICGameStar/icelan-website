@@ -724,7 +724,7 @@ main{
 ********************************************/
 
 .planning {
-    margin: 3em;
+    margin: 1em 3em;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -866,6 +866,20 @@ main{
     .tl-minimetro { grid-area: minimetro; }
     .tl-streetfighter { grid-area: streetfighter; }
     .tl-altar { grid-area: altar; }
+}
+
+.anim{
+    text-align: left;
+    
+}
+
+.anim li {
+    margin: .4em;
+    font-size: large;
+}
+.anim li::before {
+    content: "▶ ";
+    color: var(--blue);
 }
 
 
