@@ -2,7 +2,7 @@
 
 ## Workflow
 
-To update this website, push any changes to this repository's `master` branch, then contact a CLIC Admin (relaunching requires root access to the CLIC infrastructure).
+This website is automatically deployed to the CLIC server on push.
 
 ## Theme
 
