@@ -1,137 +1,179 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <meta name="keywords" content="ICeLAN">
-        <meta name="description" content="25h de tournois de jeux vidéo et jeux de plateau !">
-        <meta name="author" content="ICeLAN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="keywords" content="ICeLAN" />
+    <meta
+      name="description"
+      content="25h de tournois de jeux vidéo et jeux de plateau !"
+    />
+    <meta name="author" content="ICeLAN" />
 
-        <title>ICeLAN</title>
+    <title>ICeLAN</title>
 
-        <link href="assets/css/styles.css" rel="stylesheet" type="text/css" media="all">
-        <script src="assets/js/scripts.js" defer></script>
+    <link
+      href="assets/css/styles.css"
+      rel="stylesheet"
+      type="text/css"
+      media="all"
+    />
+    <script src="assets/js/scripts.js" defer></script>
 
-        <link rel="icon" type="image/x-icon" href="/assets/img/favicon/favicon.ico">
-        <link rel="apple-touch-icon" sizes="180x180" href="/assets/img/favicon/apple-touch-icon.png">
-        <link rel="icon" type="image/png" sizes="32x32" href="/assets/img/favicon/favicon-32x32.png">
-        <link rel="icon" type="image/png" sizes="16x16" href="/assets/img/favicon/favicon-16x16.png">
-        
-        <meta property="og:title" content="ICeLAN">
-        <meta property="og:description" content="25h de tournois de jeux vidéo et jeux de plateau!">
-        <meta property="og:image" content="/assets/img/share-image.jpg">
-        <meta property="og:image:width" content="1200">
-        <meta property="og:image:height" content="630">
-        <meta property="og:url" content="icelan.ch">
-    </head> 
-    <body>
-        <header>
-            <a href="/">
-                <img src="assets/img/logo-white.svg" alt="ICeLAN Logo" class="logo">
-            </a>
-            <nav id="main-nav" class="main-nav">
-                <ul>
-                    <li><a href="/">Accueil</a></li>
-                    <li class="highlight-green"><a href="/infos.html">Infos</a></li>
-                    <!-- <li class="highlight-blue"><a href="https://forms.gle/wuC41UM9WMdoGNeB7" target="_blank">Inscriptions</a></li> -->
-                    <!-- <li class=""><a href="https://forms.gle/wcJoZJ6FzsgCCs2y5" target="_blank">Staffing</a></li> -->
-                </ul>
-            </nav>
-            <a class="burger-menu" id="burger-menu" href="#" onclick="changeNav();"><img src="assets/img/icons/burger-menu.svg" class="icon"></a>
-        </header>
+    <link
+      rel="icon"
+      type="image/x-icon"
+      href="/assets/img/favicon/favicon.ico"
+    />
+    <link
+      rel="apple-touch-icon"
+      sizes="180x180"
+      href="/assets/img/favicon/apple-touch-icon.png"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="32x32"
+      href="/assets/img/favicon/favicon-32x32.png"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="16x16"
+      href="/assets/img/favicon/favicon-16x16.png"
+    />
 
-        <main>
-        <section class="hero">
-            <img class="hero-img hero-img-1" src="assets/img/jeux.svg">
-            <div class="hero-content">
-            <h1>Bienvenue à ICeLAN!
-                <span>5ème édition</span>
-            </h1>
-	    <a class="button button-green-flip button-medium" href="https://discord.gg/WD6W8eWBEY" target="_blank"><h3>Rejoins le Discord (scord)</h3></a>
-            <!-- <a class="button button-blue" href="https://forms.gle/wuC41UM9WMdoGNeB7" target="_blank">S'Inscrire</a> -->
-            <ul class="quick-info">
-                <li class="quick-info-item"><img src="assets/img/icons/date.svg" class="quick-info-icon">7-8 Décembre 2024</li>
-                <li class="quick-info-item"><img src="assets/img/icons/place.svg" class="quick-info-icon">Bâtiment BC, EPFL</li>
-                <li class="quick-info-item"><img src="assets/img/icons/price.svg" class="quick-info-icon">15 CHF</li>
-            </ul>
-            </div>
-            <img class="hero-img hero-img-2" src="assets/img/borne.svg">
-        </section>
-        <section class="container about">
-            <h2>Qu'est-ce que c'est ?</h2>
+    <meta property="og:title" content="ICeLAN" />
+    <meta
+      property="og:description"
+      content="25h de tournois de jeux vidéo et jeux de plateau!"
+    />
+    <meta property="og:image" content="/assets/img/share-image.jpg" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:url" content="icelan.ch" />
+  </head>
+  <body>
+    <header>
+      <a href="/">
+        <img src="assets/img/logo-white.svg" alt="ICeLAN Logo" class="logo" />
+      </a>
+      <nav id="main-nav" class="main-nav">
+        <ul>
+          <li><a href="/">Accueil</a></li>
+          <li class="highlight-green"><a href="/infos.html">Infos</a></li>
+          <!-- <li class="highlight-blue"><a href="https://forms.gle/wuC41UM9WMdoGNeB7" target="_blank">Inscriptions</a></li> -->
+          <!-- <li class=""><a href="https://forms.gle/wcJoZJ6FzsgCCs2y5" target="_blank">Staffing</a></li> -->
+        </ul>
+      </nav>
+      <a class="burger-menu" id="burger-menu" href="#" onclick="changeNav();"
+        ><img src="assets/img/icons/burger-menu.svg" class="icon"
+      /></a>
+    </header>
+
+    <main>
+      <section class="hero">
+        <img class="hero-img hero-img-1" src="assets/img/jeux.svg" />
+        <div class="hero-content">
+          <h1>
+            Bienvenue à ICeLAN!
+            <span>5ème édition</span>
+          </h1>
+          <!-- <a
+            class="button button-green-flip button-medium"
+            href="https://discord.gg/WD6W8eWBEY"
+            target="_blank"
+            ><h3>Rejoins le Discord (scord)</h3></a
+          > -->
+          <a class="button button-blue" href="https://forms.gle/ErMbx1SmDcRSM7Bn8" target="_blank">S'Inscrire</a>
+          <ul class="quick-info">
+            <li class="quick-info-item">
+              <img src="assets/img/icons/date.svg" class="quick-info-icon" />7-8
+              Décembre 2024
+            </li>
+            <li class="quick-info-item">
+              <img
+                src="assets/img/icons/place.svg"
+                class="quick-info-icon"
+              />Bâtiment BC, EPFL
+            </li>
+            <li class="quick-info-item">
+              <img src="assets/img/icons/price.svg" class="quick-info-icon" />15
+              CHF
+            </li>
+          </ul>
+        </div>
+        <img class="hero-img hero-img-2" src="assets/img/borne.svg" />
+      </section>
+      <section class="container about">
+        <h2>Qu'est-ce que c'est ?</h2>
+        <p class="description">
+          ICeLAN est un week-end de tournois de jeux vidéo et de jeux de plateau
+          à l'EPFL. L’événement s’axe principalement autour des tournois, se
+          succédant tout au long du week-end, mais offre également aux
+          participant·e·s des animations autour du jeu vidéo et du jeu tout
+          court pour les divertir durant tout l’événement ! L’inscription à
+          l’événement offre aux participant·e·s l’accès à tous les
+          <span class="highlight-green">tournois</span>, aux
+          <span class="highlight-green">animations</span> sur tout le site, et
+          des
+          <span class="highlight-green">repas chauds, snacks et boissons</span>
+          tout au long de l’événement.
+        </p>
+        <div class="about-infos">
+          <div class="about-info">
+            <img class="icon" src="assets/img/icons/trophy.svg" />
+            <h3>Tournois & Lots</h3>
             <p class="description">
-                ICeLAN est un week-end de tournois de jeux vidéo et de jeux de plateau 
-                à l'EPFL. L’événement s’axe principalement autour des tournois, se succédant 
-                tout au long du week-end, mais offre également aux participant·e·s des animations 
-                autour du jeu vidéo et du jeu tout court pour les divertir durant tout l’événement ! 
-                L’inscription à l’événement offre aux participant·e·s l’accès à tous les <span class="highlight-green">tournois</span>, 
-                aux <span class="highlight-green">animations</span> sur tout le site, et des <span class="highlight-green">repas chauds, snacks et boissons</span>
-                 tout au long de l’événement.
+              ICeLAN, c'est de la compétition durant de très nombreux tournois
+              sur de très nombreux jeux vidéo et jeux de société. Gagne de
+              superbes lots tout le long de l'événement.
             </p>
-            <div class="about-infos">
-                <div class="about-info">
-                    <img class="icon" src="assets/img/icons/trophy.svg">
-                    <h3>Tournois & Lots</h3>
-                    <p class="description">ICeLAN, c'est de la compétition durant de très nombreux tournois 
-                        sur de très nombreux jeux vidéo et jeux de société. 
-                        Gagne de superbes lots tout le long de l'événement.
-                    </p>
-                </div>
-                <div class="about-info">
-                    <img class="icon" src="assets/img/icons/game.svg">
-                    <h3>Diverses Animations</h3>
-                    <p class="description">Plutôt envie de chiller ? ICeLAN, c'est aussi des animations incroyables,
-                         que ce soit en ligne ou hors ligne - il y en a pour tous les goûts.
-                    </p>
-                </div>
-                <div class="about-info">
-                    <img class="icon" src="assets/img/icons/food.svg">
-                    <h3>Repas, Snacks et Boissons</h3>
-                    <p class="description">
-                        Nous tenons à ce que ce weekend soit entièrement un weekend de détente. 
-                        Ainsi, de vrais repas te sont offerts tout le long de l'événement, 
-                        et il y a possibilité de prendre des douches sur place. Juste, pas de dodo !
-                    </p>
-                </div>
-            </div>
-            <a class="button button-green-flip button-medium" href="/infos.html">Plus d'Infos</a>
-        </section>
-        <section class="conatiner chiffres">
-            <div class="block-compteur">
-                <div class="compteur" id="participant-counter">
-                    100
-                </div>
-                <div class="titre-compteur">
-                    Participant·e·s
-                </div>
-            </div>
-            <div class="block-compteur">
-                <div class="compteur" id="staff-counter">
-                   40
-                </div>
-                <div class="titre-compteur">
-                    Staffs
-                </div>
-            </div>
-            <div class="block-compteur">
-                <div class="compteur" id="tournament-counter">
-                    20
-                </div>
-                <div class="titre-compteur">
-                    Tournois
-                </div>
-            </div>
-            <div class="block-compteur">
-                <div class="compteur" id="animation-counter">
-                    10
-                </div>
-                <div class="titre-compteur">
-                    Animations
-                </div>
-            </div>
-        </section>
+          </div>
+          <div class="about-info">
+            <img class="icon" src="assets/img/icons/game.svg" />
+            <h3>Diverses Animations</h3>
+            <p class="description">
+              Plutôt envie de chiller ? ICeLAN, c'est aussi des animations
+              incroyables, que ce soit en ligne ou hors ligne - il y en a pour
+              tous les goûts.
+            </p>
+          </div>
+          <div class="about-info">
+            <img class="icon" src="assets/img/icons/food.svg" />
+            <h3>Repas, Snacks et Boissons</h3>
+            <p class="description">
+              Nous tenons à ce que ce weekend soit entièrement un weekend de
+              détente. Ainsi, de vrais repas te sont offerts tout le long de
+              l'événement, et il y a possibilité de prendre des douches sur
+              place. Juste, pas de dodo !
+            </p>
+          </div>
+        </div>
+        <a class="button button-green-flip button-medium" href="/infos.html"
+          >Plus d'Infos</a
+        >
+      </section>
+      <section class="conatiner chiffres">
+        <div class="block-compteur">
+          <div class="compteur" id="participant-counter">100</div>
+          <div class="titre-compteur">Participant·e·s</div>
+        </div>
+        <div class="block-compteur">
+          <div class="compteur" id="staff-counter">40</div>
+          <div class="titre-compteur">Staffs</div>
+        </div>
+        <div class="block-compteur">
+          <div class="compteur" id="tournament-counter">20</div>
+          <div class="titre-compteur">Tournois</div>
+        </div>
+        <div class="block-compteur">
+          <div class="compteur" id="animation-counter">10</div>
+          <div class="titre-compteur">Animations</div>
+        </div>
+      </section>
 
-        <!--
+      <!--
         <section class="sponsors">
             <h2>Sponsors</h2>
             <div class="sponsors-block">
@@ -141,72 +183,104 @@
             </div>
         </section> -->
 
-        <section class="orga">
+      <section class="orga">
         <h2>Merci à tous ceux qui rendent ICeLAN possible!</h2>
         <div class="orga-block">
-            <div class="orga-logo">
-                <img src="assets/img/partners/gamestar.svg">
-            </div>
-            <div class="orga-logo">
-                <img src="assets/img/partners/clic.png">
-            </div>
-            <div class="orga-logo">
-                <img src="assets/img/partners/polylan.png">
-            </div>
-            <div class="orga-logo">
-                <img src="assets/img/partners/ludopoly.png">
-            </div>
-            <div class="orga-logo">
-                <img src="assets/img/partners/triviapoly.jpg">
-            </div>
+          <div class="orga-logo">
+            <img src="assets/img/partners/gamestar.svg" />
+          </div>
+          <div class="orga-logo">
+            <img src="assets/img/partners/clic.png" />
+          </div>
+          <div class="orga-logo">
+            <img src="assets/img/partners/polylan.png" />
+          </div>
+          <div class="orga-logo">
+            <img src="assets/img/partners/ludopoly.png" />
+          </div>
+          <div class="orga-logo">
+            <img src="assets/img/partners/triviapoly.jpg" />
+          </div>
         </div>
-        </section>
-        </main>
+      </section>
+    </main>
 
-        <footer>
-            <div class="container footer-container">
-                <div class="footer-col">
-                    <div class="button-wrapper">
-                        <p>
-                            Les inscriptions ouvriront bientôt !
-                            <!-- Les places sont limitées alors n'hésite pas ! -->
-                        </p>
-                        <!-- <a class="button button-medium button-blue-flip" href="" target="_blank">S'inscrire</a> -->
-                    </div>
-                    <br>
-                    <p>
-                        ⓒ Game* 2023
-                    </p>
-                </div>
-                
-    
-                <div class="footer-col contact-links">
-                    <h3>Contact</h3>
-                    <ul class="unstyled-list">
-                        <li ><a href="mailto:gamestar.clic@epfl.ch" target="_blank" rel="noopener noreferrer">
-                            <img class="footer-icon"
-                                alt="mail logo"
-                                src="assets/img/icons/email-logo-round.svg"> gamestar.clic@epfl.ch
-                        </a></li>
-                        <li><a href="https://t.me/CLICGameStar" target="_blank" rel="noopener noreferrer">
-                            <img class="footer-icon"
-                            alt="telegram logo"
-                            src="assets/img/icons/telegram-logo-round.svg"> @CLICGameStar
-                        </a></li>
-                        <li><a href="https://instagram.com/CLICGameStar" target="_blank" rel="noopener noreferrer">
-                            <img class="footer-icon"
-                            alt="instagram logo"
-                            src="assets/img/icons/instagram-logo-round.svg"> @CLICGameStar
-                        </a></li>
-                        <li><a href="https://discord.gg/tMaKxY8V4M" target="_blank" rel="noopener noreferrer">
-                            <img class="footer-icon"
-                            alt="discord logo"
-                            src="assets/img/icons/discord-logo-round.svg"> Discord ICeLAN
-                        </a></li>
-                        
-                    </ul>
-                </div>
-            </div>
-        </footer>
-    </body>
+    <footer>
+      <div class="container footer-container">
+        <div class="footer-col">
+          <div class="button-wrapper">
+            <p>
+              Les inscriptions ouvriront bientôt !
+              <!-- Les places sont limitées alors n'hésite pas ! -->
+            </p>
+            <!-- <a class="button button-medium button-blue-flip" href="" target="_blank">S'inscrire</a> -->
+          </div>
+          <br />
+          <p>ⓒ Game* 2023</p>
+        </div>
+
+        <div class="footer-col contact-links">
+          <h3>Contact</h3>
+          <ul class="unstyled-list">
+            <li>
+              <a
+                href="mailto:gamestar.clic@epfl.ch"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <img
+                  class="footer-icon"
+                  alt="mail logo"
+                  src="assets/img/icons/email-logo-round.svg"
+                />
+                gamestar.clic@epfl.ch
+              </a>
+            </li>
+            <li>
+              <a
+                href="https://t.me/CLICGameStar"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <img
+                  class="footer-icon"
+                  alt="telegram logo"
+                  src="assets/img/icons/telegram-logo-round.svg"
+                />
+                @CLICGameStar
+              </a>
+            </li>
+            <li>
+              <a
+                href="https://instagram.com/CLICGameStar"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <img
+                  class="footer-icon"
+                  alt="instagram logo"
+                  src="assets/img/icons/instagram-logo-round.svg"
+                />
+                @CLICGameStar
+              </a>
+            </li>
+            <li>
+              <a
+                href="https://discord.gg/tMaKxY8V4M"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <img
+                  class="footer-icon"
+                  alt="discord logo"
+                  src="assets/img/icons/discord-logo-round.svg"
+                />
+                Discord ICeLAN
+              </a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </footer>
+  </body>
 </html>
