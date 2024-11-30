@@ -769,13 +769,13 @@ main{
     }
 
     .tl-day-sat {
-        height: calc(7 * var(--tl-hour-height) - 5px);
+        height: calc(15 * var(--tl-hour-height) - 5px);
         border-right: solid var(--pink);
     }
 
     .tl-day-sun {
         
-        height: calc(19 * var(--tl-hour-height) - 5px);
+        height: calc(11 * var(--tl-hour-height) - 5px);
         border-right: solid var(--blue);
     }
 
@@ -794,28 +794,28 @@ main{
         grid-auto-columns: 1fr;
         grid-template-areas:
         "accueil accueil accueil accueil accueil accueil"
-        "mariokart valorant echecs . hades celeste"
-        "mariokart valorant echecs triviapoly hades celeste"
-        "mariokart valorant echecs triviapoly hades celeste"
-        "mariokart valorant babyfoot . hades celeste"
-        "lol overcooked babyfoot . hades celeste"
-        "lol overcooked babyfoot . hades celeste"
-        "lol smashbros jass . hades celeste"
-        "lol smashbros jass . hades celeste"
-        ". smashbros jass . hades celeste"
-        "hearthstone smashbros jass . hades celeste"
-        "hearthstone smashbros jass . hades celeste"
-        ". . . . hades celeste"
-        "slapshot . . . hades celeste"
-        "slapshot starcraft . . hades celeste"
-        "pokemonshowdown starcraft . . hades celeste"
-        ". starcraft . altar hades celeste"
-        "geoguessr startcraft streetfighter altar hades celeste"
-        "minecraft startcraft streetfighter altar hades celeste"
-        ". . . altar hades celeste"
-        "overwatch osu smashbros2 altar hades celeste"
-        "overwatch minimetro smashbros2 altar hades celeste"
-        "overwatch minimetro . . . ."
+        "minecraft-hg echecs . hollow-knight minecraft risk-rain"
+        "minecraft-hg echecs . hollow-knight minecraft risk-rain"
+        "repas repas repas hollow-knight minecraft risk-rain"
+        "geoguessr overcooked . hollow-knight minecraft risk-rain"
+        "mariokart pingpong . hollow-knight minecraft risk-rain"
+        "mariokart pingpong triviapoly hollow-knight minecraft risk-rain"
+        "mariokart pingpong triviapoly hollow-knight minecraft risk-rain"
+        "mariokart pingpong . hollow-knight minecraft risk-rain"
+        "balatro lg-une-nuit . hollow-knight minecraft risk-rain"
+        "repas2 repas2 repas2 hollow-knight minecraft risk-rain"
+        "smash1 valorant babyfoot hollow-knight minecraft risk-rain"
+        "smash1 valorant babyfoot hollow-knight minecraft risk-rain"
+        "smash1 valorant babyfoot hollow-knight minecraft risk-rain"
+        "smash1 osu . hollow-knight minecraft risk-rain"
+        "rocket-league overwatch amongus hollow-knight minecraft risk-rain"
+        "rocket-league overwatch amongus hollow-knight minecraft risk-rain"
+        "rocket-league overwatch starcraft hollow-knight minecraft risk-rain"
+        "smash2 lol starcraft hollow-knight minecraft risk-rain"
+        "smash2 lol starcraft hollow-knight minecraft risk-rain"
+        "smash2 lol starcraft hollow-knight minecraft risk-rain"
+        "smash2 lol starcraft hollow-knight minecraft risk-rain"
+        "repas3 repas3 repas3 repas3 repas3 repas3"
         "jeumystere jeumystere jeumystere jeumystere jeumystere jeumystere"
         "remiseprix remiseprix remiseprix remiseprix remiseprix remiseprix"
         "fin fin fin fin fin fin";
@@ -837,35 +837,42 @@ main{
     .tl-game-green {
         background-color: var(--green);
     }
+    .tl-game-break {
+        background-color: transparent;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
 
     .tl-accueil { grid-area: accueil; }
-    .tl-mariokart { grid-area: mariokart; }
-    .tl-valorant { grid-area: valorant; }
+    .tl-minecraft-hg { grid-area: minecraft-hg; }
     .tl-echecs { grid-area: echecs; }
-    .tl-triviapoly { grid-area: triviapoly; }
-    .tl-hades { grid-area: hades; }
-    .tl-celeste { grid-area: celeste; }
-    .tl-babyfoot { grid-area: babyfoot; }
-    .tl-echecs { grid-area: echecs; }
-    .tl-lol { grid-area: lol; }
-    .tl-overcooked { grid-area: overcooked; }
-    .tl-smashbros { grid-area: smashbros; }
-    .tl-smashbros2 { grid-area: smashbros2; }
-    .tl-jass { grid-area: jass; }
-    .tl-hearthstone { grid-area: hearthstone; }
-    .tl-slapshot { grid-area: slapshot; }
-    .tl-pokemonshowdown { grid-area: pokemonshowdown; }
+    .tl-repas { grid-area: repas; }
     .tl-geoguessr { grid-area: geoguessr; }
-    .tl-minecraft { grid-area: minecraft; }
+    .tl-overcooked { grid-area: overcooked; }
+    .tl-mariokart { grid-area: mariokart; }
+    .tl-pingpong { grid-area: pingpong; }
+    .tl-triviapoly { grid-area: triviapoly; }
+    .tl-balatro { grid-area: balatro; }
+    .tl-lg-une-nuit { grid-area: lg-une-nuit; }
+    .tl-repas2 { grid-area: repas2; }
+    .tl-smashbros { grid-area: smash1; }
+    .tl-valorant { grid-area: valorant; }
+    .tl-babyfoot { grid-area: babyfoot; }
+    .tl-osu { grid-area: osu; }
+    .tl-rocket-league { grid-area: rocket-league; }
     .tl-overwatch { grid-area: overwatch; }
+    .tl-amongus { grid-area: amongus; }
+    .tl-smashbros2 { grid-area: smash2; }
+    .tl-lol { grid-area: lol; }
+    .tl-starcraft { grid-area: starcraft; }
+    .tl-repas3 { grid-area: repas3; }
     .tl-jeumystere { grid-area: jeumystere; }
     .tl-remiseprix { grid-area: remiseprix; }
     .tl-fin { grid-area: fin; }
-    .tl-starcraft { grid-area: starcraft; }
-    .tl-osu { grid-area: osu; }
-    .tl-minimetro { grid-area: minimetro; }
-    .tl-streetfighter { grid-area: streetfighter; }
-    .tl-altar { grid-area: altar; }
+    .tl-hollow-knight { grid-area: hollow-knight; }
+    .tl-minecraft { grid-area: minecraft; }
+    .tl-risk-rain { grid-area: risk-rain; }
 }
 
 .anim{
