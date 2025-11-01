@@ -885,7 +885,7 @@ main{
     font-size: large;
 }
 .anim li::before {
-    content: "▶ ";
+    content: "▲ ";
     color: var(--blue);
 }
 
