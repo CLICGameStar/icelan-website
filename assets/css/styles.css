@@ -889,6 +889,20 @@ main{
     color: var(--blue);
 }
 
+.tournois{
+    text-align: left;
+    
+}
+
+.tournois li {
+    margin: .4em;
+    font-size: large;
+}
+.tournois li::before {
+    content: "▲ ";
+    color: var(--blue);
+}
+
 
 /* Règlement
 ********************************************/
