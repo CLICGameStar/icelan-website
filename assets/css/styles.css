@@ -561,8 +561,8 @@ main{
 
 .sponsor-logo {
     margin: auto;
-    max-width: 25%;
-    min-width: 15%;
+    max-width: 15%;
+    min-width: 10%;
 }
 
 /* orga
@@ -602,6 +602,13 @@ main{
 @media (min-width:60rem) {
     .orga-logo {
         max-width: 16%;
+    }
+    
+}
+
+@media (min-width:80rem) {
+    .orga-logo {
+        max-width: 13%;
     }
     
 }
