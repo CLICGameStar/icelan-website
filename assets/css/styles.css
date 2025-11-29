@@ -800,32 +800,32 @@ main{
         grid-auto-rows: var(--tl-hour-height);
         grid-auto-columns: 1fr;
         grid-template-areas:
-        "accueil accueil accueil accueil accueil accueil"
-        "minecraft-hg echecs . hollow-knight minecraft risk-rain"
-        "minecraft-hg echecs . hollow-knight minecraft risk-rain"
-        "repas repas repas hollow-knight minecraft risk-rain"
-        "geoguessr overcooked . hollow-knight minecraft risk-rain"
-        "mariokart pingpong . hollow-knight minecraft risk-rain"
-        "mariokart pingpong triviapoly hollow-knight minecraft risk-rain"
-        "mariokart pingpong triviapoly hollow-knight minecraft risk-rain"
-        "mariokart pingpong . hollow-knight minecraft risk-rain"
-        "balatro lg-une-nuit . hollow-knight minecraft risk-rain"
-        "repas2 repas2 repas2 hollow-knight minecraft risk-rain"
-        "smash1 valorant babyfoot hollow-knight minecraft risk-rain"
-        "smash1 valorant babyfoot hollow-knight minecraft risk-rain"
-        "smash1 valorant babyfoot hollow-knight minecraft risk-rain"
-        "smash1 osu . hollow-knight minecraft risk-rain"
-        "rocket-league overwatch amongus hollow-knight minecraft risk-rain"
-        "rocket-league overwatch amongus hollow-knight minecraft risk-rain"
-        "rocket-league overwatch starcraft hollow-knight minecraft risk-rain"
-        "smash2 lol starcraft hollow-knight minecraft risk-rain"
-        "smash2 lol starcraft hollow-knight minecraft risk-rain"
-        "smash2 lol starcraft hollow-knight minecraft risk-rain"
-        "smash2 lol starcraft hollow-knight minecraft risk-rain"
-        "repas3 repas3 repas3 repas3 repas3 repas3"
-        "jeumystere jeumystere jeumystere jeumystere jeumystere jeumystere"
-        "remiseprix remiseprix remiseprix remiseprix remiseprix remiseprix"
-        "fin fin fin fin fin fin";
+        "accueil accueil accueil accueil accueil"
+        "minecraft-hg 2xko . refunct peak1"
+        "minecraft-hg 2xko overcooked2 refunct peak1"
+        "repas repas repas refunct peak1"
+        "mariokart codenames amongus refunct peak1"
+        "mariokart codenames amongus refunct peak1"
+        "mariokart codenames echecs refunct peak1"
+        "mariokart triviapoly echecs refunct peak1"
+        "golfit triviapoly echecs refunct peak1"
+        "golfit balatro lg refunct peak1"
+        "repas2 repas2 repas2 refunct peak2"
+        "babyfoot ssbu . refunct peak2"
+        "babyfoot ssbu osu refunct peak2"
+        "babyfoot ssbu geoguessr refunct peak2"
+        "lol ssbu . refunct peak2"
+		"lol ow2 ping-pong refunct peak2"
+		"lol ow2 ping-pong refunct peak2"
+		"lol ow2 ping-pong refunct peak2"
+		"lol . ping-pong refunct peak2"
+		"valorant rocketleague . refunct peak2"
+		"valorant rocketleague . refunct peak2"
+		"valorant rocketleague . refunct peak2"
+        "repas3 repas3 repas3 repas3 repas3"
+        "jeumystere jeumystere jeumystere jeumystere jeumystere"
+        "remiseprix remiseprix remiseprix remiseprix remiseprix"
+        "fin fin fin fin fin";
     }
 
     .tl-game {
@@ -853,33 +853,33 @@ main{
 
     .tl-accueil { grid-area: accueil; }
     .tl-minecraft-hg { grid-area: minecraft-hg; }
-    .tl-echecs { grid-area: echecs; }
-    .tl-repas { grid-area: repas; }
-    .tl-geoguessr { grid-area: geoguessr; }
-    .tl-overcooked { grid-area: overcooked; }
-    .tl-mariokart { grid-area: mariokart; }
-    .tl-pingpong { grid-area: pingpong; }
-    .tl-triviapoly { grid-area: triviapoly; }
-    .tl-balatro { grid-area: balatro; }
-    .tl-lg-une-nuit { grid-area: lg-une-nuit; }
-    .tl-repas2 { grid-area: repas2; }
-    .tl-smashbros { grid-area: smash1; }
-    .tl-valorant { grid-area: valorant; }
-    .tl-babyfoot { grid-area: babyfoot; }
-    .tl-osu { grid-area: osu; }
-    .tl-rocket-league { grid-area: rocket-league; }
-    .tl-overwatch { grid-area: overwatch; }
-    .tl-amongus { grid-area: amongus; }
-    .tl-smashbros2 { grid-area: smash2; }
-    .tl-lol { grid-area: lol; }
-    .tl-starcraft { grid-area: starcraft; }
-    .tl-repas3 { grid-area: repas3; }
-    .tl-jeumystere { grid-area: jeumystere; }
-    .tl-remiseprix { grid-area: remiseprix; }
-    .tl-fin { grid-area: fin; }
-    .tl-hollow-knight { grid-area: hollow-knight; }
-    .tl-minecraft { grid-area: minecraft; }
-    .tl-risk-rain { grid-area: risk-rain; }
+	.tl-2xko { grid-area: 2xko; }
+	.tl-overcooked { grid-area: overcooked2; }
+	.tl-repas { grid-area: repas; }
+	.tl-mariokart { grid-area: mariokart; }
+	.tl-codenames { grid-area: codenames; }
+	.tl-amongus { grid-area: amongus; }
+	.tl-echecs { grid-area: echecs; }
+	.tl-golfit { grid-area: golfit; }
+	.tl-balatro { grid-area: balatro; }
+	.tl-lg { grid-area: lg; }
+	.tl-repas2 { grid-area: repas2; }
+	.tl-geoguessr { grid-area: geoguessr;}
+	.tl-osu { grid-area: osu; }
+	.tl-babyfoot { grid-area: babyfoot; }
+	.tl-ssbu { grid-area: ssbu; }
+	.tl-ow2 { grid-area: ow2; }
+	.tl-lol { grid-area: lol; }
+	.tl-pingpong {grid-area: ping-pong; }
+	.tl-valorant { grid-area: valorant; }
+	.tl-rocketleague { grid-area: rocketleague;}
+	.tl-refunct {grid-area: refunct; }
+	.tl-peak1 { grid-area: peak1; }
+	.tl-peak2 { grid-area: peak2; }
+	.tl-repas3 { grid-area: repas3;}
+	.tl-jeumystere { grid-area: jeumystere; }
+	.tl-remiseprix { grid-area: remiseprix; }
+	.tl-fin { grid-area: fin; }
 }
 
 .anim{
