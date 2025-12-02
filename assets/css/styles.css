@@ -879,6 +879,7 @@ main{
 	.tl-repas3 { grid-area: repas3;}
 	.tl-jeumystere { grid-area: jeumystere; }
 	.tl-remiseprix { grid-area: remiseprix; }
+	.tl-triviapoly {grid-area: triviapoly; }
 	.tl-fin { grid-area: fin; }
 }
 
