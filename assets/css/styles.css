@@ -911,6 +911,22 @@ main{
     color: var(--blue);
 }
 
+/* Plan
+********************************************/
+
+.plan {
+    margin: 1em 3em;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+
+.plan-img {
+	min-width: min(65ch, 500%) ;
+    max-width: min(65ch, 100%);
+}
+
 
 /* Règlement
 ********************************************/
