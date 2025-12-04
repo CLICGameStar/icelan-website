@@ -801,8 +801,8 @@ main{
         grid-auto-columns: 1fr;
         grid-template-areas:
         "accueil accueil accueil accueil accueil"
-        "minecraft-hg 2xko . refunct peak1"
-        "minecraft-hg 2xko overcooked2 refunct peak1"
+        "minecraft-hg KO . refunct peak1"
+        "minecraft-hg KO overcooked2 refunct peak1"
         "repas repas repas refunct peak1"
         "mariokart codenames amongus refunct peak1"
         "mariokart codenames amongus refunct peak1"
@@ -853,7 +853,7 @@ main{
 
     .tl-accueil { grid-area: accueil; }
     .tl-minecraft-hg { grid-area: minecraft-hg; }
-	.tl-2xko { grid-area: 2xko; }
+	.tl-xko { grid-area: KO; }
 	.tl-overcooked { grid-area: overcooked2; }
 	.tl-repas { grid-area: repas; }
 	.tl-mariokart { grid-area: mariokart; }
@@ -872,7 +872,7 @@ main{
 	.tl-lol { grid-area: lol; }
 	.tl-pingpong {grid-area: ping-pong; }
 	.tl-valorant { grid-area: valorant; }
-	.tl-rocketleague { grid-area: rocketleague;}
+	.tl-rocketleague { grid-area: rocketleague; }
 	.tl-refunct {grid-area: refunct; }
 	.tl-peak1 { grid-area: peak1; }
 	.tl-peak2 { grid-area: peak2; }
