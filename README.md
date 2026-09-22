@@ -7,6 +7,9 @@ git switch v2026
 
 #install submodules
 git submodule update --init --recursive
+
+#install npm packages
+npm i
 ```
 
 ## Getting Started
