@@ -24,7 +24,7 @@ directus-config/populate.sh
 
 Open [http://localhost](http://localhost) with your browser to see the website and [https://localhost/directus](https://localhost/directus) to see the Directus.
 
-The ICeLAN part of Directus won't be populated. You can test the website by adding some random stuff in the ICeLAN tables.
+The ICeLAN part of Directus won't be populated. Meaning that the tables required by the website don't exist, making the website crash. Either re-create the tables yourself or wait for a Directus update :)
 
 ## Learn More
 
