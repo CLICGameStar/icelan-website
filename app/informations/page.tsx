@@ -15,31 +15,33 @@ export default async function Informations() {
 
     return (
         <div className="flex flex-col flex-1 font-sans bg-black items-center">
-            <h2 className="text-4xl mb-4">Tournois</h2>
-            <p className={`${quicksand.className} text-xl font-bold max-w-160 mb-10 text-justify`}>
-                Affrontez-vous sur nos nombreux tournois ! Des grands classiques comme League of Legends, Minecraft ou
-                Smash, aux jeux que vous avez suggéré, choisissez vos compétitions peu importe votre niveau.
-            </p>
+            <div className="flex flex-col items-center w-4/5">
+                <h2>Tournois</h2>
+                <p className={`${quicksand.className} font-bold text-justify mb-10`}>
+                    Affrontez-vous sur nos nombreux tournois ! Des grands classiques comme League of Legends, Minecraft
+                    ou Smash, aux jeux que vous avez suggéré, choisissez vos compétitions peu importe votre niveau.
+                </p>
 
-            <h2 className="text-4xl mb-4">Animations</h2>
-            <p className={`${quicksand.className} text-xl font-bold max-w-160 mb-10 text-justify`}>
-                Vous attendez votre tournoi? Venez prendre une pause en profitant de nos diverses animations! Il y en a
-                pour tous les goûts!
-                <br />
-                <br />
-                La <span className="text-[var(--secondary)]">liste des animations</span> est disponible ci-dessous!
-            </p>
-            <ul className="list-disc mb-10">
-                {animations.map(animation => (
-                    <li key={animation.animation} className="text-xl">
-                        {animation.animation}
-                    </li>
-                ))}
-            </ul>
-            <h2 className="text-4xl">Plan</h2>
-            <Image src="/images/plan.svg" alt="Plan" width={128} height={128} className="w-3/5 mb-10" />
-            <h2 className="text-4xl mb-4">Informations importantes</h2>
-            <div className="flex w-full flex-wrap justify-center gap-16 px-16 mb-10">
+                <h2>Animations</h2>
+                <p className={`${quicksand.className} font-bold text-justify`}>
+                    Vous attendez votre tournoi? Venez prendre une pause en profitant de nos diverses animations! Il y
+                    en a pour tous les goûts!
+                    <br />
+                    <br />
+                    La <span className="text-[var(--secondary)]">liste des animations</span> est disponible ci-dessous!
+                </p>
+                <ul className="list-disc mb-10">
+                    {animations.map(animation => (
+                        <li key={animation.animation} className="text-xl">
+                            {animation.animation}
+                        </li>
+                    ))}
+                </ul>
+            </div>
+            <h2>Plan</h2>
+            <Image src="/images/plan.svg" alt="Plan" width={128} height={128} className="w-full" />
+            <h2>Informations importantes</h2>
+            <div className="flex w-full flex-wrap justify-center">
                 <VerticalCard icon="/icons/price.svg" header="Prix">
                     Le prix est de 15CHF pour les étudiant·e·s, et 20 CHF pour les autres participant·e·s! Ça te donne
                     droit à l&apos;accès à l&apos;événement, à toutes activités, tous les repas, boissons et snacks, et
@@ -64,7 +66,7 @@ export default async function Informations() {
                     respecter le matériel et les lieux. Nous nous réservons le droit de te virer de l&apos;événement en
                     cas de comportement inacceptable.
                 </VerticalCard>
-                <VerticalCard icon="/icons/question-mark.svg" header="Questions & Remarques">
+                <VerticalCard icon="/icons/question-mark.svg" header="Questions & Remarques" className="mb-10">
                     Près d&apos;une quarantaine de staffs seront à ta disposition durant tout l&apos;événement. Si
                     néanmoins tu as des questions ou des remarques avant, n&apos;hésite pas à nous écrire à{" "}
                     <a
@@ -75,10 +77,10 @@ export default async function Informations() {
                     </a>
                 </VerticalCard>
             </div>
-            <h2 className="text-4xl mb-10">Foire Aux Questions</h2>
-            <ul className="max-w-160">
+            <h2 className="mb-4">Foire Aux Questions</h2>
+            <ul className="w-4/5">
                 {faqs.map(faq => (
-                    <li className="mb-10" key={faq.question}>
+                    <li key={faq.question}>
                         <FAQCard question={faq.question}>{faq.answer}</FAQCard>
                     </li>
                 ))}

@@ -1,4 +1,3 @@
-import "@/app/ui/global.css";
 import { Button } from "@/components/Button";
 import { BigCard, InfoCard } from "@/components/Cards";
 import DirectusImage from "@/components/DirectusImage";
@@ -20,11 +19,11 @@ export default async function Home() {
 
     const collabs = (await directus().request(readItems("icelan_collabs"))) as IcelanCollab[];
 
-    const start_date = new Date(icelan.from!).toLocaleDateString("fr-FR", {
+    const start_date = new Date(icelan.start!).toLocaleDateString("fr-FR", {
         hour: "2-digit",
         minute: "2-digit",
     });
-    const end_date = new Date(icelan.to!).toLocaleDateString("fr-FR", {
+    const end_date = new Date(icelan.end!).toLocaleDateString("fr-FR", {
         hour: "2-digit",
         minute: "2-digit",
     });

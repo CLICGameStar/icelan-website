@@ -8,21 +8,19 @@ export default function Footer({
     contacts: { icon: string | StaticImport; text: string; href: string }[];
 }) {
     return (
-        <div className="flex flex-col justify-between bg-black">
-            <div className="flex-2 flex flex-col items-start m-10 mr-0 mb-0">
-                <p className="text-2xl">
-                    Les places sont limitées <br /> donc n&apos;hésite pas!
-                </p>
+        <div className="flex flex-col bg-black p-4">
+            <div className="flex flex-col">
+                <h2 className="text-2xl">Les places sont limitées alors n&apos;hésite pas!</h2>
                 <Button text="S'INSCRIRE" href="/inscriptions" />
-                <p className="text-2xl">© Game* 2026</p>
             </div>
-            <div className="flex-3 my-10 ml-0 mr-0">
-                <p className="text-4xl">Contact</p>
+            <div>
+                <h2 className="text-4xl">Contact</h2>
                 <div className="grid grid-cols-1 gap-4 p-4">
                     {contacts.map(contact => (
                         <ContactCard icon={contact.icon} text={contact.text} href={contact.href} key={contact.href} />
                     ))}
                 </div>
+                <p className="text-2xl">© Game* 2026</p>
             </div>
         </div>
     );

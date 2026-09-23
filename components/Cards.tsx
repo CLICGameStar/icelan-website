@@ -29,13 +29,15 @@ export function VerticalCard({
     icon,
     header,
     children,
+    className,
 }: {
     icon: string | StaticImport;
     header: string;
     children: React.ReactNode;
+    className?: string;
 }) {
     return (
-        <div className="flex flex-col mb-4 max-w-60">
+        <div className={`flex flex-col mb-4 max-w-60 ${className}`}>
             <div className="flex items-center">
                 <Image width={128} height={128} src={icon} alt="Icon" className="aspect-square size-16 pr-4" />
                 <h3 className="text-xl mb-2">{header}</h3>
@@ -72,7 +74,7 @@ export function InfoCard({ icon, children }: { icon: string | StaticImport; chil
 export function FAQCard({ question, children }: { question: string; children: React.ReactNode }) {
     return (
         <div className="mb-4">
-            <h3 className="text-2xl mb-2">{question}</h3>
+            <h3>{question}</h3>
             <p className={`${quicksand.className} text-xl font-bold max-w-120 text-justify`}>{children}</p>
         </div>
     );
