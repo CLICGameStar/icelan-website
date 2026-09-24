@@ -23,7 +23,7 @@ export default async function Informations() {
                 </p>
 
                 <h2>Animations</h2>
-                <p className={`${quicksand.className} font-bold text-justify`}>
+                <p className={`${quicksand.className} font-bold text-justify md:mb-8`}>
                     Vous attendez votre tournoi? Venez prendre une pause en profitant de nos diverses animations! Il y
                     en a pour tous les goûts!
                     <br />
@@ -39,9 +39,9 @@ export default async function Informations() {
                 </ul>
             </div>
             <h2>Plan</h2>
-            <Image src="/images/plan.svg" alt="Plan" width={128} height={128} className="w-full" />
+            <Image src="/images/plan.svg" alt="Plan" width={128} height={128} className="w-4/5 max-w-2xl" />
             <h2>Informations importantes</h2>
-            <div className="flex w-full flex-wrap justify-center">
+            <div className="flex w-4/5 flex-wrap justify-center md:gap-8">
                 <VerticalCard icon="/icons/price.svg" header="Prix">
                     Le prix est de 15CHF pour les étudiant·e·s, et 20 CHF pour les autres participant·e·s! Ça te donne
                     droit à l&apos;accès à l&apos;événement, à toutes activités, tous les repas, boissons et snacks, et
@@ -78,7 +78,7 @@ export default async function Informations() {
                 </VerticalCard>
             </div>
             <h2 className="mb-4">Foire Aux Questions</h2>
-            <ul className="w-4/5">
+            <ul className="w-4/5 max-w-xl">
                 {faqs.map(faq => (
                     <li key={faq.question}>
                         <FAQCard question={faq.question}>{faq.answer}</FAQCard>

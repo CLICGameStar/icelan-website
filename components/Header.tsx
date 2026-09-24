@@ -11,7 +11,7 @@ export default function Header({ navLinks }: { navLinks: { name: string; href: s
     return (
         <div className="flex items-center justify-between bg-black font-sans text-2xl">
             <div
-                className={`flex flex-col absolute top-0 left-0 w-full h-full bg-white ${isOpen === false ? "hidden" : ""}`}
+                className={`flex flex-col fixed z-10 top-0 left-0 w-full h-full bg-white ${isOpen === false ? "hidden" : ""}`}
             >
                 <Image
                     src="/icons/cross.svg"
@@ -40,7 +40,7 @@ export default function Header({ navLinks }: { navLinks: { name: string; href: s
                     className="m-4 size-32"
                 />
             </Link>
-            <ul className="flex flex-1 items-center justify-evenly gap-12 mx-10 hidden">
+            <ul className="hidden md:flex flex-1 items-center justify-evenly gap-12 mx-10">
                 {navLinks.map(link => (
                     <li key={link.href}>
                         <Link href={link.href} className="p-2 hover:text-[var(--secondary)]">
@@ -54,7 +54,7 @@ export default function Header({ navLinks }: { navLinks: { name: string; href: s
                 alt="Burger menu icon"
                 width={16}
                 height={16}
-                className={(isOpen === true ? "hidden " : "") + "size-32 m-4"}
+                className={(isOpen === true ? "hidden " : "") + "size-32 m-4 md:hidden"}
                 onClick={openMenu}
             />
         </div>

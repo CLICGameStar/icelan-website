@@ -47,6 +47,7 @@ h3 {
 
 p {
     font-size: 1rem;
+    max-width: 36rem;
 }
 
 @media (min-width: 48rem) {
@@ -59,6 +60,10 @@ p {
     }
 
     h3 {
-        font-size: 2rem;
+        font-size: 1.5rem;
+    }
+
+    p {
+        font-size: 1.25rem;
     }
 }

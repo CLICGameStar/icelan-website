@@ -37,21 +37,31 @@ export function VerticalCard({
     className?: string;
 }) {
     return (
-        <div className={`flex flex-col mb-4 max-w-60 ${className}`}>
+        <div className={`flex flex-col mb-4 max-w-md ${className}`}>
             <div className="flex items-center">
                 <Image width={128} height={128} src={icon} alt="Icon" className="aspect-square size-16 pr-4" />
                 <h3 className="text-xl mb-2">{header}</h3>
             </div>
-            <p className={`${quicksand.className} text-xl font-bold`}>{children}</p>
+            <p className={`${quicksand.className} text-xl font-bold text-justify`}>{children}</p>
         </div>
     );
 }
 
-export function ContactCard({ icon, text, href }: { icon: string | StaticImport; text: string; href: string }) {
+export function ContactCard({
+    icon,
+    text,
+    href,
+    className,
+}: {
+    icon: string | StaticImport;
+    text: string;
+    href: string;
+    className?: string;
+}) {
     return (
-        <Link href={href} className="flex items-center">
+        <Link href={href} className={`flex items-center ${className}`}>
             <Image width={128} height={128} src={icon} alt="Icon" className="aspect-square size-10 m-2" />
-            <p className="text-lg">{text}</p>
+            <p className="!text-lg">{text}</p>
         </Link>
     );
 }
@@ -73,9 +83,9 @@ export function InfoCard({ icon, children }: { icon: string | StaticImport; chil
 
 export function FAQCard({ question, children }: { question: string; children: React.ReactNode }) {
     return (
-        <div className="mb-4">
+        <div className="flex flex-col">
             <h3>{question}</h3>
-            <p className={`${quicksand.className} text-xl font-bold max-w-120 text-justify`}>{children}</p>
+            <p className={`${quicksand.className} text-xl font-bold text-justify mb-4`}>{children}</p>
         </div>
     );
 }

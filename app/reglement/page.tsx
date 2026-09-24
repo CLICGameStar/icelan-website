@@ -6,8 +6,8 @@ const quicksand = localFont({
 
 export default function Reglement() {
     return (
-        <div className="flex flex-col flex-1 font-sans bg-black items-center">
-            <div className="flex flex-col w-4/5">
+        <div className="flex flex-col items-center flex-1 font-sans bg-black items-center">
+            <div className="flex flex-col w-4/5 max-w-2xl">
                 <h2 className="self-center mb-4">Règlement ICeLAN</h2>
                 <h3>Résumé</h3>
                 <ul className={`${quicksand.className} font-bold text-justify mb-10 list-disc`}>
@@ -191,7 +191,7 @@ export default function Reglement() {
                 </ul>
 
                 <h3>Droit à l&apos;image</h3>
-                <p className={`${quicksand.className} font-bold text-justify mb-10 text-justify`}>
+                <p className={`${quicksand.className} font-bold text-justify mb-10 text-justify !max-w-2xl`}>
                     Dans le cadre des activités de Game*, les participant·e·s pourront être photographié·e·s, filmé·e·s,
                     ou faire l&apos;objet d&apos;un enregistrement audio ou d&apos;une captation numérique. Ces médias
                     seront utilisés principalement à des fins promotionnelles.

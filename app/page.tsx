@@ -35,8 +35,14 @@ export default async function Home() {
                     <h1 className="text-center text-[var(--secondary)]">Bienvenue à ICeLAN !</h1>
                     <h2>7ème édition</h2>
                 </div>
-                <div className="flex flex-col items-center">
-                    <Image src="/images/jeux.svg" width={128} height={128} alt="Jeux" className="hidden w-1/3" />
+                <div className="flex flex-col items-center md:flex-row md:justify-center md:gap-10">
+                    <Image
+                        src="/images/jeux.svg"
+                        width={128}
+                        height={128}
+                        alt="Jeux"
+                        className="hidden w-1/3 md:block"
+                    />
                     <div className="flex flex-col items-center mb-8">
                         <Button text="S'INSCRIRE" href="/inscriptions" />
                         <div className="">
@@ -52,11 +58,17 @@ export default async function Home() {
                             </InfoCard>
                         </div>
                     </div>
-                    <Image src="/images/borne.svg" width={128} height={128} alt="Arcade" className="w-4/5 mb-8" />
+                    <Image
+                        src="/images/borne.svg"
+                        width={128}
+                        height={128}
+                        alt="Arcade"
+                        className="w-4/5 md:w-1/3 mb-8"
+                    />
                 </div>
                 <div className="flex flex-col items-center">
                     <h2>Qu&apos;est-ce que c&apos;est ?</h2>
-                    <p className={`${quicksand.className} font-bold max-w-160 mb-10`}>
+                    <p className={`${quicksand.className} text-justify font-bold max-w-160 mb-10`}>
                         ICeLAN est un week-end de tournois de jeux vidéo et de jeux de plateau à l&apos;EPFL.
                         L&apos;événement s&apos;axe principalement autour des tournois, se succédant tout au long du
                         week-end, mais offre également aux participant·e·s des animations autour du jeu vidéo et du jeu
@@ -84,7 +96,7 @@ export default async function Home() {
                     </div>
                     <Button text="Plus d'infos" href="/informations" />
                 </div>
-                <div className="grid grid-cols-2 w-full gap-8 mb-8">
+                <div className="grid grid-cols-2 w-full gap-8 mb-8 md:flex justify-evenly">
                     <div className="flex flex-col items-center">
                         <p className="text-[var(--secondary)] !text-6xl">100</p>
                         <p>Participant·e·s</p>
