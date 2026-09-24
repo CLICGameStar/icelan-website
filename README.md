@@ -15,6 +15,12 @@ npm i
 ## Getting Started
 
 ```bash
+# Switch to ICeLAN's branch of Directus
+cd directus-config/
+git switch icelan
+cd ..
+
+# boot everything up
 docker compose up
 
 # load and populate directus
