@@ -1,13 +1,9 @@
-import config from "@/../next.config";
-import React, { useContext } from "react";
+import config from "@/next.config";
 
 export type Locale = string;
 
 export function locale(locale?: string | { locale?: string }) {
-  return (
-    (typeof locale === "string" ? locale : locale?.locale) ||
-    config.i18n?.defaultLocale
-  );
+    return (typeof locale === "string" ? locale : locale?.locale) || config.i18n?.defaultLocale;
 }
 
 /**
@@ -20,50 +16,44 @@ export function locale(locale?: string | { locale?: string }) {
  * @returns the corresponding instance of the translation objects
  */
 export function getTranslation<
-  T extends {
-    languages_code?: string | { code?: string | undefined } | null | undefined;
-  },
+    T extends {
+        languages_code?: string | { code?: string | undefined } | null | undefined;
+    },
 >(
-  model: {
-    translations?: (number | T)[] | null;
-  },
-  loc: string | undefined,
-  canFail: boolean = false,
+    model: {
+        translations?: (number | T)[] | null;
+    },
+    loc: string | undefined,
+    canFail: boolean = false,
 ): T {
-  const l = locale(loc);
+    const l = locale(loc);
 
-  function getLang(
-    language_code: string | { code?: string | undefined } | null | undefined,
-  ): string | null {
-    return language_code
-      ? typeof language_code === "string"
-        ? language_code.slice(0, 2)
-        : language_code.code?.slice(0, 2) || null
-      : null;
-  }
-
-  if (model.translations) {
-    let translations = model.translations.filter(
-      (t) => typeof t !== "number",
-    ) as T[];
-
-    let res =
-      translations.find((t) => t.languages_code === l) ||
-      translations.find((t) => getLang(t.languages_code) == getLang(l)) ||
-      translations.find((t) => getLang(t.languages_code) == "en") ||
-      null;
-
-    if (res) {
-      return res;
+    function getLang(language_code: string | { code?: string | undefined } | null | undefined): string | null {
+        return language_code
+            ? typeof language_code === "string"
+                ? language_code.slice(0, 2)
+                : language_code.code?.slice(0, 2) || null
+            : null;
     }
-  }
 
-  if (!canFail) {
-    console.error(
-      `Could not find translations for locale ${l} in ${JSON.stringify(model)}`,
-    );
-  }
-  throw new Error("Missing translation in queried data");
+    if (model.translations) {
+        const translations = model.translations.filter(t => typeof t !== "number") as T[];
+
+        const res =
+            translations.find(t => t.languages_code === l) ||
+            translations.find(t => getLang(t.languages_code) == getLang(l)) ||
+            translations.find(t => getLang(t.languages_code) == "en") ||
+            null;
+
+        if (res) {
+            return res;
+        }
+    }
+
+    if (!canFail) {
+        console.error(`Could not find translations for locale ${l} in ${JSON.stringify(model)}`);
+    }
+    throw new Error("Missing translation in queried data");
 }
 
 /**
@@ -73,5 +63,5 @@ export function getTranslation<
  * /!\ Do not use when `fields` is set to a custom value /!\
  */
 export const queryTranslations = {
-  fields: ["*", { translations: ["*"] }],
+    fields: ["*", { translations: ["*"] }],
 };

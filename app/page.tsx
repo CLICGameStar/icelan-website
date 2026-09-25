@@ -13,7 +13,7 @@ const quicksand = localFont({
 });
 
 export default async function Home() {
-    const icelan = (await directus().request(readItems("icelan"))) as Icelan;
+    const icelan = (await directus().request(readItems("icelan")))[0] as Icelan;
 
     const sponsors = (await directus().request(readItems("icelan_sponsors"))) as IcelanSponsor[];
 
