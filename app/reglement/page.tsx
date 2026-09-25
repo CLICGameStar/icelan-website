@@ -191,7 +191,7 @@ export default function Reglement() {
                 </ul>
 
                 <h3>Droit à l&apos;image</h3>
-                <p className={`${quicksand.className} font-bold text-justify mb-10 text-justify !max-w-2xl`}>
+                <p className={`${quicksand.className} font-bold text-justify mb-10 text-justify !max-w-2xl !text-base`}>
                     Dans le cadre des activités de Game*, les participant·e·s pourront être photographié·e·s, filmé·e·s,
                     ou faire l&apos;objet d&apos;un enregistrement audio ou d&apos;une captation numérique. Ces médias
                     seront utilisés principalement à des fins promotionnelles.
