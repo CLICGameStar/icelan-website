@@ -11,13 +11,13 @@ export default function Footer({
     return (
         <div className="flex flex-col bg-black">
             <div className="flex flex-col md:flex-row md:justify-between p-8">
-                <div className=" flex flex-col max-w-xl md:pl-8">
+                <div className="flex-1 flex flex-col max-w-xl md:pl-8">
                     <h2 className="text-2xl">Les places sont limitées alors n&apos;hésite pas!</h2>
                     <Button text="S'INSCRIRE" href="/inscriptions" className="" />
                 </div>
-                <div className="">
+                <div className="flex-1">
                     <h2 className="text-4xl md:mb-4">Contact</h2>
-                    <div className="grid grid-cols-1 md:grid-cols-2 md:gap-4">
+                    <div className="grid grid-cols-1 lg:grid-cols-2 lg:gap-4">
                         {contacts.map(contact => (
                             <ContactCard
                                 icon={contact.icon}

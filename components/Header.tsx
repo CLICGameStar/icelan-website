@@ -9,7 +9,7 @@ export default function Header({ navLinks }: { navLinks: { name: string; href: s
     const openMenu = () => setIsOpen(!isOpen);
 
     return (
-        <div className="flex items-center justify-between bg-black font-sans text-2xl">
+        <div className="flex items-center justify-between bg-black font-sans h-32 text-2xl md:h-24 md:text-lg lg:h-32 lg:text-2xl">
             <div
                 className={`flex flex-col fixed z-10 top-0 left-0 w-full h-full bg-white ${isOpen === false ? "hidden" : ""}`}
             >
@@ -37,7 +37,7 @@ export default function Header({ navLinks }: { navLinks: { name: string; href: s
                     width={128}
                     height={128}
                     alt="ICeLAN Logo"
-                    className="m-4 size-32"
+                    className="m-4 size-32 md:hidden lg:block"
                 />
             </Link>
             <ul className="hidden md:flex flex-1 items-center justify-evenly gap-12 mx-10">

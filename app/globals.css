@@ -64,6 +64,12 @@ p {
     }
 
     p {
+        font-size: 1rem;
+    }
+}
+
+@media (min-width: 64rem) {
+    p {
         font-size: 1.25rem;
     }
 }

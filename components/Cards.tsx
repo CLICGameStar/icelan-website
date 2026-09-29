@@ -76,7 +76,7 @@ export function InfoCard({ icon, children }: { icon: string | StaticImport; chil
                 height={128}
                 className="aspect-square size-16 pr-4 fill-(--tertiary)"
             />
-            <p className="md:text-xl text-base">{children}</p>
+            <p>{children}</p>
         </div>
     );
 }
