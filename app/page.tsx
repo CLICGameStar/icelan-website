@@ -3,7 +3,7 @@ import { BigCard, InfoCard } from "@/components/Cards";
 import DirectusImage from "@/components/DirectusImage";
 import { directus } from "@/directus";
 import type { Icelan, IcelanCollab, IcelanSponsor } from "@/directus-config/types/aliases";
-import { readItems } from "@directus/sdk";
+import { readItem, readItems } from "@directus/sdk";
 import localFont from "next/font/local";
 import Image from "next/image";
 import Link from "next/link";
@@ -13,17 +13,17 @@ const quicksand = localFont({
 });
 
 export default async function Home() {
-    const icelan = (await directus().request(readItems("icelan")))[0] as Icelan;
+    const icelan = (await directus().request(readItem("icelan", 1))) as Icelan;
 
     const sponsors = (await directus().request(readItems("icelan_sponsors"))) as IcelanSponsor[];
 
     const collabs = (await directus().request(readItems("icelan_collabs"))) as IcelanCollab[];
 
-    const start_date = new Date(icelan.start!).toLocaleDateString("fr-FR", {
+    const start_date = new Date(icelan.start).toLocaleDateString("fr-FR", {
         hour: "2-digit",
         minute: "2-digit",
     });
-    const end_date = new Date(icelan.end!).toLocaleDateString("fr-FR", {
+    const end_date = new Date(icelan.end).toLocaleDateString("fr-FR", {
         hour: "2-digit",
         minute: "2-digit",
     });
