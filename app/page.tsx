@@ -3,7 +3,7 @@ import { BigCard, InfoCard } from "@/components/Cards";
 import DirectusImage from "@/components/DirectusImage";
 import { directus } from "@/directus";
 import type { Icelan, IcelanCollab, IcelanSponsor } from "@/directus-config/types/aliases";
-import { readItem, readItems } from "@directus/sdk";
+import { readItems, readSingleton } from "@directus/sdk";
 import localFont from "next/font/local";
 import Image from "next/image";
 import Link from "next/link";
@@ -13,7 +13,7 @@ const quicksand = localFont({
 });
 
 export default async function Home() {
-    const icelan = (await directus().request(readItem("icelan", 1))) as Icelan;
+    const icelan = (await directus().request(readSingleton("icelan"))) as Icelan;
 
     const sponsors = (await directus().request(readItems("icelan_sponsors"))) as IcelanSponsor[];
 
