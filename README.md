@@ -3,8 +3,6 @@
 clone the project and then
 
 ```bash
-git switch v2026
-
 #install submodules
 git submodule update --init --recursive
 
@@ -12,18 +10,13 @@ git submodule update --init --recursive
 npm i
 ```
 
-## Getting Started
+### Boot everything up
 
-```bash
-# Switch to ICeLAN's branch of Directus
-cd directus-config/
-git switch icelan
-cd ..
-
-# boot everything up
 docker compose up
 
-# load and populate directus
+### Load and populate directus
+
+```bash
 directus-config/load.sh
 directus-config/populate.sh
 ```
