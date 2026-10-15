@@ -85,7 +85,7 @@ export function FAQCard({ question, children }: { question: string; children: Re
     return (
         <div className="flex flex-col">
             <h3>{question}</h3>
-            <p className={`${quicksand.className} text-xl font-bold text-justify mb-4`}>{children}</p>
+            <p className={`${quicksand.className} text-xl font-bold text-justify mb-8`}>{children}</p>
         </div>
     );
 }
