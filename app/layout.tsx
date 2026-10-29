@@ -10,7 +10,7 @@ const red_hands = localFont({
 
 export const metadata: Metadata = {
     title: "ICeLAN",
-    description: "25h de tournois de jeux vidéo et jeux de plateau!",
+    description: "Retrouvez ici le règlement d'ICeLAN !",
 };
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {

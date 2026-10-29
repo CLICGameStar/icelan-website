@@ -2,12 +2,18 @@ import { FAQCard, VerticalCard } from "@/components/Cards";
 import { directus } from "@/directus";
 import type { IcelanAnimation, IcelanFaq } from "@/directus-config/types/aliases";
 import { readItems } from "@directus/sdk";
+import type { Metadata } from "next";
 import localFont from "next/font/local";
 import Image from "next/image";
 
 const quicksand = localFont({
     src: "../../public/fonts/Quicksand-Light.woff",
 });
+
+export const metadata: Metadata = {
+    title: "ICeLAN - Informations",
+    description: "Retrouvez toutes les infos importantes pour ICeLAN !",
+};
 
 export default async function Informations() {
     const faqs = (await directus().request(readItems("icelan_faqs"))) as IcelanFaq[];

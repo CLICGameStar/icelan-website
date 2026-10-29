@@ -1,8 +1,14 @@
+import type { Metadata } from "next";
 import localFont from "next/font/local";
 
 const quicksand = localFont({
     src: "../../public/fonts/Quicksand-Light.woff",
 });
+
+export const metadata: Metadata = {
+    title: "ICeLAN - Staffing",
+    description: "Les inscriptions pour le staffing ne sont pas encore ouvertes.",
+};
 
 export default function Inscriptions() {
     return (
