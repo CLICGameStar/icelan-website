@@ -2,14 +2,16 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useState } from "react";
 
 export default function Header({ navLinks }: { navLinks: { name: string; href: string }[] }) {
     const [isOpen, setIsOpen] = useState(false);
     const openMenu = () => setIsOpen(!isOpen);
+    const pathname = usePathname();
 
     return (
-        <div className="flex items-center justify-between bg-black font-sans h-32 text-2xl md:h-24 md:text-lg lg:h-32 lg:text-2xl">
+        <div className="flex items-center justify-between bg-black font-sans h-32 text-2xl md:h-24 md:text-lg lg:h-32 lg:text-2xl pt-4">
             <div
                 className={`flex flex-col fixed z-10 top-0 left-0 w-full h-full bg-white ${isOpen === false ? "hidden" : ""}`}
             >
@@ -43,7 +45,10 @@ export default function Header({ navLinks }: { navLinks: { name: string; href: s
             <ul className="hidden md:flex flex-1 items-center justify-evenly gap-12 mx-10">
                 {navLinks.map(link => (
                     <li key={link.href}>
-                        <Link href={link.href} className="p-2 hover:text-[var(--secondary)]">
+                        <Link
+                            href={link.href}
+                            className={`p-2 hover:text-[var(--secondary)] ${pathname === link.href ? "text-[var(--primary)]" : null}`}
+                        >
                             {link.name}
                         </Link>
                     </li>

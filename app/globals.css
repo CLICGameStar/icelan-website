@@ -50,6 +50,10 @@ p {
     max-width: 36rem;
 }
 
+li {
+    font-size: 1rem;
+}
+
 @media (min-width: 48rem) {
     h1 {
         font-size: 3.75rem;
@@ -66,10 +70,18 @@ p {
     p {
         font-size: 1rem;
     }
+
+    li {
+        font-size: 1rem;
+    }
 }
 
 @media (min-width: 64rem) {
     p {
+        font-size: 1.25rem;
+    }
+
+    li {
         font-size: 1.25rem;
     }
 }
