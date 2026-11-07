@@ -1,36 +1,42 @@
 {
-  "name": "icelan",
-  "version": "0.1.0",
-  "private": true,
-  "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start",
-    "lint": "next lint",
-    "prepare": "husky",
-    "load-directus": "sh directus-config/load.sh",
-    "save-directus": "sh directus-config/save.sh",
-    "save-directus-data": "sh directus-config/save-data.sh",
-    "populate-directus": "sh directus-config/populate.sh"
-  },
-  "dependencies": {
-    "@directus/sdk": "^18.0.0",
-    "next": "16.3.4",
-    "react": "19.2.8",
-    "react-dom": "19.2.8",
-    "tailwindcss": "^4",
-    "@tailwindcss/postcss": "^4"
-  },
-  "devDependencies": {
-    "@types/node": "^20",
-    "@types/react": "^19",
-    "@types/react-dom": "^19",
-    "commitlint": "^19.6.0",
-    "conventional-changelog-conventionalcommits": "^8.0.0",
-    "eslint": "^9",
-    "eslint-config-next": "16.3.4",
-    "husky": "^9.1.7",
-    "typescript": "^5"
-  },
-  "packageManager": "pnpm@11.26.0"
+    "name": "icelan",
+    "version": "0.1.0",
+    "private": true,
+    "scripts": {
+        "dev": "next dev --webpack",
+        "build": "next build --webpack",
+        "start": "next start",
+        "lint": "next lint",
+        "prepare": "husky",
+        "load-directus": "sh directus-config/load.sh",
+        "save-directus": "sh directus-config/save.sh",
+        "save-directus-data": "sh directus-config/save-data.sh",
+        "populate-directus": "sh directus-config/populate.sh"
+    },
+    "dependencies": {
+        "@directus/sdk": "^18.0.0",
+        "@tailwindcss/postcss": "^4",
+        "@types/better-sqlite3": "^9.6.0",
+        "better-sqlite3": "^13.0.3",
+        "discord.js": "^14.28.1",
+        "next": "^16.4.5",
+        "react": "19.2.8",
+        "react-dom": "19.2.8",
+        "tailwindcss": "^4"
+    },
+    "devDependencies": {
+        "@types/node": "^20",
+        "@types/react": "^19",
+        "@types/react-dom": "^19",
+        "commitlint": "^19.6.0",
+        "conventional-changelog-conventionalcommits": "^8.0.0",
+        "eslint": "^9",
+        "eslint-config-next": "^15.5.29",
+        "husky": "^9.1.7",
+        "typescript": "^5"
+    },
+    "packageManager": "pnpm@11.26.0",
+    "allowScripts": {
+        "better-sqlite3@13.0.3": true
+    }
 }
