@@ -1,6 +1,6 @@
 import { FAQCard, VerticalCard } from "@/components/Cards";
 import { directus } from "@/directus";
-import type { IcelanAnimation, IcelanFaq } from "@/directus-config/types/aliases";
+import type { IcelanAnimation, IcelanFaq, IcelanTournoi } from "@/directus-config/types/aliases";
 import { readItems } from "@directus/sdk";
 import type { Metadata } from "next";
 import localFont from "next/font/local";
@@ -18,23 +18,35 @@ export const metadata: Metadata = {
 export default async function Informations() {
     const faqs = (await directus().request(readItems("icelan_faqs"))) as IcelanFaq[];
     const animations = (await directus().request(readItems("icelan_animations"))) as IcelanAnimation[];
+    const tournois = (await directus().request(readItems("icelan_tournois"))) as IcelanTournoi[];
 
     return (
         <div className="flex flex-col flex-1 font-sans bg-black items-center">
             <div className="flex flex-col items-center w-4/5">
                 <h2>Tournois</h2>
                 <p className={`${quicksand.className} font-bold text-justify mb-10`}>
-                    Affrontez-vous sur nos nombreux tournois ! Des grands classiques comme League of Legends, Minecraft
+                    Affrontez-vous sur nos nombreux tournois ! Des grands classiques comme League of Legends, Minecraft
                     ou Smash, aux jeux que vous avez suggéré, choisissez vos compétitions peu importe votre niveau.
+                    <br />
+                    <br />
+                    La <span className="text-[var(--secondary)]">liste des tournois</span> est disponible ci-dessous et
+                    sera bientôt remplacée par la timeline de l&apos;événement.
                 </p>
+                <ul className="list-disc mb-10">
+                    {tournois.map(tournoi => (
+                        <li key={tournoi.id} className="text-xl">
+                            {tournoi.name}
+                        </li>
+                    ))}
+                </ul>
 
                 <h2>Animations</h2>
                 <p className={`${quicksand.className} font-bold text-justify md:mb-8`}>
-                    Vous attendez votre tournoi? Venez prendre une pause en profitant de nos diverses animations! Il y
-                    en a pour tous les goûts!
+                    Vous attendez votre tournoi ? Venez prendre une pause en profitant de nos diverses animations ! Il y
+                    en a pour tous les goûts !
                     <br />
                     <br />
-                    La <span className="text-[var(--secondary)]">liste des animations</span> est disponible ci-dessous!
+                    La <span className="text-[var(--secondary)]">liste des animations</span> est disponible ci-dessous !
                 </p>
                 <ul className="list-disc mb-10">
                     {animations.map(animation => (
@@ -49,19 +61,20 @@ export default async function Informations() {
             <h2>Informations importantes</h2>
             <div className="flex w-4/5 flex-wrap justify-center md:gap-8">
                 <VerticalCard icon="/icons/price.svg" header="Prix">
-                    Le prix est de 15CHF pour les étudiant·e·s, et 20 CHF pour les autres participant·e·s! Ça te donne
+                    Le prix est de 15 CHF pour les étudiant·e·s, et 20 CHF pour les autres participant·e·s ! Ça te donne
                     droit à l&apos;accès à l&apos;événement, à toutes activités, tous les repas, boissons et snacks, et
-                    plus encore... Viens payer en avance durant nos permanences!
+                    plus encore... Tu peux payer par QR facture ou passer à nos permanences avant l&apos;événement pour
+                    payer en cash !
                 </VerticalCard>
                 <VerticalCard icon="/icons/date.svg" header="Lieu & Date">
-                    ICeLAN aura lieu au sein du Bâtiment BC de l&apos;EPFL, du 6 Décembre 2025 à 9h au 7 Décembre 2025 à
+                    ICeLAN aura lieu au sein du Bâtiment BC de l&apos;EPFL, du 5 Décembre 2026 à 9h au 6 Décembre 2026 à
                     10h, en non-stop. Tu peux y accéder avec le Métro M1 (arrêt EPFL), ou encore avec les bus 1, 31, 701
                     ou 705. Il y a également des espaces de parking pour les voitures et vélos.
                 </VerticalCard>
                 <VerticalCard icon="/icons/food.svg" header="Nourritures & Boissons">
                     Nous fournissons à chacun·e de nos participant·e·s un repas du midi et du soir le samedi, et un
                     petit dej&apos; le dimanche. Nous te proposons également toutes sortes de boissons non-alcoolisées,
-                    ainsi que des snacks. Le tout inclus dans le prix, sans supplément!
+                    ainsi que des snacks. Le tout inclus dans le prix, sans supplément !
                 </VerticalCard>
                 <VerticalCard icon="/icons/group.svg" header="Respect & Règles">
                     Lors de ton inscription, il te sera demandé d&apos;accepter{" "}
@@ -69,17 +82,17 @@ export default async function Informations() {
                         le règlement de l&apos;événement
                     </a>
                     , ainsi que notre charte. En gros, il s&apos;agit de respecter les autres et soi-même, et de
-                    respecter le matériel et les lieux. Nous nous réservons le droit de te virer de l&apos;événement en
-                    cas de comportement inacceptable.
+                    respecter le matériel et les lieux. Nous nous réservons le droit de t&apos;exclure de
+                    l&apos;événement en cas de comportement inacceptable.
                 </VerticalCard>
                 <VerticalCard icon="/icons/question-mark.svg" header="Questions & Remarques" className="mb-10">
-                    Près d&apos;une quarantaine de staffs seront à ta disposition durant tout l&apos;événement. Si
+                    Près d&apos;une trentaine de staffs seront à ta disposition durant tout l&apos;événement. Si
                     néanmoins tu as des questions ou des remarques avant, n&apos;hésite pas à nous écrire à{" "}
                     <a
                         href="mailto:gamestar.clic@epfl.ch"
                         className="text-(--tertiary) underline hover:text-(--primary)"
                     >
-                        gamestar.clic@epfl.ch!
+                        gamestar.clic@epfl.ch !
                     </a>
                 </VerticalCard>
             </div>

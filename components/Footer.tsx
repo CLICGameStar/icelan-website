@@ -12,7 +12,7 @@ export default function Footer({
         <div className="flex flex-col bg-black">
             <div className="flex flex-col md:flex-row md:justify-between p-8">
                 <div className="flex-1 flex flex-col max-w-xl md:pl-8">
-                    <h2 className="text-2xl">Les places sont limitées alors n&apos;hésite pas!</h2>
+                    <h2 className="text-2xl">Les places sont limitées alors n&apos;hésite pas !</h2>
                     <Button text="S'INSCRIRE" href="/inscriptions" className="" />
                 </div>
                 <div className="flex-1">
