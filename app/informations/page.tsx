@@ -57,7 +57,7 @@ export default async function Informations() {
                 </ul>
             </div>
             <h2>Plan</h2>
-            <Image src="/images/plan.svg" alt="Plan" width={128} height={128} className="w-4/5 max-w-2xl" />
+            <Image src="/images/plan.svg" alt="Plan" width={128} height={128} className="w-4/5 max-w-xl mb-16" />
             <h2>Informations importantes</h2>
             <div className="flex w-4/5 flex-wrap justify-center md:gap-8">
                 <VerticalCard icon="/icons/price.svg" header="Prix">

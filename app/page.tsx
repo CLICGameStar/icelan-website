@@ -115,14 +115,14 @@ export default async function Home() {
                     </div>
                 </div>
                 <h2 className="!text-4xl mb-4">Sponsors</h2>
-                <div className="flex flex-wrap justify-evenly mb-8">
+                <div className="flex flex-wrap justify-evenly mb-8 items-center">
                     {sponsors.map(sponsor => (
                         <DirectusImage
                             cover={true}
                             img={sponsor.logo}
                             name={sponsor.name}
                             key={sponsor.id}
-                            className="w-32 object-contain my-1"
+                            className="max-w-32 object-contain my-1"
                             sizes="512px"
                         />
                     ))}
@@ -135,12 +135,12 @@ export default async function Home() {
                 <div className="flex flex-wrap justify-evenly w-full">
                     {collabs.map(collab =>
                         collab.website ? (
-                            <Link href={collab.website} key={collab.id}>
+                            <Link href={collab.website} key={collab.id} className="flex items-center">
                                 <DirectusImage
                                     cover={true}
                                     img={collab.logo}
                                     name={collab.name}
-                                    className="w-32 my-1"
+                                    className="max-w-32 object-contain my-1"
                                     sizes="512px"
                                 />
                             </Link>
@@ -149,7 +149,7 @@ export default async function Home() {
                                 cover={true}
                                 img={collab.logo}
                                 name={collab.name}
-                                className="w-32 my-1"
+                                className="max-w-32 object-contain my-1"
                                 sizes="512px"
                                 key={collab.id}
                             />

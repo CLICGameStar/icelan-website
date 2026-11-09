@@ -7,7 +7,7 @@ const quicksand = localFont({
 
 export const metadata: Metadata = {
     title: "ICeLAN - Inscriptions",
-    description: "Les inscriptions ne sont pas encore ouvertes.",
+    description: "Inscrivez-vous pour l'édition 2026 d'ICeLAN.",
 };
 
 export default function Inscriptions() {
@@ -15,7 +15,7 @@ export default function Inscriptions() {
         <div className="flex flex-col items-center flex-1 font-sans bg-black items-center">
             <div className="flex flex-col items-center w-4/5 mt-10">
                 <p className={`${quicksand.className} font-bold text-justify`}>
-                    Pas encore ouvertes : Revenez bientôt !
+                    Inscriptions pas encore ouvertes : Revenez plus tard.
                 </p>
             </div>
         </div>
