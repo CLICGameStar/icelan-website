@@ -3,6 +3,7 @@ import {
     Client,
     Events,
     GatewayIntentBits,
+    MessageFlags,
     REST,
     Routes,
     type CacheType,
@@ -10,11 +11,12 @@ import {
 } from "discord.js";
 import { EVENT_COMMANDS } from "./commands/event";
 
-const client = new Client({ intents: [GatewayIntentBits.Guilds] });
+const client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMembers] });
 
 export interface DiscordCommand {
     name: string;
     description: string;
+    defaultMemberPermissions?: bigint;
     handler: (interaction: ChatInputCommandInteraction<CacheType>) => Promise<void>;
 }
 
@@ -31,7 +33,7 @@ export async function startDiscordBot() {
         name: "ping",
         description: "Replies with Pong!",
         async handler(interaction) {
-            await interaction.reply("Pong!");
+            await interaction.reply({ content: "Pong!", flags: MessageFlags.Ephemeral });
         },
     };
 
@@ -43,7 +45,11 @@ export async function startDiscordBot() {
         console.log("Started refreshing application (/) commands.");
 
         await rest.put(Routes.applicationCommands(process.env.CLIENT_ID!), {
-            body: commands.map(v => ({ name: v.name, description: v.description })),
+            body: commands.map(v => ({
+                name: v.name,
+                description: v.description,
+                default_member_permissions: v.defaultMemberPermissions?.toString() ?? null,
+            })),
         });
 
         console.log("Successfully reloaded application (/) commands.");
