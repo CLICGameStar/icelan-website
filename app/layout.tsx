@@ -22,8 +22,8 @@ export default async function RootLayout({ children }: { children: React.ReactNo
                         { name: "ACCUEIL", href: `/` },
                         { name: "INFOS", href: `/informations` },
                         { name: "RÈGLEMENT", href: `/reglement` },
-                        { name: "INSCRIPTIONS", href: `/inscriptions` },
-                        { name: "STAFFING", href: `/staffing` },
+                        { name: "INSCRIPTIONS", href: `https://clic.epfl.ch/clicketing/icelan-2026` },
+                        { name: "STAFFING", href: `https://forms.gle/Zc6t94EfuaCHWDtk9` },
                     ]}
                 />
                 {children}

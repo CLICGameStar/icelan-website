@@ -52,7 +52,7 @@ export default async function Home() {
                             </InfoCard>
                             <InfoCard icon="/icons/place.svg">Bâtiment BC, EPFL</InfoCard>
                             <InfoCard icon="/icons/price.svg">
-                                Etudiant·e·s: 15 CHF,
+                                Étudiant·e·s: 15 CHF,
                                 <br />
                                 Autres: 20 CHF
                             </InfoCard>
@@ -69,7 +69,7 @@ export default async function Home() {
                 <div className="flex flex-col items-center">
                     <h2>Qu&apos;est-ce que c&apos;est ?</h2>
                     <p className={`${quicksand.className} text-justify font-bold max-w-160 mb-10`}>
-                        ICeLAN est un week-end de tournois de jeux vidéo et de jeux de plateau à l&apos;EPFL.
+                        ICeLAN est un week-end de tournois de jeux vidéo et de jeux divers à l&apos;EPFL.
                         L&apos;événement s&apos;axe principalement autour des tournois, se succédant tout au long du
                         week-end, mais offre également aux participant·e·s des animations autour du jeu vidéo et du jeu
                         tout court pour les divertir durant tout l&apos;événement ! L&apos;inscription à
@@ -86,7 +86,7 @@ export default async function Home() {
                         </BigCard>
                         <BigCard icon="/icons/game.svg" header="Diverses Animations">
                             Plutôt envie de chiller ? ICeLAN, c&apos;est aussi des animations incroyables, que ce soit
-                            en ligne ou hors ligne - il y en a pour tous les goûts.
+                            en ligne ou hors ligne, il y en a pour tous les goûts.
                         </BigCard>
                         <BigCard icon="/icons/food.svg" header="Repas, Snacks et Boissons">
                             Nous tenons à ce que ce weekend soit entièrement un weekend de détente. Ainsi, de vrais
@@ -102,27 +102,27 @@ export default async function Home() {
                         <p>Participant·e·s</p>
                     </div>
                     <div className="flex flex-col items-center">
-                        <p className="text-[var(--secondary)] !text-6xl">40</p>
+                        <p className="text-[var(--secondary)] !text-6xl">30</p>
                         <p>Staffs</p>
                     </div>
                     <div className="flex flex-col items-center">
-                        <p className="text-[var(--secondary)] !text-6xl">22</p>
+                        <p className="text-[var(--secondary)] !text-6xl">24</p>
                         <p>Tournois</p>
                     </div>
                     <div className="flex flex-col items-center">
-                        <p className="text-[var(--secondary)] !text-6xl">13</p>
+                        <p className="text-[var(--secondary)] !text-6xl">12</p>
                         <p>Animations</p>
                     </div>
                 </div>
                 <h2 className="!text-4xl mb-4">Sponsors</h2>
-                <div className="flex flex-wrap justify-evenly mb-8">
+                <div className="flex flex-wrap justify-evenly mb-8 items-center">
                     {sponsors.map(sponsor => (
                         <DirectusImage
                             cover={true}
                             img={sponsor.logo}
                             name={sponsor.name}
                             key={sponsor.id}
-                            className="w-32 object-contain my-1"
+                            className="max-w-32 object-contain my-1"
                             sizes="512px"
                         />
                     ))}
@@ -130,17 +130,17 @@ export default async function Home() {
             </div>
             <div className="bg-white w-full flex flex-col items-center p-4">
                 <h2 className="text-black text-center !text-lg w-full">
-                    Merci à tout·e·s ceux qui rendent ICeLAN possible!
+                    Merci à tout·e·s celles·eux qui rendent ICeLAN possible !
                 </h2>
                 <div className="flex flex-wrap justify-evenly w-full">
                     {collabs.map(collab =>
                         collab.website ? (
-                            <Link href={collab.website} key={collab.id}>
+                            <Link href={collab.website} key={collab.id} className="flex items-center">
                                 <DirectusImage
                                     cover={true}
                                     img={collab.logo}
                                     name={collab.name}
-                                    className="w-32 my-1"
+                                    className="max-w-32 object-contain my-1"
                                     sizes="512px"
                                 />
                             </Link>
@@ -149,7 +149,7 @@ export default async function Home() {
                                 cover={true}
                                 img={collab.logo}
                                 name={collab.name}
-                                className="w-32 my-1"
+                                className="max-w-32 object-contain my-1"
                                 sizes="512px"
                                 key={collab.id}
                             />

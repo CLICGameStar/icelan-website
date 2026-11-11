@@ -19,8 +19,8 @@ export default function Reglement() {
                 <ul className={`${quicksand.className} font-bold text-justify mb-10 list-disc`}>
                     <li>Sois respectueux·euse des gens, du matériel et des lieux.</li>
                     <li>
-                        S&apos;il y a un problème, on se réserve le droit de te virer de l&apos;événement si nécessaire,
-                        sans remboursement.
+                        S&apos;il y a un problème, on se réserve le droit de t&apos;exclure de l&apos;événement si
+                        nécessaire, sans remboursement.
                     </li>
                 </ul>
 
@@ -28,17 +28,22 @@ export default function Reglement() {
                 <ul className={`${quicksand.className} font-bold text-justify mb-10 list-disc`}>
                     <li>Ce règlement s&apos;applique à toute personne participant ou organisant ICeLAN.</li>
                     <li>
-                        L&apos;organisation se réserve le droit d&apos;expulser sans remboursement ou compensation
-                        financière toute personne ne respectant pas le présent règlement, perturbant l&apos;événement,
-                        ou sous couvert de toute autre raison à la discrétion de l&apos;organisation.
+                        L&apos;organisation se réserve le droit d&apos;exclure temporairement ou définitivement toute
+                        personne dont le comportement enfreint le présent règlement, perturbe le bon déroulement de
+                        l&apos;événement ou compromet la sécurité des participant·e·s, du staff ou du matériel.
+                    </li>
+                    <li>
+                        En cas d&apos;exclusion justifiée par un manquement du participant ou de la participante au
+                        présent règlement, aucun remboursement de l&apos;inscription ne sera accordé.
                     </li>
                     <li>
                         En cas de non-respect de la demande de quitter l&apos;événement, les forces de sécurité de
                         l&apos;EPFL pourront être contactées.
                     </li>
                     <li>
-                        Tous frais inhérents au non-respect du présent règlement seront facturés directement au
-                        contrevenant ou à la contrevenante.
+                        Toute personne qui, par un comportement fautif, cause un dommage matériel ou engendre des frais
+                        supplémentaires pour l&apos;organisation pourra être tenue de les indemniser, conformément aux
+                        dispositions légales applicables.
                     </li>
                 </ul>
 
@@ -55,9 +60,9 @@ export default function Reglement() {
                         l&apos;organisation se réserve le droit de refuser l&apos;inscription.
                     </li>
                     <li>
-                        Toute annulation doit être adressée par courriel à l&apos;organisation au plus tard le Vendredi
-                        avant le weekend de l&apos;événement. Le remboursement de l&apos;inscription ne sera pas
-                        possible passé ce délai.
+                        Toute annulation doit être adressée par courriel à l&apos;organisation au plus tard 24 heures
+                        avant le début de l&apos;événement. Le remboursement de l&apos;inscription ne sera pas possible
+                        passé ce délai.
                     </li>
                     <li>
                         Le paiement de toute inscription, même en cas d&apos;absence, reste dû, sauf en cas
@@ -141,17 +146,12 @@ export default function Reglement() {
                     </li>
                     <li>
                         Il est interdit de ramener son propre mobilier à l&apos;événement (e.g., chaise, table). Il est
-                        possible de demander des exceptions par courriel auprès de l&apos;organisation, au plus tard le
-                        Vendredi avant le weekend de l&apos;événement.
+                        possible de demander des exceptions par courriel auprès de l&apos;organisation, au plus tard 24
+                        heures avant le début de l&apos;événement.
                     </li>
                     <li>
                         Le matériel apporté par vos soins reste sous votre responsabilité tout le long de
                         l&apos;événement.
-                    </li>
-                    <li>
-                        Tout matériel électrique, qui n&apos;est pas nécessaire pour jouer, non validé par
-                        l&apos;organisation, est interdit, à l&apos;exception des chargeurs pour téléphone portable. Il
-                        est possible de demander des exceptions auprès de l&apos;organisation.{" "}
                     </li>
                     <li>
                         En cas d&apos;abus d&apos;utilisation du réseau, l&apos;organisation se réserve le droit
@@ -169,9 +169,14 @@ export default function Reglement() {
                 <h3>Divers</h3>
                 <ul className={`${quicksand.className} font-bold text-justify mb-10 list-disc`}>
                     <li>
-                        L&apos;organisation se réserve le droit d&apos;annuler l&apos;événement pour toute raison jugée
-                        nécessaire (e.g., décision de l&apos;école, problème légal, tremblement de terre, ...). Aucun
-                        remboursement ne sera accordé le cas échéant.
+                        L&apos;organisation se réserve le droit d&apos;annuler, de reporter ou de modifier
+                        l&apos;événement lorsque des circonstances exceptionnelles le justifient, notamment en cas de
+                        force majeure, de décision des autorités compétentes ou de l&apos;EPFL, de problème de sécurité
+                        ou d&apos;impossibilité matérielle ou légale d&apos;organiser l&apos;événement.
+                    </li>
+                    <li>
+                        En cas d&apos;annulation complète de l&apos;événement, les participant·e·s seront remboursé·e·s
+                        de leur inscription, sous réserve des dispositions légales applicables.
                     </li>
                     <li>Tout matériel en verre est strictement interdit au sein de l&apos;événement.</li>
                     <li>Les animaux sont interdits au sein des salles.</li>
@@ -186,18 +191,27 @@ export default function Reglement() {
                 <h3>Non-responsabilité</h3>
                 <ul className={`${quicksand.className} font-bold text-justify mb-10 list-disc`}>
                     <li>
-                        L&apos;organisation décline toute responsabilité en cas de vol ou de dommage de matériel ou de
-                        personne. Toute dégradation du matériel appartenant à l&apos;événement sera facturée auprès des
-                        personnes responsables.
+                        Chaque participant·e reste responsable de ses effets personnels et du matériel qu&apos;il ou
+                        elle apporte à l&apos;événement. L&apos;organisation recommande de ne pas laisser ses affaires
+                        sans surveillance.
                     </li>
                     <li>
-                        De plus, l&apos;organisation ne pourra être tenue responsable du comportement des
-                        participant·e·s en dehors de l&apos;événement.
+                        L&apos;organisation ne saurait être tenue responsable des vols, pertes ou dommages causés par
+                        des tiers ou résultant du comportement des participant·e·s, sauf lorsque sa responsabilité est
+                        engagée conformément aux dispositions légales applicables.
+                    </li>
+                    <li>
+                        Toute dégradation du matériel appartenant à l&apos;événement pourra être mise à la charge de la
+                        personne responsable.
+                    </li>
+                    <li>
+                        L&apos;organisation ne peut être tenue responsable des comportements individuels des
+                        participant·e·s qui ne lui sont pas imputables.
                     </li>
                 </ul>
 
                 <h3>Droit à l&apos;image</h3>
-                <p className={`${quicksand.className} font-bold text-justify mb-10 text-justify !max-w-2xl !text-base`}>
+                <p className={`${quicksand.className} font-bold text-justify mb-10 text-justify !max-w-2xl`}>
                     Dans le cadre des activités de Game*, les participant·e·s pourront être photographié·e·s, filmé·e·s,
                     ou faire l&apos;objet d&apos;un enregistrement audio ou d&apos;une captation numérique. Ces médias
                     seront utilisés principalement à des fins promotionnelles.
