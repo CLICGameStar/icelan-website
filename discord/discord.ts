@@ -5,6 +5,7 @@ import {
     Events,
     GatewayIntentBits,
     MessageFlags,
+    PermissionFlagsBits,
     REST,
     Routes,
     type APIApplicationCommandOption,
@@ -13,8 +14,9 @@ import {
 } from "discord.js";
 import { EVENT_COMMANDS } from "./commands/event";
 import { PARTICIPANTS_COMMANDS } from "./commands/participants";
+import { logErrorToDiscord } from "./logging";
 
-const client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMembers] });
+export const client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMembers] });
 
 export interface DiscordCommand {
     name: string;
@@ -36,6 +38,7 @@ export async function startDiscordBot() {
     const ping_command: DiscordCommand = {
         name: "ping",
         description: "Replies with Pong!",
+        defaultMemberPermissions: PermissionFlagsBits.Administrator,
         options: [
             {
                 name: "message",
@@ -76,8 +79,18 @@ export async function startDiscordBot() {
         try {
             await command_map[interaction.commandName].handler(interaction);
         } catch (error) {
-            await interaction.reply(
-                `<@691967643728609290> <@459664790055550978> Vsy c'est la merde là. La commande ${interaction.commandName} a mega fail.\n\n[ERROR]: ${error as string}`,
+            const content = `[ERROR]: Command failed.`;
+            if (interaction.deferred || interaction.replied) {
+                if (interaction.replied) {
+                    await interaction.followUp({ content: content, flags: MessageFlags.Ephemeral });
+                } else {
+                    await interaction.editReply({ content: content });
+                }
+            } else {
+                await interaction.reply({ content: content, flags: MessageFlags.Ephemeral });
+            }
+            await logErrorToDiscord(
+                `<@691967643728609290> <@459664790055550978> Vsy c'est la merde là. La commande \`/${interaction.commandName}\` a mega fail pour <@${interaction.user.id}>.\n\n[ERROR]: ${error as string}`,
             );
         }
     });

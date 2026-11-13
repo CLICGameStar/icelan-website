@@ -1,5 +1,11 @@
-import { open_database } from "@/database/main";
-import type { Participants as Participant } from "@/database/model";
+import {
+    deleteParticipant,
+    dropParticipantsTable,
+    getParticipant,
+    getParticipants,
+    insertParticipantInDatabase,
+    toggleStaffStatus,
+} from "@/database/participants";
 import { directus } from "@/directus";
 import type { IcelanParticipant } from "@/directus-config/types/aliases";
 import { readItems } from "@directus/sdk";
@@ -9,6 +15,35 @@ import type { DiscordCommand } from "../discord";
 async function getGuildMemberId(guild: Guild, username: string): Promise<string | null> {
     const members = await guild.members.fetch({ query: username, limit: 10 });
     return members.find(m => m.user.username.toLowerCase() === username.toLowerCase())?.id ?? null;
+}
+
+async function participantDataAsString(discord_id: string): Promise<string> {
+    const participant = await getParticipant(discord_id);
+    if (!participant) {
+        return `Participant <@${discord_id}> not found in the database.`;
+    }
+    return (
+        `## Data about <@${participant.discord_id}> in table\n` +
+        `- \`username\`: ${participant.username}\n` +
+        `- \`first_name\`: ${participant.first_name}\n` +
+        `- \`family_name\`: ${participant.family_name}\n` +
+        `- \`discord_id\`: <@${participant.discord_id}>\n` +
+        `- \`is_staff\`: ${participant.is_staff ? "Yes" : "No"}\n` +
+        `- \`points\`: ${participant.points}\n`
+    );
+}
+
+async function participantsDataAsString(): Promise<string> {
+    const participants = await getParticipants();
+    return (
+        "## Data in table\n" +
+        participants
+            .map(
+                p =>
+                    `- ${p.is_staff ? "[STAFF]: " : ""}${p.username} | ${p.first_name} ${p.family_name} (<@${p.discord_id}>) | Score: ${p.points}\n`,
+            )
+            .join("")
+    );
 }
 
 const LOAD_PARTICIPANTS: DiscordCommand = {
@@ -27,11 +62,6 @@ const LOAD_PARTICIPANTS: DiscordCommand = {
             readItems("icelan_participants"),
         )) as IcelanParticipant[];
 
-        const conn = await open_database();
-        let st = conn.prepare(
-            "INSERT INTO participants(email, first_name, family_name, username, discord_username, discord_id) VALUES(?, ?, ?, ?, ?, ?)",
-        );
-
         let missing_participants: IcelanParticipant[] = [];
         let errors: string[] = [];
         for (const p of directus_participants) {
@@ -42,31 +72,31 @@ const LOAD_PARTICIPANTS: DiscordCommand = {
             }
 
             try {
-                st.run(p.email, p.first_name, p.family_name, p.icelan_username, p.discord_username, p_id);
+                await insertParticipantInDatabase(
+                    p.family_name!,
+                    p.first_name!,
+                    p.icelan_username!,
+                    p.discord_username!,
+                    p_id,
+                    false,
+                );
             } catch (error) {
                 errors.push(`[ERROR] Failed to load @${p.discord_username?.toLowerCase()}: ` + (error as string));
                 continue;
             }
         }
 
-        st = conn.prepare("SELECT * FROM participants");
-        const participants = st.all() as Participant[];
-
         await interaction.editReply({
-            content:
-                "## Data in table\n" +
-                participants
-                    .map(p => `- ${p.username} | ${p.first_name} ${p.family_name} (<@${p.discord_id}>) | ${p.email}\n`)
-                    .join("")
-                    .concat(
-                        missing_participants.length > 0
-                            ? "\n## Fails\n" +
-                                  missing_participants
-                                      .map(p => `- @${p.discord_username?.toLowerCase()} is not on the server\n`)
-                                      .join("")
-                            : "",
-                    )
-                    .concat(errors.length > 0 ? "\n## Errors\n" + errors.join("\n") : ""),
+            content: (await participantsDataAsString())
+                .concat(
+                    missing_participants.length > 0
+                        ? "\n## Fails\n" +
+                              missing_participants
+                                  .map(p => `- @${p.discord_username?.toLowerCase()} is not on the server\n`)
+                                  .join("")
+                        : "",
+                )
+                .concat(errors.length > 0 ? "\n## Errors\n" + errors.join("\n") : ""),
         });
     },
 };
@@ -77,8 +107,7 @@ const DROP_PARTICIPANTS: DiscordCommand = {
     defaultMemberPermissions: PermissionFlagsBits.Administrator,
     async handler(interaction) {
         await interaction.deferReply({ flags: MessageFlags.Ephemeral });
-        const conn = await open_database();
-        conn.exec("DROP TABLE participants");
+        await dropParticipantsTable();
         await interaction.editReply("Table dropped");
     },
 };
@@ -129,59 +158,173 @@ const LOAD_PARTICIPANT_MANUALLY: DiscordCommand = {
             return;
         }
 
-        const conn = await open_database();
-        let st = conn.prepare(
-            "INSERT INTO participants(email, first_name, family_name, username, discord_username, discord_id) VALUES(?, ?, ?, ?, ?, ?)",
-        );
-
         const p_id = interaction.options.getUser("discord_user")?.id ?? null;
 
-        try {
-            st.run(p.email, p.first_name, p.family_name, p.icelan_username, p.discord_username, p_id);
-        } catch (error) {
-            await interaction.editReply(`[ERROR] Failed to load ${icelan_username}: ` + (error as string));
-            return;
-        }
-
-        st = conn.prepare("SELECT * FROM participants WHERE username = ?");
-        const participants = st.all(p.icelan_username) as Participant[];
+        await insertParticipantInDatabase(
+            p.family_name!,
+            p.first_name!,
+            p.icelan_username!,
+            p.discord_username!,
+            p_id!,
+            false,
+        );
 
         await interaction.editReply({
-            content:
-                `## Data about <@${participants.at(0)?.discord_id}> in table\n` +
-                participants
-                    .map(
-                        p =>
-                            `- \`username\`: ${p.username}\n- \`first_name\`: ${p.first_name}\n- \`family_name\`: ${p.family_name}\n- \`discord_id\`: <@${p.discord_id}>\n- \`email\`: ${p.email}`,
-                    )
-                    .join(""),
+            content: await participantDataAsString(p_id!),
         });
     },
 };
 
 const LIST_PARTICIPANTS: DiscordCommand = {
     name: "list_participants",
-    description: "Lists all participants in the database",
+    description: "Lists all participants in the database.",
     defaultMemberPermissions: PermissionFlagsBits.Administrator,
     async handler(interaction) {
         await interaction.deferReply({ flags: MessageFlags.Ephemeral });
-        const conn = await open_database();
-        const st = conn.prepare("SELECT * FROM participants");
-        const participants = st.all() as Participant[];
+        await interaction.editReply({
+            content: await participantsDataAsString(),
+        });
+    },
+};
+
+const PARTICIPANT_DATA: DiscordCommand = {
+    name: "participant_data",
+    description: "Shows data about a participant in the database.",
+    defaultMemberPermissions: PermissionFlagsBits.Administrator,
+    options: [
+        {
+            name: "user",
+            description: "Discord user of participant",
+            type: ApplicationCommandOptionType.User,
+            required: true,
+        },
+    ],
+    async handler(interaction) {
+        await interaction.deferReply({ flags: MessageFlags.Ephemeral });
+        const user = interaction.options.getUser("user");
 
         await interaction.editReply({
-            content:
-                "## Data in table\n" +
-                participants
-                    .map(p => `- ${p.username} | ${p.first_name} ${p.family_name} (<@${p.discord_id}>) | ${p.email}\n`)
-                    .join(""),
+            content: await participantDataAsString(user?.id!),
         });
+    },
+};
+
+const DELETE_PARTICIPANT: DiscordCommand = {
+    name: "delete_participant",
+    description: "Deletes a participant from the database.",
+    defaultMemberPermissions: PermissionFlagsBits.Administrator,
+    options: [
+        {
+            name: "user",
+            description: "Discord user of participant",
+            type: ApplicationCommandOptionType.User,
+            required: true,
+        },
+    ],
+    async handler(interaction) {
+        await interaction.deferReply({ flags: MessageFlags.Ephemeral });
+        const user = interaction.options.getUser("user");
+
+        await deleteParticipant(user?.id!);
+        await interaction.editReply(`<@${user?.id}> deleted`);
+    },
+};
+
+const CREATE_PARTICIPANT: DiscordCommand = {
+    name: "create_participant",
+    description: "Creates a participant and adds it to the table.",
+    defaultMemberPermissions: PermissionFlagsBits.Administrator,
+    options: [
+        {
+            name: "first_name",
+            description: "Participant's first name",
+            type: ApplicationCommandOptionType.String,
+            required: true,
+        },
+        {
+            name: "family_name",
+            description: "Participant's family name",
+            type: ApplicationCommandOptionType.String,
+            required: true,
+        },
+        {
+            name: "username",
+            description: "Participant's ICeLAN username",
+            type: ApplicationCommandOptionType.String,
+            required: true,
+        },
+        {
+            name: "discord_user",
+            description: "The discord user that should be linked to this ICeLAN username.",
+            type: ApplicationCommandOptionType.User,
+            required: true,
+        },
+        {
+            name: "is_staff",
+            description: "Is the participant a staff member?",
+            type: ApplicationCommandOptionType.Boolean,
+            required: false,
+        },
+    ],
+    async handler(interaction) {
+        const first_name = interaction.options.getString("first_name") ?? null;
+        const family_name = interaction.options.getString("family_name") ?? null;
+        const username = interaction.options.getString("username") ?? null;
+        const discord_user = interaction.options.getUser("discord_user");
+        const is_staff = interaction.options.getBoolean("is_staff") ?? false;
+
+        await interaction.deferReply({ flags: MessageFlags.Ephemeral });
+
+        await insertParticipantInDatabase(
+            family_name!,
+            first_name!,
+            username!,
+            discord_user?.username!,
+            discord_user?.id!,
+            is_staff,
+        );
+
+        await interaction.editReply({
+            content: await participantDataAsString(discord_user?.id!),
+        });
+    },
+};
+
+const TOGGLE_STAFF: DiscordCommand = {
+    name: "toggle_staff",
+    description: "Toggles the staff status of a participant in the database.",
+    defaultMemberPermissions: PermissionFlagsBits.Administrator,
+    options: [
+        {
+            name: "user",
+            description: "Discord user of participant",
+            type: ApplicationCommandOptionType.User,
+            required: true,
+        },
+    ],
+    async handler(interaction) {
+        await interaction.deferReply({ flags: MessageFlags.Ephemeral });
+        const user = interaction.options.getUser("user");
+
+        await toggleStaffStatus(user?.id!);
+        const participant = await getParticipant(user?.id!);
+        if (!participant) {
+            await interaction.editReply(`<@${user?.id}> not found in the database.`);
+            return;
+        }
+        await interaction.editReply(
+            `<@${user?.id}> is now ${participant?.is_staff ? "a staff member" : "not a staff member"}`,
+        );
     },
 };
 
 export const PARTICIPANTS_COMMANDS = [
     LOAD_PARTICIPANTS,
-    DROP_PARTICIPANTS,
     LOAD_PARTICIPANT_MANUALLY,
+    DROP_PARTICIPANTS,
     LIST_PARTICIPANTS,
+    PARTICIPANT_DATA,
+    DELETE_PARTICIPANT,
+    CREATE_PARTICIPANT,
+    TOGGLE_STAFF,
 ];
