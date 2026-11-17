@@ -1,5 +1,5 @@
-import { startDiscordBot } from "./discord/discord";
-
-export function register() {
-    startDiscordBot();
+export async function register() {
+    if (process.env.NEXT_RUNTIME === "nodejs") {
+        await import("./instrumentation-node");
+    }
 }

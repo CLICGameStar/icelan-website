@@ -1,8 +1,5 @@
-import { webpack } from "next/dist/compiled/webpack/webpack";
-
-/** @type {import('next').NextConfig} */
 const nextConfig = {
-    // ...other code
+    serverExternalPackages: ["discord.js", "@discordjs/ws", "zlib-sync", "bufferutil", "utf-8-validate"],
     async redirects() {
         return [
             {
@@ -16,15 +13,6 @@ const nextConfig = {
                 permanent: true,
             },
         ];
-    },
-
-    //@ts-expect-error meow
-    webpack: config => {
-        config.plugins.push(
-            new webpack.IgnorePlugin({ resourceRegExp: /^zlib-sync$/ }),
-            new webpack.IgnorePlugin({ resourceRegExp: /^bufferutil$/ }),
-        );
-        return config;
     },
 };
 
