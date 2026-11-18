@@ -1,6 +1,8 @@
 FROM node:26-alpine
 
 RUN apk update
+RUN apk add python make gcc g++
+
 ARG NODE_ENV=production
 ENV NODE_ENV=${NODE_ENV}
 
