@@ -1,0 +1,111 @@
+@import "tailwindcss";
+
+@theme {
+    --font-sans: var(--font-geist-sans);
+    --font-mono: var(--font-geist-mono);
+
+    --color-text: #ededed;
+    --color-background: #0a0a0a;
+    --color-primary: #20aed3;
+    --color-secondary: #ff51ce;
+    --color-accent: #b7cf56;
+
+    --color-text-50: #f2f2f2;
+    --color-text-100: #e6e6e6;
+    --color-text-200: #cccccc;
+    --color-text-300: #b3b3b3;
+    --color-text-400: #999999;
+    --color-text-500: #808080;
+    --color-text-600: #666666;
+    --color-text-700: #4d4d4d;
+    --color-text-800: #333333;
+    --color-text-900: #1a1a1a;
+    --color-text-950: #0d0d0d;
+
+    --color-background-50: #f2f2f2;
+    --color-background-100: #e6e6e6;
+    --color-background-200: #cccccc;
+    --color-background-300: #b3b3b3;
+    --color-background-400: #999999;
+    --color-background-500: #808080;
+    --color-background-600: #666666;
+    --color-background-700: #4d4d4d;
+    --color-background-800: #333333;
+    --color-background-900: #1a1a1a;
+    --color-background-950: #0d0d0d;
+
+    --color-primary-50: #e9f8fc;
+    --color-primary-100: #d3f1f8;
+    --color-primary-200: #a6e3f2;
+    --color-primary-300: #7ad4eb;
+    --color-primary-400: #4ec6e4;
+    --color-primary-500: #21b8de;
+    --color-primary-600: #1b93b1;
+    --color-primary-700: #146e85;
+    --color-primary-800: #0d4a59;
+    --color-primary-900: #07252c;
+    --color-primary-950: #031216;
+
+    --color-secondary-50: #ffe5f8;
+    --color-secondary-100: #ffccf1;
+    --color-secondary-200: #ff99e2;
+    --color-secondary-300: #ff66d4;
+    --color-secondary-400: #ff33c5;
+    --color-secondary-500: #ff00b7;
+    --color-secondary-600: #cc0092;
+    --color-secondary-700: #99006e;
+    --color-secondary-800: #660049;
+    --color-secondary-900: #330025;
+    --color-secondary-950: #1a0012;
+
+    --color-accent-50: #f7f9eb;
+    --color-accent-100: #eef4d7;
+    --color-accent-200: #dde9af;
+    --color-accent-300: #ccdd88;
+    --color-accent-400: #bbd260;
+    --color-accent-500: #aac738;
+    --color-accent-600: #889f2d;
+    --color-accent-700: #667722;
+    --color-accent-800: #445016;
+    --color-accent-900: #22280b;
+    --color-accent-950: #111406;
+
+    --shadow-3d-primary: 8px 8px 0px var(--color-primary);
+    --shadow-3d-primary-inverted: 7px 7px 0px var(--color-background), 8px 8px 0px var(--color-primary);
+
+    --gap-s: 16px;
+    --gap: 32px;
+
+    --marquee: marquee 10s linear infinite;
+}
+
+@keyframes marquee {
+    to {
+        transform: translateX(-100%);
+    }
+}
+
+* {
+    color: var(--color-text);
+}
+
+:root {
+    background-color: var(--color-background);
+}
+
+h1 {
+    font-weight: 900;
+    font-size: 4.5rem;
+    line-height: 100%;
+}
+
+h2 {
+    font-weight: bold;
+    font-size: 2.25rem;
+    line-height: 1.1;
+}
+
+h3 {
+    font-weight: 600;
+    font-size: 2.25rem;
+}

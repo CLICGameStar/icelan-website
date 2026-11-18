@@ -9,7 +9,7 @@ import Image from "next/image";
 import Link from "next/link";
 
 const quicksand = localFont({
-    src: "../public/fonts/Quicksand-Light.woff",
+    src: "../../public/fonts/Quicksand-Light.woff",
 });
 
 export default async function Home() {
@@ -29,10 +29,10 @@ export default async function Home() {
     });
 
     return (
-        <div className="flex flex-col bg-black items-center">
-            <div className="flex flex-col flex-1 font-sans bg-black items-center px-8">
+        <div className="flex flex-col items-center">
+            <div className="flex flex-col flex-1 font-sans items-center px-8">
                 <div className="flex flex-col items-center">
-                    <h1 className="text-center text-[var(--secondary)]">Bienvenue à ICeLAN !</h1>
+                    <h1 className="text-center text-secondary">Bienvenue à ICeLAN !</h1>
                     <h2>7ème édition</h2>
                 </div>
                 <div className="flex flex-col items-center md:flex-row md:justify-center md:gap-10">
@@ -74,10 +74,10 @@ export default async function Home() {
                         week-end, mais offre également aux participant·e·s des animations autour du jeu vidéo et du jeu
                         tout court pour les divertir durant tout l&apos;événement ! L&apos;inscription à
                         l&apos;événement offre aux participant·e·s l&apos;accès à tous les
-                        <span className="text-[var(--secondary)]"> tournois</span>, aux
-                        <span className="text-[var(--secondary)]"> animations</span> sur tout le site, et des
-                        <span className="text-[var(--secondary)]"> repas chauds, snacks et boissons</span> tout au long
-                        de l&apos;événement.
+                        <span className="text-secondary"> tournois</span>, aux
+                        <span className="text-secondary"> animations</span> sur tout le site, et des
+                        <span className="text-secondary"> repas chauds, snacks et boissons</span> tout au long de
+                        l&apos;événement.
                     </p>
                     <div>
                         <BigCard icon="/icons/trophy.svg" header="Tournois & Lots">
@@ -98,19 +98,19 @@ export default async function Home() {
                 </div>
                 <div className="grid grid-cols-2 w-full gap-8 mb-8 md:flex justify-evenly">
                     <div className="flex flex-col items-center">
-                        <p className="text-[var(--secondary)] !text-6xl">100</p>
+                        <p className="text-secondary !text-6xl">100</p>
                         <p>Participant·e·s</p>
                     </div>
                     <div className="flex flex-col items-center">
-                        <p className="text-[var(--secondary)] !text-6xl">30</p>
+                        <p className="text-secondary !text-6xl">30</p>
                         <p>Staffs</p>
                     </div>
                     <div className="flex flex-col items-center">
-                        <p className="text-[var(--secondary)] !text-6xl">24</p>
+                        <p className="text-secondary !text-6xl">24</p>
                         <p>Tournois</p>
                     </div>
                     <div className="flex flex-col items-center">
-                        <p className="text-[var(--secondary)] !text-6xl">12</p>
+                        <p className="text-secondary !text-6xl">12</p>
                         <p>Animations</p>
                     </div>
                 </div>
@@ -128,8 +128,8 @@ export default async function Home() {
                     ))}
                 </div>
             </div>
-            <div className="bg-white w-full flex flex-col items-center p-4">
-                <h2 className="text-black text-center !text-lg w-full">
+            <div className="bg-text w-full flex flex-col items-center p-4">
+                <h2 className="text-background text-center !text-lg w-full">
                     Merci à tout·e·s celles·eux qui rendent ICeLAN possible !
                 </h2>
                 <div className="flex flex-wrap justify-evenly w-full">

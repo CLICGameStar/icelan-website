@@ -11,7 +11,7 @@ export default function Header({ navLinks }: { navLinks: { name: string; href: s
     const pathname = usePathname();
 
     return (
-        <div className="flex items-center justify-between bg-black font-sans h-32 text-2xl md:h-24 md:text-lg lg:h-32 lg:text-2xl pt-4">
+        <div className="flex items-center justify-between font-sans h-32 text-2xl md:h-24 md:text-lg lg:h-32 lg:text-2xl pt-4">
             <div
                 className={`flex flex-col fixed z-10 top-0 left-0 w-full h-full bg-white ${isOpen === false ? "hidden" : ""}`}
             >
@@ -47,7 +47,7 @@ export default function Header({ navLinks }: { navLinks: { name: string; href: s
                     <li key={link.href}>
                         <Link
                             href={link.href}
-                            className={`p-2 hover:text-[var(--secondary)] ${pathname === link.href ? "text-[var(--primary)]" : null}`}
+                            className={`p-2 hover:text-secondary ${pathname === link.href ? "text-primary" : null}`}
                         >
                             {link.name}
                         </Link>

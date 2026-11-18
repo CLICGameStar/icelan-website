@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import localFont from "next/font/local";
 
 const quicksand = localFont({
-    src: "../../public/fonts/Quicksand-Light.woff",
+    src: "../../../public/fonts/Quicksand-Light.woff",
 });
 
 export const metadata: Metadata = {
@@ -12,7 +12,7 @@ export const metadata: Metadata = {
 
 export default function Reglement() {
     return (
-        <div className="flex flex-col items-center flex-1 font-sans bg-black items-center">
+        <div className="flex flex-col items-center flex-1 font-sans items-center">
             <div className="flex flex-col w-4/5 max-w-2xl">
                 <h2 className="self-center mb-4">Règlement ICeLAN</h2>
                 <h3>Résumé</h3>

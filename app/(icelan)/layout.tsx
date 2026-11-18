@@ -2,10 +2,10 @@ import Footer from "@/components/Footer";
 import Header from "@/components/Header";
 import type { Metadata } from "next";
 import localFont from "next/font/local";
-import "./globals.css";
+import "../globals.css";
 
 const red_hands = localFont({
-    src: "../public/fonts/KGRedHands.woff",
+    src: "../../public/fonts/KGRedHands.woff",
 });
 
 export const metadata: Metadata = {
@@ -16,7 +16,7 @@ export const metadata: Metadata = {
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
     return (
         <html lang="fr" className="h-full antialiased">
-            <body className={`min-h-full flex flex-col ${red_hands.className}`}>
+            <body className={`min-h-screen flex flex-col ${red_hands.className}`}>
                 <Header
                     navLinks={[
                         { name: "ACCUEIL", href: `/` },
@@ -24,6 +24,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
                         { name: "RÈGLEMENT", href: `/reglement` },
                         { name: "INSCRIPTIONS", href: `https://clic.epfl.ch/clicketing/icelan-2026` },
                         { name: "STAFFING", href: `https://forms.gle/Zc6t94EfuaCHWDtk9` },
+                        { name: "NICELAN", href: `/nicelan` },
                     ]}
                 />
                 {children}

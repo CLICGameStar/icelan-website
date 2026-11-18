@@ -7,7 +7,7 @@ import localFont from "next/font/local";
 import Image from "next/image";
 
 const quicksand = localFont({
-    src: "../../public/fonts/Quicksand-Light.woff",
+    src: "../../../public/fonts/Quicksand-Light.woff",
 });
 
 export const metadata: Metadata = {
@@ -21,7 +21,7 @@ export default async function Informations() {
     const tournois = (await directus().request(readItems("icelan_tournois"))) as IcelanTournoi[];
 
     return (
-        <div className="flex flex-col flex-1 font-sans bg-black items-center">
+        <div className="flex flex-col flex-1 font-sans items-center">
             <div className="flex flex-col items-center w-4/5">
                 <h2>Tournois</h2>
                 <p className={`${quicksand.className} font-bold text-justify mb-10`}>
@@ -29,8 +29,8 @@ export default async function Informations() {
                     ou Smash, aux jeux que vous avez suggéré, choisissez vos compétitions peu importe votre niveau.
                     <br />
                     <br />
-                    La <span className="text-[var(--secondary)]">liste des tournois</span> est disponible ci-dessous et
-                    sera bientôt remplacée par la timeline de l&apos;événement.
+                    La <span className="text-secondary">liste des tournois</span> est disponible ci-dessous et sera
+                    bientôt remplacée par la timeline de l&apos;événement.
                 </p>
                 <ul className="list-disc mb-10">
                     {tournois.map(tournoi => (
@@ -46,7 +46,7 @@ export default async function Informations() {
                     en a pour tous les goûts !
                     <br />
                     <br />
-                    La <span className="text-[var(--secondary)]">liste des animations</span> est disponible ci-dessous !
+                    La <span className="text-secondary">liste des animations</span> est disponible ci-dessous !
                 </p>
                 <ul className="list-disc mb-10">
                     {animations.map(animation => (
