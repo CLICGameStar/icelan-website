@@ -14,6 +14,7 @@ import {
 } from "discord.js";
 import { LEADERBOARD_COMMANDS } from "./commands/leaderboard";
 import { PARTICIPANTS_COMMANDS } from "./commands/participants";
+import type { BotError } from "./error";
 import { logToDiscord } from "./logging";
 
 export const client = new Client({
@@ -109,8 +110,22 @@ export async function startDiscordBot() {
           2000,
         ),
       );
-
-      const message = `[ERROR]: Command failed.`;
+      const bot_error = error as BotError;
+      let message;
+      switch (bot_error.type) {
+        case "directus_participant_not_found":
+          message = `[ERROR]: Directus participant not found.`;
+          break;
+        case "invalid_data":
+          message = `[ERROR]: Invalid data.`;
+          break;
+        case "guild_not_found":
+          message = `[ERROR]: Guild not found.`;
+          break;
+        default:
+          message = `[ERROR]: Command failed.`;
+          break;
+      }
       if (interaction.deferred || interaction.replied) {
         if (interaction.replied) {
           await interaction.followUp({

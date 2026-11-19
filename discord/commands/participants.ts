@@ -195,10 +195,7 @@ const LOAD_PARTICIPANT_MANUALLY: DiscordCommand = {
     if (participant.length === 1) {
       p = participant[0];
     } else {
-      await interaction.editReply(
-        `[ERROR] Failed to find ${icelan_username} in the directus database.`,
-      );
-      return;
+      throwError({ type: "directus_participant_not_found" });
     }
 
     const p_id = interaction.options.getUser("discord_user")?.id ?? null;
