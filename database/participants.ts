@@ -1,3 +1,4 @@
+import { throwError } from "@/discord/error";
 import { open_database } from "./main";
 import type { DBParticipant } from "./model";
 
@@ -65,15 +66,16 @@ export async function getParticipants(): Promise<Participant[]> {
   return st.all().map(dbToParticipant);
 }
 
-export async function getParticipant(
-  discord_id: string,
-): Promise<Participant | null> {
+export async function getParticipant(discord_id: string): Promise<Participant> {
   const conn = await open_database();
   const st = conn.prepare<string, DBParticipant>(
     "SELECT * FROM participants WHERE discord_id = ?",
   );
   const participant = st.get(discord_id);
-  return participant ? dbToParticipant(participant) : null;
+  if (!participant) {
+    throwError({ type: "db_participant_not_found" });
+  }
+  return dbToParticipant(participant);
 }
 
 export async function dropParticipantsTable() {

@@ -116,6 +116,9 @@ export async function startDiscordBot() {
         case "directus_participant_not_found":
           message = `[ERROR]: Directus participant not found.`;
           break;
+        case "db_participant_not_found":
+          message = `[ERROR]: Participant not found in database.`;
+          break;
         case "invalid_data":
           message = `[ERROR]: Invalid data.`;
           break;

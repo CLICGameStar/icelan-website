@@ -35,9 +35,6 @@ async function getGuildMemberId(
 
 async function participantDataAsString(discord_id: string): Promise<string> {
   const participant = await getParticipant(discord_id);
-  if (!participant) {
-    return `Participant <@${discord_id}> not found in the database.`;
-  }
   return (
     `## Data about <@${participant.discord_id}> in table\n` +
     `- \`id\`: ${participant.id}\n` +
@@ -54,7 +51,7 @@ async function participantDataAsString(discord_id: string): Promise<string> {
 async function participantsDataAsString(): Promise<string> {
   const participants = await getParticipants();
   return (
-    "## Participants\n" +
+    `## Participants\nNombre : \`${participants.length}\`` +
     participants
       .map((p) => `- ${p.is_staff ? "[STAFF]: " : ""}${p.username}\n`)
       .join("")
@@ -68,23 +65,16 @@ const LOAD_PARTICIPANTS: DiscordCommand = {
   defaultMemberPermissions: PermissionFlagsBits.Administrator,
   async handler(interaction) {
     if (!interaction.guild) {
-      await interaction.reply({
-        content: "Guild not found!",
-        flags: MessageFlags.Ephemeral,
-      });
-      return;
+      throwError({ type: "guild_not_found" });
     }
 
     await interaction.deferReply({ flags: MessageFlags.Ephemeral });
 
     let directus_participants: IcelanParticipant[];
-    try {
-      directus_participants = (await directus().request(
-        readItems("icelan_participants"),
-      )) as IcelanParticipant[];
-    } catch {
-      throw "Failed to read items from Directus.";
-    }
+
+    directus_participants = (await directus().request(
+      readItems("icelan_participants"),
+    )) as IcelanParticipant[];
 
     let participants: Participant[] = [];
     let missing_participants: IcelanParticipant[] = [];
@@ -358,10 +348,6 @@ const TOGGLE_STAFF: DiscordCommand = {
 
     await toggleStaffStatus(user?.id!);
     const participant = await getParticipant(user?.id!);
-    if (!participant) {
-      await interaction.editReply(`<@${user?.id}> not found in the database.`);
-      return;
-    }
     await interaction.editReply(
       `<@${user?.id}> is now ${participant?.is_staff ? "a staff member" : "not a staff member"}`,
     );
@@ -386,10 +372,6 @@ const TOGGLE_DONATOR: DiscordCommand = {
 
     await toggleDonatorStatus(user?.id!);
     const participant = await getParticipant(user?.id!);
-    if (!participant) {
-      await interaction.editReply(`<@${user?.id}> not found in the database.`);
-      return;
-    }
     await interaction.editReply(
       `<@${user?.id}> is now ${participant?.is_donator ? "a donator" : "not a donator"}`,
     );

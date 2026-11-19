@@ -1,4 +1,4 @@
-import { getParticipants } from "@/database/participants";
+import { getParticipant, getParticipants } from "@/database/participants";
 import { MessageFlags } from "discord.js";
 import type { DiscordCommand } from "../discord";
 
@@ -24,10 +24,11 @@ const CLASSEMENT: DiscordCommand = {
   description: "Vois ta position dans le classement.",
   async handler(interaction) {
     await interaction.deferReply({ flags: MessageFlags.Ephemeral });
+    const u = await getParticipant(interaction.user.id);
     const participants = await getParticipants();
     const pos = participants
       .sort((a, b) => a.points - b.points)
-      .findIndex((p) => p.discord_id == interaction.user.id);
+      .findIndex((p) => p.id == u.id);
     await interaction.editReply({
       content:
         "## Ton classement\n" +
