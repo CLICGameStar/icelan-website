@@ -14,7 +14,6 @@ import {
 } from "discord.js";
 import { LEADERBOARD_COMMANDS } from "./commands/leaderboard";
 import { PARTICIPANTS_COMMANDS } from "./commands/participants";
-import type { BotError } from "./error";
 import { logToDiscord } from "./logging";
 
 export const client = new Client({
@@ -105,35 +104,30 @@ export async function startDiscordBot() {
       console.log(error);
 
       await logToDiscord(
-        `[\`/${interaction.commandName}\`][<@${interaction.user.id}>] [ERROR]: ${error as string}`.slice(
-          200,
+        `[\`/${interaction.commandName}\`][<@${interaction.user.id}>] [ERROR]: ${error}`.slice(
+          0,
+          2000,
         ),
       );
 
-      if (!("type" in error)) {
-        return;
-      }
-      const bot_error = error as BotError;
-
-      const content = `[ERROR]: Command failed.`;
+      const message = `[ERROR]: Command failed.`;
       if (interaction.deferred || interaction.replied) {
         if (interaction.replied) {
           await interaction.followUp({
-            content: content,
+            content: message,
             flags: MessageFlags.Ephemeral,
           });
         } else {
-          await interaction.editReply({ content: content });
+          await interaction.editReply({ content: message });
         }
       } else {
         await interaction.reply({
-          content: content,
+          content: message,
           flags: MessageFlags.Ephemeral,
         });
       }
     }
   });
 
-  // Log in to Discord with your client's token
   client.login(process.env.DISCORD_APP_TOKEN);
 }
