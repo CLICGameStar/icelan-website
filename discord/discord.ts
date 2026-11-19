@@ -14,7 +14,8 @@ import {
 } from "discord.js";
 import { LEADERBOARD_COMMANDS } from "./commands/leaderboard";
 import { PARTICIPANTS_COMMANDS } from "./commands/participants";
-import { logErrorToDiscord } from "./logging";
+import type { BotError } from "./error";
+import { logToDiscord } from "./logging";
 
 export const client = new Client({
   intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMembers],
@@ -97,9 +98,23 @@ export async function startDiscordBot() {
 
   client.on(Events.InteractionCreate, async (interaction) => {
     if (!interaction.isChatInputCommand()) return;
+
     try {
       await command_map[interaction.commandName].handler(interaction);
-    } catch (error) {
+    } catch (error: any) {
+      console.log(error);
+
+      await logToDiscord(
+        `[\`/${interaction.commandName}\`][<@${interaction.user.id}>] [ERROR]: ${error as string}`.slice(
+          200,
+        ),
+      );
+
+      if (!("type" in error)) {
+        return;
+      }
+      const bot_error = error as BotError;
+
       const content = `[ERROR]: Command failed.`;
       if (interaction.deferred || interaction.replied) {
         if (interaction.replied) {
@@ -116,9 +131,6 @@ export async function startDiscordBot() {
           flags: MessageFlags.Ephemeral,
         });
       }
-      await logErrorToDiscord(
-        `Vsy c'est la merde là. La commande \`/${interaction.commandName}\` a mega fail pour <@${interaction.user.id}>.\n\n[ERROR]: ${error as string}`,
-      );
     }
   });
 

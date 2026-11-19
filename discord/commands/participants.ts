@@ -19,6 +19,7 @@ import {
   type Guild,
 } from "discord.js";
 import type { DiscordCommand } from "../discord";
+import { throwError } from "../error";
 
 async function getGuildMemberId(
   guild: Guild,
@@ -173,11 +174,7 @@ const LOAD_PARTICIPANT_MANUALLY: DiscordCommand = {
   ],
   async handler(interaction) {
     if (!interaction.guild) {
-      await interaction.reply({
-        content: "Guild not found!",
-        flags: MessageFlags.Ephemeral,
-      });
-      return;
+      throwError({ type: "guild_not_found" });
     }
 
     await interaction.deferReply({ flags: MessageFlags.Ephemeral });
