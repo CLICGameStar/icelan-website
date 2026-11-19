@@ -30,9 +30,7 @@ export type RoundRobin = {
 };
 
 export type Stage =
-  | SingleEliminationBracket
-  | DoubleEliminationBracket
-  | RoundRobin;
+  SingleEliminationBracket | DoubleEliminationBracket | RoundRobin;
 
 export type Match = {
   id: number;
