@@ -12,10 +12,8 @@ import {
     type CacheType,
     type ChatInputCommandInteraction,
 } from "discord.js";
-import { EVENT_COMMANDS } from "./commands/event";
 import { LEADERBOARD_COMMANDS } from "./commands/leaderboard";
 import { PARTICIPANTS_COMMANDS } from "./commands/participants";
-import { UTILS_COMMANDS } from "./commands/utils";
 import { logErrorToDiscord } from "./logging";
 
 export const client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMembers] });
@@ -59,13 +57,7 @@ export async function startDiscordBot() {
         },
     };
 
-    const commands = [
-        ping_command,
-        ...EVENT_COMMANDS,
-        ...PARTICIPANTS_COMMANDS,
-        ...LEADERBOARD_COMMANDS,
-        ...UTILS_COMMANDS,
-    ];
+    const commands = [ping_command, ...PARTICIPANTS_COMMANDS, ...LEADERBOARD_COMMANDS];
     const command_map: { [key: string]: DiscordCommand } = commands.reduce((acc, v) => ({ [v.name]: v, ...acc }), {});
 
     const rest = new REST({ version: "10" }).setToken(process.env.DISCORD_APP_TOKEN!);
