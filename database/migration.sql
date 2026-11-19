@@ -6,6 +6,7 @@ CREATE TABLE IF NOT EXISTS participants (
     discord_username TEXT UNIQUE,
     discord_id TEXT UNIQUE,
     is_staff INTEGER,
+    is_donator INTEGER,
     points INTEGER
 );
 

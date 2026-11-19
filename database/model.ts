@@ -6,6 +6,7 @@ export interface Participant {
   discord_username: string;
   discord_id: string;
   is_staff: number;
+  is_donator: number;
   points: number;
 }
 

@@ -1,9 +1,12 @@
+import type { Participant } from "@/database/model";
 import {
     deleteParticipant,
     dropParticipantsTable,
     getParticipant,
     getParticipants,
     insertParticipantInDatabase,
+    insertParticipantsInDatabase,
+    toggleDonatorStatus,
     toggleStaffStatus,
 } from "@/database/participants";
 import { directus } from "@/directus";
@@ -24,26 +27,20 @@ async function participantDataAsString(discord_id: string): Promise<string> {
     }
     return (
         `## Data about <@${participant.discord_id}> in table\n` +
+        `- \`id\`: ${participant.id}\n` +
         `- \`username\`: ${participant.username}\n` +
         `- \`first_name\`: ${participant.first_name}\n` +
         `- \`family_name\`: ${participant.family_name}\n` +
         `- \`discord_id\`: <@${participant.discord_id}>\n` +
         `- \`is_staff\`: ${participant.is_staff ? "Yes" : "No"}\n` +
+        `- \`is_donator\`: ${participant.is_donator ? "Yes" : "No"}\n` +
         `- \`points\`: ${participant.points}\n`
     );
 }
 
 async function participantsDataAsString(): Promise<string> {
     const participants = await getParticipants();
-    return (
-        "## Data in table\n" +
-        participants
-            .map(
-                p =>
-                    `- ${p.is_staff ? "[STAFF]: " : ""}${p.username} | ${p.first_name} ${p.family_name} (<@${p.discord_id}>) | Score: ${p.points}\n`,
-            )
-            .join("")
-    );
+    return "## Participants\n" + participants.map(p => `- ${p.is_staff ? "[STAFF]: " : ""}${p.username}\n`).join("");
 }
 
 const LOAD_PARTICIPANTS: DiscordCommand = {
@@ -58,33 +55,42 @@ const LOAD_PARTICIPANTS: DiscordCommand = {
 
         await interaction.deferReply({ flags: MessageFlags.Ephemeral });
 
-        const directus_participants = (await directus().request(
-            readItems("icelan_participants"),
-        )) as IcelanParticipant[];
+        let directus_participants: IcelanParticipant[];
+        try {
+            directus_participants = (await directus().request(readItems("icelan_participants"))) as IcelanParticipant[];
+        } catch {
+            throw "Failed to read items from Directus.";
+        }
 
+        let participants: Participant[] = [];
         let missing_participants: IcelanParticipant[] = [];
         let errors: string[] = [];
         for (const p of directus_participants) {
-            const p_id = await getGuildMemberId(interaction.guild, p.discord_username!);
+            const p_id = await getGuildMemberId(interaction.guild, p.discord_username!.trim());
             if (p_id === null) {
                 missing_participants.push(p);
                 continue;
             }
 
             try {
-                await insertParticipantInDatabase(
-                    p.family_name!,
-                    p.first_name!,
-                    p.icelan_username!,
-                    p.discord_username!,
-                    p_id,
-                    false,
-                );
+                participants.push({
+                    id: 0,
+                    family_name: p.family_name!,
+                    first_name: p.first_name!,
+                    username: p.icelan_username!,
+                    discord_username: p.discord_username!,
+                    discord_id: p_id,
+                    is_staff: 0,
+                    is_donator: 0,
+                    points: 0,
+                });
             } catch (error) {
                 errors.push(`[ERROR] Failed to load @${p.discord_username?.toLowerCase()}: ` + (error as string));
                 continue;
             }
         }
+
+        await insertParticipantsInDatabase(participants);
 
         await interaction.editReply({
             content: (await participantsDataAsString())
@@ -160,14 +166,17 @@ const LOAD_PARTICIPANT_MANUALLY: DiscordCommand = {
 
         const p_id = interaction.options.getUser("discord_user")?.id ?? null;
 
-        await insertParticipantInDatabase(
-            p.family_name!,
-            p.first_name!,
-            p.icelan_username!,
-            p.discord_username!,
-            p_id!,
-            false,
-        );
+        await insertParticipantInDatabase({
+            id: 0,
+            family_name: p.family_name!,
+            first_name: p.first_name!,
+            username: p.icelan_username!,
+            discord_username: p.discord_username!,
+            discord_id: p_id!,
+            is_staff: 0,
+            is_donator: 0,
+            points: 0,
+        });
 
         await interaction.editReply({
             content: await participantDataAsString(p_id!),
@@ -265,6 +274,12 @@ const CREATE_PARTICIPANT: DiscordCommand = {
             type: ApplicationCommandOptionType.Boolean,
             required: false,
         },
+        {
+            name: "is_donator",
+            description: "Is the participant a donator?",
+            type: ApplicationCommandOptionType.Boolean,
+            required: false,
+        },
     ],
     async handler(interaction) {
         const first_name = interaction.options.getString("first_name") ?? null;
@@ -272,17 +287,21 @@ const CREATE_PARTICIPANT: DiscordCommand = {
         const username = interaction.options.getString("username") ?? null;
         const discord_user = interaction.options.getUser("discord_user");
         const is_staff = interaction.options.getBoolean("is_staff") ?? false;
+        const is_donator = interaction.options.getBoolean("is_donator") ?? false;
 
         await interaction.deferReply({ flags: MessageFlags.Ephemeral });
 
-        await insertParticipantInDatabase(
-            family_name!,
-            first_name!,
-            username!,
-            discord_user?.username!,
-            discord_user?.id!,
-            is_staff,
-        );
+        await insertParticipantInDatabase({
+            id: 0,
+            family_name: family_name!,
+            first_name: first_name!,
+            username: username!,
+            discord_username: discord_user?.username!,
+            discord_id: discord_user?.id!,
+            is_staff: is_staff ? 1 : 0,
+            is_donator: is_donator ? 1 : 0,
+            points: 0,
+        });
 
         await interaction.editReply({
             content: await participantDataAsString(discord_user?.id!),
@@ -318,6 +337,32 @@ const TOGGLE_STAFF: DiscordCommand = {
     },
 };
 
+const TOGGLE_DONATOR: DiscordCommand = {
+    name: "toggle_donator",
+    description: "Toggles the donator status of a participant in the database.",
+    defaultMemberPermissions: PermissionFlagsBits.Administrator,
+    options: [
+        {
+            name: "user",
+            description: "Discord user of participant",
+            type: ApplicationCommandOptionType.User,
+            required: true,
+        },
+    ],
+    async handler(interaction) {
+        await interaction.deferReply({ flags: MessageFlags.Ephemeral });
+        const user = interaction.options.getUser("user");
+
+        await toggleDonatorStatus(user?.id!);
+        const participant = await getParticipant(user?.id!);
+        if (!participant) {
+            await interaction.editReply(`<@${user?.id}> not found in the database.`);
+            return;
+        }
+        await interaction.editReply(`<@${user?.id}> is now ${participant?.is_donator ? "a donator" : "not a donator"}`);
+    },
+};
+
 export const PARTICIPANTS_COMMANDS = [
     LOAD_PARTICIPANTS,
     LOAD_PARTICIPANT_MANUALLY,
@@ -327,4 +372,5 @@ export const PARTICIPANTS_COMMANDS = [
     DELETE_PARTICIPANT,
     CREATE_PARTICIPANT,
     TOGGLE_STAFF,
+    TOGGLE_DONATOR,
 ];

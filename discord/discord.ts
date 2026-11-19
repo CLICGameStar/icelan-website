@@ -13,7 +13,9 @@ import {
     type ChatInputCommandInteraction,
 } from "discord.js";
 import { EVENT_COMMANDS } from "./commands/event";
+import { LEADERBOARD_COMMANDS } from "./commands/leaderboard";
 import { PARTICIPANTS_COMMANDS } from "./commands/participants";
+import { UTILS_COMMANDS } from "./commands/utils";
 import { logErrorToDiscord } from "./logging";
 
 export const client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMembers] });
@@ -57,7 +59,13 @@ export async function startDiscordBot() {
         },
     };
 
-    const commands = [ping_command, ...EVENT_COMMANDS, ...PARTICIPANTS_COMMANDS];
+    const commands = [
+        ping_command,
+        ...EVENT_COMMANDS,
+        ...PARTICIPANTS_COMMANDS,
+        ...LEADERBOARD_COMMANDS,
+        ...UTILS_COMMANDS,
+    ];
     const command_map: { [key: string]: DiscordCommand } = commands.reduce((acc, v) => ({ [v.name]: v, ...acc }), {});
 
     const rest = new REST({ version: "10" }).setToken(process.env.DISCORD_APP_TOKEN!);
@@ -94,7 +102,7 @@ export async function startDiscordBot() {
                 await interaction.reply({ content: content, flags: MessageFlags.Ephemeral });
             }
             await logErrorToDiscord(
-                `<@691967643728609290> <@459664790055550978> Vsy c'est la merde là. La commande \`/${interaction.commandName}\` a mega fail pour <@${interaction.user.id}>.\n\n[ERROR]: ${error as string}`,
+                `Vsy c'est la merde là. La commande \`/${interaction.commandName}\` a mega fail pour <@${interaction.user.id}>.\n\n[ERROR]: ${error as string}`,
             );
         }
     });
