@@ -1,4 +1,3 @@
-import type { Participant } from "@/database/model";
 import {
     deleteParticipant,
     dropParticipantsTable,
@@ -8,6 +7,7 @@ import {
     insertParticipantsInDatabase,
     toggleDonatorStatus,
     toggleStaffStatus,
+    type Participant,
 } from "@/database/participants";
 import { directus } from "@/directus";
 import type { IcelanParticipant } from "@/directus-config/types/aliases";
@@ -80,8 +80,8 @@ const LOAD_PARTICIPANTS: DiscordCommand = {
                     username: p.icelan_username!,
                     discord_username: p.discord_username!,
                     discord_id: p_id,
-                    is_staff: 0,
-                    is_donator: 0,
+                    is_staff: false,
+                    is_donator: false,
                     points: 0,
                 });
             } catch (error) {
@@ -167,15 +167,13 @@ const LOAD_PARTICIPANT_MANUALLY: DiscordCommand = {
         const p_id = interaction.options.getUser("discord_user")?.id ?? null;
 
         await insertParticipantInDatabase({
-            id: 0,
             family_name: p.family_name!,
             first_name: p.first_name!,
             username: p.icelan_username!,
             discord_username: p.discord_username!,
             discord_id: p_id!,
-            is_staff: 0,
-            is_donator: 0,
-            points: 0,
+            is_staff: false,
+            is_donator: false,
         });
 
         await interaction.editReply({
@@ -292,15 +290,13 @@ const CREATE_PARTICIPANT: DiscordCommand = {
         await interaction.deferReply({ flags: MessageFlags.Ephemeral });
 
         await insertParticipantInDatabase({
-            id: 0,
             family_name: family_name!,
             first_name: first_name!,
             username: username!,
             discord_username: discord_user?.username!,
             discord_id: discord_user?.id!,
-            is_staff: is_staff ? 1 : 0,
-            is_donator: is_donator ? 1 : 0,
-            points: 0,
+            is_staff: is_staff,
+            is_donator: is_donator,
         });
 
         await interaction.editReply({

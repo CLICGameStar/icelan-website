@@ -9,7 +9,7 @@ async function read_migration(): Promise<string> {
 }
 
 export async function open_database(): Promise<Database> {
-    const conn = new sqlite3("test.db", { fileMustExist: false });
+    const conn = new sqlite3(process.env.DATABASE_FILE, { fileMustExist: false });
     conn.exec(await read_migration());
     return conn;
 }

@@ -1,4 +1,4 @@
-export interface Participant {
+export interface DBParticipant {
   id: number;
   first_name: string;
   family_name: string;
