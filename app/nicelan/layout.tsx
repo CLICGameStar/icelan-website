@@ -21,8 +21,11 @@ export default async function NicelanLayout({ children }: { children: React.Reac
                         <Link href="/nicelan/tournois">
                             <h3>Tournois</h3>
                         </Link>
-                        <Link href="/nicelan/speedrun">
+                        <Link href="/nicelan/speedruns">
                             <h3>Speedruns</h3>
+                        </Link>
+                        <Link href="/">
+                            <h3>Retour</h3>
                         </Link>
                     </div>
                     {children}

@@ -7,8 +7,8 @@ export default async function Nicelan() {
             <div className="col-start-4 -col-end-1 self-end">
                 <h2>Classement</h2>
             </div>
-            <div className="col-start-1 -col-end-1 row-start-2 -row-end-1 grid grid-cols-subgrid grid-rows-subgrid">
-                <div className="-col-start-8 -col-end-1 row-start-1 row-span-2 grid grid-cols-3 grid-rows-subgrid gap-(--gap)">
+            <div className="col-start-4 -col-end-1 row-start-2 -row-end-1 grid grid-cols-subgrid grid-rows-subgrid">
+                <div className="col-start-1 -col-end-1 row-start-1 row-span-2 grid grid-cols-3 grid-rows-subgrid gap-(--gap)">
                     {participants
                         .sort((a, b) => a.points - b.points)
                         .slice(0, 3)
@@ -24,7 +24,7 @@ export default async function Nicelan() {
                             </div>
                         ))}
                 </div>
-                <div className="outline outline-primary shadow-(--shadow-3d-primary) col-start-4 -col-end-1 -row-start-6 -row-end-1 grid grid-rows-subgrid pl-(--gap-s)">
+                <div className="outline outline-primary shadow-(--shadow-3d-primary) col-start-1 -col-end-1 -row-start-6 -row-end-1 grid grid-rows-subgrid pl-(--gap-s)">
                     {participants
                         .sort((a, b) => a.points - b.points)
                         .slice(3)
