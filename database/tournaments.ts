@@ -23,7 +23,16 @@ export type DoubleEliminationBracket = {
   root: Match;
 };
 
-export type Stage = SingleEliminationBracket | DoubleEliminationBracket;
+export type RoundRobin = {
+  type: "round_robin";
+  matches: Match[];
+  winner_counts: number;
+};
+
+export type Stage =
+  | SingleEliminationBracket
+  | DoubleEliminationBracket
+  | RoundRobin;
 
 export type Match = {
   id: number;
@@ -40,6 +49,7 @@ export type Team = DBTeam;
 function collectStage(
   type: string,
   id: number,
+  extra: string | null,
   db_matches: { [key: number]: DBMatch },
   matches: { [key: number]: Match },
 ): Stage {
@@ -60,11 +70,23 @@ function collectStage(
           })(),
       };
 
+    case "round_robin":
+      return {
+        type,
+        matches: Object.values(matches),
+        winner_counts: extra
+          ? parseInt(extra)
+          : (() => {
+              throw new Error();
+            })(),
+      };
+
     default:
       throw Error();
   }
 }
-async function getTournament(id: number): Promise<Tournament | null> {
+
+export async function getTournament(id: number): Promise<Tournament | null> {
   const conn = await open_database();
 
   const db_teams = conn
@@ -114,9 +136,21 @@ async function getTournament(id: number): Promise<Tournament | null> {
       .map((v) => match_map[v.id]);
   }
 
-  const stage1 = collectStage(tournament.format1, 0, db_match_map, match_map);
+  const stage1 = collectStage(
+    tournament.format1,
+    0,
+    tournament.extra,
+    db_match_map,
+    match_map,
+  );
   const stage2 = tournament.format2
-    ? collectStage(tournament.format2, 1, db_match_map, match_map)
+    ? collectStage(
+        tournament.format2,
+        1,
+        tournament.extra,
+        db_match_map,
+        match_map,
+      )
     : null;
 
   return {

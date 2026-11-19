@@ -26,7 +26,8 @@ CREATE TABLE IF NOT EXISTS tournaments (
     state TEXT NOT NULL,
     format1 TEXT NOT NULL,
     format2 TEXT,
-    current INTEGER
+    current INTEGER,
+    extra TEXT
 );
 
 CREATE TABLE IF NOT EXISTS matchs (

@@ -26,6 +26,7 @@ export interface DBTournament {
   format1: string;
   format2: string | null;
   current: number | null;
+  extra: string | null;
 }
 
 export interface DBMatch {
