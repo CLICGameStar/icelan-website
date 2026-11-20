@@ -16,6 +16,7 @@ import { LEADERBOARD_COMMANDS } from "./commands/leaderboard";
 import { PARTICIPANTS_COMMANDS } from "./commands/participants";
 import type { BotError } from "./error";
 import { logToDiscord } from "./logging";
+import { insertRankingPoints, RankingPoint } from "@/database/points";
 
 export const client = new Client({
   intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMembers],
@@ -36,6 +37,21 @@ const discordGlobal = globalThis as typeof globalThis & {
 };
 
 export async function startDiscordBot() {
+  // TESTS POINTS
+  const rankingPoints: RankingPoint[] = [
+    {
+      number_of_teams: 2,
+      points: [10, 5]
+    },
+    {
+      number_of_teams: 3,
+      points: [15, 10, 5]
+    }
+  ]
+
+  insertRankingPoints(rankingPoints)
+  // END POINTS TESTS
+
   if (discordGlobal.discordBotStarted) return;
   discordGlobal.discordBotStarted = true;
 
