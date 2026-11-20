@@ -7,17 +7,25 @@ CREATE TABLE IF NOT EXISTS participants (
     discord_id TEXT UNIQUE NOT NULL,
     is_staff INTEGER NOT NULL,
     is_donator INTEGER NOT NULL,
-    points INTEGER NOT NULL
+    points INTEGER
 );
 
 CREATE TABLE IF NOT EXISTS teams (
     id INTEGER PRIMARY KEY,
     "name" TEXT NOT NULL,
-    creator TEXT NOT NULL,
+    creator INTEGER NOT NULL,
     tournament_id INTEGER NOT NULL,
     rank INTEGER,
     confirmed INTEGER NOT NULL,
-    FOREIGN KEY (tournament_id) REFERENCES tournaments (id) FOREIGN KEY (creator) REFERENCES participants (discord_id)
+    FOREIGN KEY (tournament_id) REFERENCES tournaments (id) FOREIGN KEY (creator) REFERENCES participants (id)
+);
+
+CREATE TABLE enrollments (
+    participant_id INTEGER NOT NULL,
+    team_id INTEGER NOT NULL,
+    PRIMARY KEY (participant_id, team_id),
+    FOREIGN KEY (participant_id) REFERENCES participants(id),
+    FOREIGN KEY (team_id) REFERENCES teams(id)
 );
 
 CREATE TABLE IF NOT EXISTS tournaments (

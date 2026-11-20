@@ -110,6 +110,7 @@ export async function startDiscordBot() {
           2000,
         ),
       );
+
       const bot_error = error as BotError;
       let message;
       switch (bot_error.type) {
