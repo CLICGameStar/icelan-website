@@ -1,10 +1,9 @@
 export type BotError = (
   | { type: "invalid_data"; source: "database" | "user" }
   | { type: "other" }
-  | { type: "guild_not_found" }
-  | { type: "directus_participant_not_found" }
-  | { type: "db_participant_not_found" }
-  | { type: "missing_env", env: string }
+  | { type: "missing_env"; env: string }
+  | { type: "not_found" }
+  | { type: "not_implemented" }
 ) & { message?: string };
 
 export function throwError(error: BotError): never {

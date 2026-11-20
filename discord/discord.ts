@@ -14,6 +14,7 @@ import {
 } from "discord.js";
 import { LEADERBOARD_COMMANDS } from "./commands/leaderboard";
 import { PARTICIPANTS_COMMANDS } from "./commands/participants";
+import { TEAMS_COMMANDS } from "./commands/teams";
 import type { BotError } from "./error";
 import { logToDiscord } from "./logging";
 
@@ -69,6 +70,7 @@ export async function startDiscordBot() {
     ping_command,
     ...PARTICIPANTS_COMMANDS,
     ...LEADERBOARD_COMMANDS,
+    ...TEAMS_COMMANDS,
   ];
   const command_map: { [key: string]: DiscordCommand } = commands.reduce(
     (acc, v) => ({ [v.name]: v, ...acc }),
@@ -113,22 +115,23 @@ export async function startDiscordBot() {
 
       const bot_error = error as BotError;
       let message;
-      switch (bot_error.type) {
-        case "directus_participant_not_found":
-          message = `[ERROR]: Directus participant not found.`;
-          break;
-        case "db_participant_not_found":
-          message = `[ERROR]: Participant not found in database.`;
-          break;
-        case "invalid_data":
-          message = `[ERROR]: Invalid data.`;
-          break;
-        case "guild_not_found":
-          message = `[ERROR]: Guild not found.`;
-          break;
-        default:
-          message = `[ERROR]: Command failed.`;
-          break;
+      if (bot_error.message) {
+        message = `[ERROR]: ${bot_error.message}`;
+      } else {
+        switch (bot_error.type) {
+          case "not_found":
+            message = `[ERROR]: Not found`;
+            break;
+          case "invalid_data":
+            message = `[ERROR]: Invalid data`;
+            break;
+          case "not_implemented":
+            message = `[ERROR]: Not implemented`;
+            break;
+          default:
+            message = `[ERROR]: Command failed`;
+            break;
+        }
       }
       if (interaction.deferred || interaction.replied) {
         if (interaction.replied) {

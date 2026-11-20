@@ -13,7 +13,7 @@ export interface DBParticipant {
 export interface DBTeam {
   id: number;
   name: string;
-  creator: string;
+  creator: number;
   tournament_id: number;
   rank: number | null;
   confirmed: number;

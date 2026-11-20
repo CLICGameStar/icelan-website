@@ -66,14 +66,28 @@ export async function getParticipants(): Promise<Participant[]> {
   return st.all().map(dbToParticipant);
 }
 
-export async function getParticipant(discord_id: string): Promise<Participant> {
+export async function getParticipantByDiscordID(
+  discord_id: string,
+): Promise<Participant> {
   const conn = await open_database();
   const st = conn.prepare<string, DBParticipant>(
     "SELECT * FROM participants WHERE discord_id = ?",
   );
   const participant = st.get(discord_id);
   if (!participant) {
-    throwError({ type: "db_participant_not_found" });
+    throwError({ type: "not_found", message: "DB participant not found." });
+  }
+  return dbToParticipant(participant);
+}
+
+export async function getParticipant(id: number): Promise<Participant> {
+  const conn = await open_database();
+  const st = conn.prepare<number, DBParticipant>(
+    "SELECT * FROM participants WHERE id = ?",
+  );
+  const participant = st.get(id);
+  if (!participant) {
+    throwError({ type: "not_found", message: "DB participant not found." });
   }
   return dbToParticipant(participant);
 }

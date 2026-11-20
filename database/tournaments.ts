@@ -1,5 +1,7 @@
+import { throwError } from "@/discord/error";
 import { open_database } from "./main";
 import { DBMatch, DBTeam, DBTournament } from "./model";
+import type { Team } from "./teams";
 
 export type TournamentState = "created" | "opened" | "started" | "finished";
 
@@ -30,7 +32,9 @@ export type RoundRobin = {
 };
 
 export type Stage =
-  SingleEliminationBracket | DoubleEliminationBracket | RoundRobin;
+  | SingleEliminationBracket
+  | DoubleEliminationBracket
+  | RoundRobin;
 
 export type Match = {
   id: number;
@@ -42,7 +46,12 @@ export type Match = {
   previous: Match[] | null;
 };
 
-export type Team = DBTeam;
+function dbToTournament(dbt: DBTournament): Promise<Tournament> {
+  throwError({
+    type: "not_implemented",
+    message: "dbToTournament not implemented",
+  });
+}
 
 function collectStage(
   type: string,
@@ -160,4 +169,15 @@ export async function getTournament(id: number): Promise<Tournament | null> {
     stage2,
     current: tournament.current ? [stage1, stage2][tournament.current] : null,
   };
+}
+
+export async function getTournamentFromName(
+  tournament_name: string,
+): Promise<Tournament | null> {
+  const conn = await open_database();
+  const st = conn.prepare<string, DBTournament>(
+    "SELECT * FROM teams WHERE name = ?",
+  );
+  const team = st.get(tournament_name) ?? null;
+  return team ? dbToTournament(team) : null;
 }

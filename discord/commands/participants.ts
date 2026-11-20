@@ -1,7 +1,7 @@
 import {
   deleteParticipant,
   dropParticipantsTable,
-  getParticipant,
+  getParticipantByDiscordID,
   getParticipants,
   insertParticipantInDatabase,
   insertParticipantsInDatabase,
@@ -34,7 +34,7 @@ async function getGuildMemberId(
 }
 
 async function participantDataAsString(discord_id: string): Promise<string> {
-  const participant = await getParticipant(discord_id);
+  const participant = await getParticipantByDiscordID(discord_id);
   return (
     `## Data about <@${participant.discord_id}> in table\n` +
     `- \`id\`: ${participant.id}\n` +
@@ -65,7 +65,7 @@ const LOAD_PARTICIPANTS: DiscordCommand = {
   defaultMemberPermissions: PermissionFlagsBits.Administrator,
   async handler(interaction) {
     if (!interaction.guild) {
-      throwError({ type: "guild_not_found" });
+      throwError({ type: "not_found", message: "Not in a server" });
     }
 
     await interaction.deferReply({ flags: MessageFlags.Ephemeral });
@@ -164,7 +164,7 @@ const LOAD_PARTICIPANT_MANUALLY: DiscordCommand = {
   ],
   async handler(interaction) {
     if (!interaction.guild) {
-      throwError({ type: "guild_not_found" });
+      throwError({ type: "not_found", message: "Not in a server" });
     }
 
     await interaction.deferReply({ flags: MessageFlags.Ephemeral });
@@ -185,17 +185,20 @@ const LOAD_PARTICIPANT_MANUALLY: DiscordCommand = {
     if (participant.length === 1) {
       p = participant[0];
     } else {
-      throwError({ type: "directus_participant_not_found" });
+      throwError({
+        type: "not_found",
+        message: "Directus participant not found.",
+      });
     }
 
-    const p_id = interaction.options.getUser("discord_user")?.id ?? null;
+    const p_id = interaction.options.getUser("discord_user")!.id;
 
     await insertParticipantInDatabase({
       family_name: p.family_name!,
       first_name: p.first_name!,
       username: p.icelan_username!,
       discord_username: p.discord_username!,
-      discord_id: p_id!,
+      discord_id: p_id,
       is_staff: false,
       is_donator: false,
     });
@@ -347,7 +350,7 @@ const TOGGLE_STAFF: DiscordCommand = {
     const user = interaction.options.getUser("user");
 
     await toggleStaffStatus(user?.id!);
-    const participant = await getParticipant(user?.id!);
+    const participant = await getParticipantByDiscordID(user?.id!);
     await interaction.editReply(
       `<@${user?.id}> is now ${participant?.is_staff ? "a staff member" : "not a staff member"}`,
     );
@@ -371,7 +374,7 @@ const TOGGLE_DONATOR: DiscordCommand = {
     const user = interaction.options.getUser("user");
 
     await toggleDonatorStatus(user?.id!);
-    const participant = await getParticipant(user?.id!);
+    const participant = await getParticipantByDiscordID(user?.id!);
     await interaction.editReply(
       `<@${user?.id}> is now ${participant?.is_donator ? "a donator" : "not a donator"}`,
     );
