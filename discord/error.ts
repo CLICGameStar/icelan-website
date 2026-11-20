@@ -4,6 +4,7 @@ export type BotError = (
   | { type: "guild_not_found" }
   | { type: "directus_participant_not_found" }
   | { type: "db_participant_not_found" }
+  | { type: "missing_env", env: string }
 ) & { message?: string };
 
 export function throwError(error: BotError): never {
