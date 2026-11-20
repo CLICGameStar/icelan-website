@@ -39,3 +39,10 @@ export interface DBMatch {
   next_winner: number | null;
   next_loser: number | null;
 }
+
+export interface DBResultPoints {
+  id: number;
+  number_of_teams: number;
+  rank: number;
+  points: number;
+}
