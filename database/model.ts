@@ -40,7 +40,7 @@ export interface DBMatch {
   next_loser: number | null;
 }
 
-export interface DBResultPoints {
+export interface DBRankingPoints {
   id: number;
   number_of_teams: number;
   rank: number;

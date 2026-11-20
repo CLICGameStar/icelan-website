@@ -37,8 +37,9 @@ const discordGlobal = globalThis as typeof globalThis & {
 };
 
 export async function startDiscordBot() {
-  // TESTS POINTS
-  const rankingPoints: RankingPoint[] = [
+  // START POINTS TEST
+
+  const rps: RankingPoint[] = [
     {
       number_of_teams: 2,
       points: [10, 5]
@@ -49,8 +50,9 @@ export async function startDiscordBot() {
     }
   ]
 
-  insertRankingPoints(rankingPoints)
-  // END POINTS TESTS
+  insertRankingPoints(rps)
+
+  // END POINTS TEST
 
   if (discordGlobal.discordBotStarted) return;
   discordGlobal.discordBotStarted = true;

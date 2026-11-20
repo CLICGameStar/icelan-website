@@ -2,8 +2,8 @@ CREATE TABLE IF NOT EXISTS participants (
     id INTEGER PRIMARY KEY,
     first_name TEXT NOT NULL,
     family_name TEXT NOT NULL,
-    username TEXT NOT NULL,
-    discord_username TEXT UNIQUE NOT NULL,
+    username TEXT UNIQUE NOT NULL,
+    discord_username TEXT NOT NULL,
     discord_id TEXT UNIQUE NOT NULL,
     is_staff INTEGER NOT NULL,
     is_donator INTEGER NOT NULL,
@@ -12,15 +12,16 @@ CREATE TABLE IF NOT EXISTS participants (
 
 CREATE TABLE IF NOT EXISTS teams (
     id INTEGER PRIMARY KEY,
-    "name" TEXT NOT NULL,
+    "name" TEXT UNIQUE NOT NULL,
     creator INTEGER NOT NULL,
     tournament_id INTEGER NOT NULL,
     rank INTEGER,
     confirmed INTEGER NOT NULL,
-    FOREIGN KEY (tournament_id) REFERENCES tournaments (id) FOREIGN KEY (creator) REFERENCES participants (id)
+    FOREIGN KEY (tournament_id) REFERENCES tournaments (id),
+    FOREIGN KEY (creator) REFERENCES participants (id)
 );
 
-CREATE TABLE enrollments (
+CREATE TABLE IF NOT EXISTS enrollments (
     participant_id INTEGER NOT NULL,
     team_id INTEGER NOT NULL,
     PRIMARY KEY (participant_id, team_id),
@@ -30,7 +31,7 @@ CREATE TABLE enrollments (
 
 CREATE TABLE IF NOT EXISTS tournaments (
     id INTEGER PRIMARY KEY,
-    "name" TEXT NOT NULL,
+    "name" TEXT UNIQUE NOT NULL,
     team_size INTEGER NOT NULL,
     state TEXT NOT NULL,
     format1 TEXT NOT NULL,
@@ -50,7 +51,7 @@ CREATE TABLE IF NOT EXISTS matchs (
     FOREIGN KEY (tournament_id) REFERENCES tournaments (id)
 );
 
-CREATE TABLE IF NOT EXISTS results_points(
+CREATE TABLE IF NOT EXISTS ranking_points(
     id INTEGER PRIMARY KEY,
     number_of_teams INTEGER,
     rank INTEGER,

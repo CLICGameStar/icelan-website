@@ -7,9 +7,11 @@ export type RankingPoint = {
 }
 
 export async function insertRankingPoints(rankingPoints: RankingPoint[]) {
+    console.log("hi")
     const conn = await open_database();
+    console.log("bob")
     const st = conn.prepare(
-        "INSERT INTO results_points(number_of_teams, rank, points) VALUES(?, ?, ?)"
+        "INSERT INTO ranking_points(number_of_teams, rank, points) VALUES(?, ?, ?)"
     );
     rankingPoints.forEach(rp => {
         rp.points.forEach(p => {
@@ -22,10 +24,10 @@ export async function insertRankingPoints(rankingPoints: RankingPoint[]) {
     });
 }
 
-export async function getPointsForRank(number_of_teams: number, rank: number): Promise<number> {
+export async function getPointsForRankAndNumberOfTeam(number_of_teams: number, rank: number): Promise<number> {
     const conn = await open_database();
     const st = conn.prepare<[number, number], number>(
         "SELECT points FROM results_points WHERE number_of_teams = ? AND rank = ?"
     );
-    return st.get(number_of_teams, rank) ?? throwError(); 
+    return st.get(number_of_teams, rank) ?? throwError({ type: "db_ranking_points_query_failed"}); 
 }
