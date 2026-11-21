@@ -14,9 +14,9 @@ import {
 } from "discord.js";
 import { LEADERBOARD_COMMANDS } from "./commands/leaderboard";
 import { PARTICIPANTS_COMMANDS } from "./commands/participants";
-import type { BotError } from "./error";
+import { throwError, type BotError } from "./error";
 import { logToDiscord } from "./logging";
-import { insertRankingPoints, RankingPoint } from "@/database/points";
+import { getPointsForRankAndNumberOfTeam, insertRankingPoints, RankingPoint } from "@/database/points";
 
 export const client = new Client({
   intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMembers],
@@ -51,6 +51,41 @@ export async function startDiscordBot() {
   ]
 
   insertRankingPoints(rps)
+
+  // should return 10
+  let p = await getPointsForRankAndNumberOfTeam(2, 1);
+  if (p != 10) {
+    console.log(typeof(p))
+    throwError({ type: "failed point test" });
+  }
+
+  // should return 5
+  p = await getPointsForRankAndNumberOfTeam(3, 3);
+  if (p != 5) {
+    console.log(p)
+    throwError({ type: "failed point test" });
+  }
+
+  // should throw error
+  try {
+    p = await getPointsForRankAndNumberOfTeam(3, -1);
+  } catch (error) {
+     console.log(error)
+  }
+
+  // should throw error
+  try {
+    p = await getPointsForRankAndNumberOfTeam(4, 4);
+  } catch (error) {
+     console.log(error)
+  }
+
+  // should throw error
+  try {
+    p = await getPointsForRankAndNumberOfTeam(3, 5);
+  } catch (error) {
+     console.log(error)
+  }
 
   // END POINTS TEST
 
