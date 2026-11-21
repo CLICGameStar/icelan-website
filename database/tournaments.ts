@@ -1,4 +1,3 @@
-import { throwError } from "@/discord/error";
 import { open_database } from "./main";
 import { DBMatch, DBTeam, DBTournament } from "./model";
 import type { Team } from "./teams";
@@ -177,7 +176,7 @@ export async function getTournamentFromName(
 
   const dbTournament = conn
     .prepare<string, DBTournament>("SELECT * FROM tournaments WHERE name = ?")
-    .get(tournamentName);
+    .get(tournamentName.toLowerCase().trim());
 
   if (!dbTournament) return null;
 

@@ -19,6 +19,11 @@ export interface DBTeam {
   confirmed: number;
 }
 
+export interface DBEnrollment {
+  participant_id: number;
+  team_id: number;
+}
+
 export interface DBTournament {
   id: number;
   name: string;

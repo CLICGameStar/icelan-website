@@ -66,7 +66,7 @@ export async function getParticipants(): Promise<Participant[]> {
   return st.all().map(dbToParticipant);
 }
 
-export async function getParticipantByDiscordID(
+export async function getParticipantFromDiscordId(
   discord_id: string,
 ): Promise<Participant> {
   const conn = await open_database();

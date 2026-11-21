@@ -1,7 +1,7 @@
 import {
   deleteParticipant,
   dropParticipantsTable,
-  getParticipantByDiscordID,
+  getParticipantFromDiscordId,
   getParticipants,
   insertParticipantInDatabase,
   insertParticipantsInDatabase,
@@ -34,7 +34,7 @@ async function getGuildMemberId(
 }
 
 async function participantDataAsString(discord_id: string): Promise<string> {
-  const participant = await getParticipantByDiscordID(discord_id);
+  const participant = await getParticipantFromDiscordId(discord_id);
   return (
     `## Data about <@${participant.discord_id}> in table\n` +
     `- \`id\`: ${participant.id}\n` +
@@ -350,7 +350,7 @@ const TOGGLE_STAFF: DiscordCommand = {
     const user = interaction.options.getUser("user");
 
     await toggleStaffStatus(user?.id!);
-    const participant = await getParticipantByDiscordID(user?.id!);
+    const participant = await getParticipantFromDiscordId(user?.id!);
     await interaction.editReply(
       `<@${user?.id}> is now ${participant?.is_staff ? "a staff member" : "not a staff member"}`,
     );
@@ -374,7 +374,7 @@ const TOGGLE_DONATOR: DiscordCommand = {
     const user = interaction.options.getUser("user");
 
     await toggleDonatorStatus(user?.id!);
-    const participant = await getParticipantByDiscordID(user?.id!);
+    const participant = await getParticipantFromDiscordId(user?.id!);
     await interaction.editReply(
       `<@${user?.id}> is now ${participant?.is_donator ? "a donator" : "not a donator"}`,
     );
