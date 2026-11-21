@@ -46,18 +46,79 @@ export type Match = {
   previous: Match[] | null;
 };
 
-function dbToTournament(dbt: DBTournament): Promise<Tournament> {
-  throwError({
-    type: "not_implemented",
-    message: "dbToTournament not implemented",
-  });
+function dbToTournament(
+  dbTournament: DBTournament,
+  dbTeams: DBTeam[],
+  dbMatches: DBMatch[],
+): Tournament {
+  const teams: { [key: number]: Team } = dbTeams.reduce(
+    (acc, v) => ({ [v.id]: v, ...acc }),
+    {},
+  );
+
+  const dbMatchMap: { [key: number]: DBMatch } = dbMatches.reduce(
+    (acc, v) => ({ [v.id]: v, ...acc }),
+    {},
+  );
+  const matchMap: { [key: number]: Match } = dbMatches.reduce(
+    (acc, v) => ({
+      [v.id]: {
+        id: v.id,
+        tournament_id: v.tournament_id,
+        teams: v.teams?.split(":").map((v) => teams[parseInt(v)]),
+        scores: v.score?.split(":")?.map(parseInt),
+      },
+      ...acc,
+    }),
+    {},
+  );
+
+  for (const m of Object.values(matchMap)) {
+    if (dbMatchMap[m.id].next_winner !== null)
+      m.next_winner = matchMap[dbMatchMap[m.id].next_winner!];
+    if (dbMatchMap[m.id].next_loser !== null)
+      m.next_loser = matchMap[dbMatchMap[m.id].next_loser!];
+
+    m.previous = Object.values(dbMatchMap)
+      .filter((v) => v.next_loser === m.id || v.next_winner === m.id)
+      .map((v) => matchMap[v.id]);
+  }
+
+  const stage1 = collectStage(
+    dbTournament.format1,
+    0,
+    dbTournament.extra,
+    dbMatchMap,
+    matchMap,
+  );
+  const stage2 = dbTournament.format2
+    ? collectStage(
+        dbTournament.format2,
+        1,
+        dbTournament.extra,
+        dbMatchMap,
+        matchMap,
+      )
+    : null;
+
+  return {
+    id: dbTournament.id,
+    name: dbTournament.name,
+    team_size: dbTournament.team_size,
+    state: dbTournament.state as TournamentState,
+    stage1,
+    stage2,
+    current: dbTournament.current
+      ? [stage1, stage2][dbTournament.current]
+      : null,
+  };
 }
 
 function collectStage(
   type: string,
   id: number,
   extra: string | null,
-  db_matches: { [key: number]: DBMatch },
+  dbMatches: { [key: number]: DBMatch },
   matches: { [key: number]: Match },
 ): Stage {
   switch (type) {
@@ -68,7 +129,7 @@ function collectStage(
         root:
           Object.values(matches).find(
             (m) =>
-              db_matches[m.id].tournament_stage === id &&
+              dbMatches[m.id].tournament_stage === id &&
               m.next_winner === null &&
               m.next_loser === null,
           ) ||
@@ -96,88 +157,36 @@ function collectStage(
 export async function getTournament(id: number): Promise<Tournament | null> {
   const conn = await open_database();
 
-  const db_teams = conn
+  const dbTeams = conn
     .prepare<number, DBTeam>("SELECT * FROM teams WHERE tournament_id = ?")
     .all(id);
-  const db_matchs = conn
+  const dbMatches = conn
     .prepare<number, DBMatch>("SELECT * FROM matchs WHERE tournament_id = ?")
     .all(id);
-  const tournament = conn
+  const dbTournament = conn
     .prepare<number, DBTournament>("SELECT * FROM tournaments WHERE id = ?")
     .get(id);
 
-  if (tournament === undefined) {
-    throw Error();
-  }
-
-  const teams: { [key: number]: Team } = db_teams.reduce(
-    (acc, v) => ({ [v.id]: v, ...acc }),
-    {},
-  );
-
-  const db_match_map: { [key: number]: DBMatch } = db_matchs.reduce(
-    (acc, v) => ({ [v.id]: v, ...acc }),
-    {},
-  );
-  const match_map: { [key: number]: Match } = db_matchs.reduce(
-    (acc, v) => ({
-      [v.id]: {
-        id: v.id,
-        tournament_id: v.tournament_id,
-        teams: v.teams?.split(":").map((v) => teams[parseInt(v)]),
-        scores: v.score?.split(":")?.map(parseInt),
-      },
-      ...acc,
-    }),
-    {},
-  );
-
-  for (const m of Object.values(match_map)) {
-    if (db_match_map[m.id].next_winner !== null)
-      m.next_winner = match_map[db_match_map[m.id].next_winner!];
-    if (db_match_map[m.id].next_loser !== null)
-      m.next_loser = match_map[db_match_map[m.id].next_loser!];
-
-    m.previous = Object.values(db_match_map)
-      .filter((v) => v.next_loser === m.id || v.next_winner === m.id)
-      .map((v) => match_map[v.id]);
-  }
-
-  const stage1 = collectStage(
-    tournament.format1,
-    0,
-    tournament.extra,
-    db_match_map,
-    match_map,
-  );
-  const stage2 = tournament.format2
-    ? collectStage(
-        tournament.format2,
-        1,
-        tournament.extra,
-        db_match_map,
-        match_map,
-      )
-    : null;
-
-  return {
-    id: tournament.id,
-    name: tournament.name,
-    team_size: tournament.team_size,
-    state: tournament.state as TournamentState,
-    stage1,
-    stage2,
-    current: tournament.current ? [stage1, stage2][tournament.current] : null,
-  };
+  return dbTournament ? dbToTournament(dbTournament, dbTeams, dbMatches) : null;
 }
 
 export async function getTournamentFromName(
-  tournament_name: string,
+  tournamentName: string,
 ): Promise<Tournament | null> {
   const conn = await open_database();
-  const st = conn.prepare<string, DBTournament>(
-    "SELECT * FROM teams WHERE name = ?",
-  );
-  const team = st.get(tournament_name) ?? null;
-  return team ? dbToTournament(team) : null;
+
+  const dbTournament = conn
+    .prepare<string, DBTournament>("SELECT * FROM tournaments WHERE name = ?")
+    .get(tournamentName);
+
+  if (!dbTournament) return null;
+
+  const dbTeams = conn
+    .prepare<number, DBTeam>("SELECT * FROM teams WHERE tournament_id = ?")
+    .all(dbTournament.id);
+  const dbMatches = conn
+    .prepare<number, DBMatch>("SELECT * FROM matchs WHERE tournament_id = ?")
+    .all(dbTournament.id);
+
+  return dbToTournament(dbTournament, dbTeams, dbMatches);
 }
