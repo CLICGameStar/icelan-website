@@ -1,5 +1,5 @@
 import { throwError } from "@/discord/error";
-import { open_database } from "./main"
+import { openDatabase } from "./main"
 
 export type RankingPoint = {
     number_of_teams: number,
@@ -7,7 +7,7 @@ export type RankingPoint = {
 }
 
 export async function clearRankingPointsTable() {
-    const conn = await open_database();
+    const conn = await openDatabase();
     const st = conn.prepare(
         "DELETE FROM ranking_points"
     );
@@ -15,7 +15,7 @@ export async function clearRankingPointsTable() {
 }
 
 export async function insertRankingPoints(rankingPoints: RankingPoint[]) {
-    const conn = await open_database();
+    const conn = await openDatabase();
     
     rankingPoints.forEach(rp => {
         if (rp.number_of_teams > rp.points.length) rp.points = rp.points.concat(Array(rp.number_of_teams - rp.points.length).fill(0));
@@ -87,7 +87,7 @@ export async function getPointsForNumberOfTeam(number_of_teams: number): Promise
 export async function getPointsForRankAndNumberOfTeam(number_of_teams: number, rank: number): Promise<number> {
     if (rank < 1) throwError({ type: "invalid rank used (< 1)" });
     if (number_of_teams < 1) throwError({ type: "invalid number_of_team used (< 1)" });
-    const conn = await open_database();
+    const conn = await openDatabase();
     const st = conn.prepare<[number, number], number>(
         "SELECT points FROM ranking_points WHERE number_of_teams = ? AND rank = ?"
     );
@@ -97,7 +97,7 @@ export async function getPointsForRankAndNumberOfTeam(number_of_teams: number, r
 }
 
 async function testInsertDuplicate(): Promise<Boolean> {
-    const conn = await open_database();
+    const conn = await openDatabase();
     let st = conn.prepare(
         "SELECT COUNT(*) size FROM " +
         "(SELECT number_of_teams, rank, points, COUNT(*) c FROM ranking_points GROUP BY number_of_teams, rank, points HAVING c > 1)"

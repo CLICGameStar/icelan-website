@@ -1,13 +1,11 @@
 export type BotError = (
-  | { type: "invalid_data"; source: "database" | "user" }
+  | { type: "invalid_data"; source: "database" | "user" | "other" }
   | { type: "other" }
   | { type: "missing_env"; env: string }
   | { type: "not_found" }
+  | { type: "data_locked" }
   | { type: "not_implemented" }
-  | { type: "guild_not_found" }
-  | { type: "directus_participant_not_found" }
-  | { type: "db_participant_not_found" }
-  | { type: "db_ranking_points_query_failed"}
+  | { type: "db_ranking_points_query_failed" }
   | { type: "invalid rank used (< 1)" }
   | { type: "failed point test" }
   | { type: "invalid number_of_team used (< 1)" }

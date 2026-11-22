@@ -1,11 +1,18 @@
 import { throwError } from "@/discord/error";
-import { open_database } from "./main";
-import { DBMatch, DBTeam, DBTournament } from "./model";
+import { openDatabase } from "./main";
+import {
+  DBMatch,
+  DBTeam,
+  DBTournament,
+  type DBEnrollment,
+  type DBParticipant,
+} from "./model";
+import { dbToParticipant, type Participant } from "./participants";
 import type { Team } from "./teams";
 
 export type TournamentState = "created" | "opened" | "started" | "finished";
 
-export type Tournament = {
+export type PopulatedTournament = {
   id: number;
   name: string;
   team_size: number;
@@ -13,6 +20,15 @@ export type Tournament = {
   stage1: Stage;
   stage2: Stage | null;
   current: Stage | null;
+};
+
+export type Tournament = {
+  id: number;
+  name: string;
+  team_size: number;
+  state: TournamentState;
+  stage1: Stage["type"];
+  stage2: Stage["type"] | null;
 };
 
 export type SingleEliminationBracket = {
@@ -46,11 +62,11 @@ export type Match = {
   previous: Match[] | null;
 };
 
-function dbToTournament(
+function dbToPopulatedTournament(
   dbTournament: DBTournament,
   dbTeams: DBTeam[],
   dbMatches: DBMatch[],
-): Tournament {
+): PopulatedTournament {
   const teams: { [key: number]: Team } = dbTeams.reduce(
     (acc, v) => ({ [v.id]: v, ...acc }),
     {},
@@ -172,8 +188,21 @@ function collectStage(
   }
 }
 
-export async function getTournament(id: number): Promise<Tournament | null> {
-  const conn = await open_database();
+function dbToTournament(t: DBTournament): Tournament {
+  return {
+    id: t.id,
+    name: t.name,
+    team_size: t.team_size,
+    state: t.state as TournamentState,
+    stage1: t.format1 as Stage["type"],
+    stage2: t.format2 as Stage["type"] | null,
+  };
+}
+
+export async function getPopulatedTournament(
+  id: number,
+): Promise<PopulatedTournament | null> {
+  const conn = await openDatabase();
 
   const dbTeams = conn
     .prepare<number, DBTeam>("SELECT * FROM teams WHERE tournament_id = ?")
@@ -185,17 +214,19 @@ export async function getTournament(id: number): Promise<Tournament | null> {
     .prepare<number, DBTournament>("SELECT * FROM tournaments WHERE id = ?")
     .get(id);
 
-  return dbTournament ? dbToTournament(dbTournament, dbTeams, dbMatches) : null;
+  return dbTournament
+    ? dbToPopulatedTournament(dbTournament, dbTeams, dbMatches)
+    : null;
 }
 
-export async function getTournamentFromName(
+export async function getPopulatedTournamentFromName(
   tournamentName: string,
-): Promise<Tournament | null> {
-  const conn = await open_database();
+): Promise<PopulatedTournament | null> {
+  const conn = await openDatabase();
 
   const dbTournament = conn
     .prepare<string, DBTournament>("SELECT * FROM tournaments WHERE name = ?")
-    .get(tournamentName.toLowerCase().trim());
+    .get(tournamentName.trim());
 
   if (!dbTournament) return null;
 
@@ -206,5 +237,52 @@ export async function getTournamentFromName(
     .prepare<number, DBMatch>("SELECT * FROM matchs WHERE tournament_id = ?")
     .all(dbTournament.id);
 
-  return dbToTournament(dbTournament, dbTeams, dbMatches);
+  return dbToPopulatedTournament(dbTournament, dbTeams, dbMatches);
+}
+
+export async function getTournament(id: number): Promise<Tournament | null> {
+  const conn = await openDatabase();
+
+  const dbTournament = conn
+    .prepare<number, DBTournament>("SELECT * FROM tournaments WHERE id = ?")
+    .get(id);
+
+  return dbTournament ? dbToTournament(dbTournament) : null;
+}
+
+export async function getTournamentFromName(
+  tournamentName: string,
+): Promise<Tournament | null> {
+  const conn = await openDatabase();
+
+  const dbTournament = conn
+    .prepare<string, DBTournament>("SELECT * FROM tournaments WHERE name = ?")
+    .get(tournamentName.toLowerCase().trim());
+
+  return dbTournament ? dbToTournament(dbTournament) : null;
+}
+
+export async function getTournamentParticipants(
+  id: number,
+): Promise<Participant[]> {
+  const conn = await openDatabase();
+  const dbTeams = conn
+    .prepare<number, DBTeam>("SELECT * FROM teams WHERE tournament_id = ?")
+    .all(id);
+
+  const st_e = conn.prepare<number, DBEnrollment>(
+    "SELECT * FROM enrollments WHERE team_id = ?",
+  );
+  const st_p = conn.prepare<number, DBParticipant>(
+    "SELECT * FROM participants WHERE id = ?",
+  );
+
+  let dbParticipants: DBParticipant[] = [];
+  dbTeams.forEach((t) =>
+    st_e
+      .all(t.id)
+      .forEach((e) => dbParticipants.push(st_p.get(e.participant_id)!)),
+  );
+
+  return dbParticipants.map(dbToParticipant);
 }

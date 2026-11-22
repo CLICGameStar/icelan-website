@@ -40,7 +40,7 @@ CREATE TABLE IF NOT EXISTS tournaments (
     extra TEXT
 );
 
-CREATE TABLE IF NOT EXISTS matchs (
+CREATE TABLE IF NOT EXISTS matches (
     id INTEGER PRIMARY KEY,
     tournament_id INTEGER NOT NULL,
     tournament_stage INTEGER NOT NULL,
