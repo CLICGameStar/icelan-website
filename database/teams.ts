@@ -30,6 +30,11 @@ export async function insertTeam(t: NewTeam): Promise<number> {
     .lastInsertRowid as number;
 }
 
+export async function deleteTeam(id: number) {
+  const conn = await openDatabase();
+  conn.prepare("DELETE FROM teams WHERE id = ?").run(id);
+}
+
 export async function insertEnrollment(e: Enrollment): Promise<number> {
   const conn = await openDatabase();
   const st = conn.prepare(
@@ -46,6 +51,13 @@ export async function getTeam(id: number): Promise<Team> {
     throwError({ type: "not_found", message: "DB Team not found" });
   }
   return dbToTeam(team);
+}
+
+export async function getTeams(): Promise<Team[]> {
+  const conn = await openDatabase();
+  const st = conn.prepare<[], DBTeam>("SELECT * FROM teams");
+  const teams = st.all();
+  return teams.map(dbToTeam);
 }
 
 export async function getTeamFromName(name: string): Promise<Team | null> {
@@ -75,4 +87,10 @@ export async function deleteEnrollment(
     "DELETE FROM enrollments WHERE participant_id = ? AND team_id = ?",
   );
   return st.run(participant_id, team_id);
+}
+
+export async function deleteEnrollmentsFromTeamId(team_id: number) {
+  const conn = await openDatabase();
+  const st = conn.prepare("DELETE FROM enrollments WHERE team_id = ?");
+  return st.run(team_id);
 }

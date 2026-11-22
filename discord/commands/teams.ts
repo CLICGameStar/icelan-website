@@ -5,9 +5,12 @@ import {
 } from "@/database/participants";
 import {
   deleteEnrollment,
+  deleteEnrollmentsFromTeamId,
+  deleteTeam,
   getTeam,
   getTeamFromName,
   getTeamMembers,
+  getTeams,
   insertEnrollment,
   insertTeam,
   type Team,
@@ -23,6 +26,7 @@ import {
   ButtonBuilder,
   ButtonStyle,
   MessageFlags,
+  PermissionFlagsBits,
   type TextChannel,
 } from "discord.js";
 import {
@@ -68,6 +72,15 @@ async function sendTeamInvite(participant: Participant, team: Team) {
     content: `<@${participant.discord_id}>\nTu as été invité·e à rejoindre l'équipe **${team.name}** par <@${(await getParticipant(team.creator)).discord_id}>.\n\nAcceptes-tu l'invitation ?`,
     components: [row],
   });
+}
+
+async function _deleteTeam(id: number) {
+  const team = await getTeam(id);
+  (await getTeamMembers(id)).forEach((m) =>
+    notify(m.id, `L'équipe **${team.name}** a été supprimée.`),
+  );
+  await deleteEnrollmentsFromTeamId(team.id);
+  await deleteTeam(team.id);
 }
 
 const CREATE_TEAM: DiscordCommand = {
@@ -122,6 +135,83 @@ const CREATE_TEAM: DiscordCommand = {
     await insertEnrollment({ participant_id: creator.id, team_id: team_id });
 
     await interaction.editReply({ content: await teamDataAsString(team_id) });
+  },
+};
+
+const DELETE_TEAM: DiscordCommand = {
+  name: "equipe_supprimer",
+  description: "Supprime une de tes équipes et désincrit la du tournoi",
+  options: [
+    {
+      name: "equipe",
+      description: "L'équipe que tu souhaite supprimer.",
+      type: ApplicationCommandOptionType.String,
+      required: true,
+    },
+  ],
+  async handler(interaction) {
+    await interaction.deferReply({ flags: MessageFlags.Ephemeral });
+
+    const team_name = interaction.options.getString("equipe");
+    const team = await getTeamFromName(team_name!);
+
+    if (!team) {
+      throwError({
+        type: "not_found",
+        message: "L'équipe n'a pas été trouvée.",
+      });
+    }
+
+    if (
+      team.creator !==
+      (await getParticipantFromDiscordId(interaction.user.id)).id
+    ) {
+      throwError({
+        type: "invalid_data",
+        source: "user",
+        message: "Tu n'es pas capitaine de cette équipe.",
+      });
+    }
+
+    const confirm = new ButtonBuilder()
+      .setCustomId(`team_delete:${team.id}:confirm`)
+      .setLabel("Confirmer")
+      .setStyle(ButtonStyle.Danger);
+
+    const cancel = new ButtonBuilder()
+      .setCustomId(`team_delete:${team.id}:cancel`)
+      .setLabel("Annuler")
+      .setStyle(ButtonStyle.Secondary);
+
+    const row = new ActionRowBuilder<ButtonBuilder>().addComponents(
+      confirm,
+      cancel,
+    );
+
+    await interaction.editReply({
+      content: `Souhaites-tu vraiment supprimer l'équipe **${team.name}** inscrite au tournoi ${(await getTournament(team.tournament_id))?.name}?\nCela va te désincrire du tournoi ainsi que toute ton équipe.`,
+      components: [row],
+    });
+  },
+};
+
+const LIST_TEAMS: DiscordCommand = {
+  name: "list_teams",
+  description: "Lists all of the teams",
+  defaultMemberPermissions: PermissionFlagsBits.Administrator,
+  async handler(interaction) {
+    await interaction.deferReply({ flags: MessageFlags.Ephemeral });
+    const teams = await getTeams();
+    await interaction.editReply({
+      content:
+        "## Teams\n" +
+        teams
+          .map(
+            async (t) =>
+              `- \`${t.name}\` in \`${(await getTournament(t.tournament_id))?.name}\`\n`,
+          )
+          .join(""),
+    });
   },
 };
 
@@ -320,6 +410,14 @@ const TEAM_INVITE: ComponentInteraction = {
     }
 
     const team = await getTeam(parseInt(args[1]));
+    if (team.confirmed) {
+      await interaction.message.delete();
+      throwError({
+        type: "data_locked",
+        message: "Cette équipe ne peut plus être modifiée.",
+      });
+    }
+
     const accepted =
       args[2] === "accept"
         ? true
@@ -330,14 +428,6 @@ const TEAM_INVITE: ComponentInteraction = {
               source: "other",
               message: "customId error",
             });
-
-    if (team.confirmed) {
-      await interaction.message.delete();
-      throwError({
-        type: "data_locked",
-        message: "Cette équipe ne peut plus être modifiée.",
-      });
-    }
 
     if (
       (await getTournamentParticipants(team.tournament_id))
@@ -352,21 +442,85 @@ const TEAM_INVITE: ComponentInteraction = {
       });
     }
 
-    if (accepted)
+    if (accepted) {
       insertEnrollment({ participant_id: participant.id, team_id: team.id });
-
-    await interaction.editReply({
-      content: accepted
-        ? `Tu as rejoint l'équipe **${team.name}**.`
-        : "Tu as refusé l'invitation.",
-    });
+      await interaction.editReply({
+        content: `Tu as rejoint l'équipe **${team.name}**.`,
+      });
+      await notify(
+        team.creator,
+        `<@${participant.discord_id}> a rejoint **${team.name}**.`,
+      );
+    } else {
+      await interaction.editReply({
+        content: `Tu as refusé l'invitation.`,
+      });
+      await notify(
+        team.creator,
+        `<@${participant.discord_id}> a refusé l'invitation.`,
+      );
+    }
     await interaction.message.delete();
-    await notify(
-      team.creator,
-      `<@${participant.discord_id}> a rejoint **${team.name}**.`,
-    );
   },
 };
 
-export const TEAMS_COMMANDS = [CREATE_TEAM, TEAM_DATA, INVITE, KICK];
-export const TEAM_BUTTON_INTERACTIONS = [TEAM_INVITE];
+const TEAM_DELETE: ComponentInteraction = {
+  name: "team_delete",
+  async handler(interaction, args) {
+    const team = await getTeam(parseInt(args[0]));
+    const creator = await getParticipant(team.creator);
+
+    if (interaction.user.id !== creator.discord_id) {
+      throwError({
+        type: "invalid_data",
+        source: "user",
+        message: "Ce message n'est pas destiné à toi.",
+      });
+    }
+
+    if (team.confirmed) {
+      await interaction.update({
+        content: `Cette équipe ne peut plus être modifiée.`,
+        components: [],
+      });
+      throwError({
+        type: "data_locked",
+        message: "Cette équipe ne peut plus être modifiée.",
+      });
+    }
+
+    const supprimer =
+      args[1] === "confirm"
+        ? true
+        : args[1] === "cancel"
+          ? false
+          : throwError({
+              type: "invalid_data",
+              source: "other",
+              message: "invalid customId",
+            });
+
+    if (supprimer) {
+      await _deleteTeam(team.id);
+      await interaction.update({
+        content: `L'équipe **${team.name}** a été supprimée`,
+        components: [],
+      });
+    } else {
+      await interaction.update({
+        content: `Opération annulée`,
+        components: [],
+      });
+    }
+  },
+};
+
+export const TEAMS_COMMANDS = [
+  CREATE_TEAM,
+  DELETE_TEAM,
+  LIST_TEAMS,
+  TEAM_DATA,
+  INVITE,
+  KICK,
+];
+export const TEAM_BUTTON_INTERACTIONS = [TEAM_INVITE, TEAM_DELETE];

@@ -1,5 +1,5 @@
 import {
-  deleteParticipant,
+  deleteParticipantFromDiscordId,
   dropParticipantsTable,
   getParticipantFromDiscordId,
   getParticipants,
@@ -259,7 +259,7 @@ const DELETE_PARTICIPANT: DiscordCommand = {
     await interaction.deferReply({ flags: MessageFlags.Ephemeral });
     const user = interaction.options.getUser("user");
 
-    await deleteParticipant(user?.id!);
+    await deleteParticipantFromDiscordId(user?.id!);
     await interaction.editReply(`<@${user?.id}> deleted`);
   },
 };
