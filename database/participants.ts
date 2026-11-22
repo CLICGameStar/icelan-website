@@ -52,7 +52,7 @@ export async function insertParticipantsInDatabase(
   );
 }
 
-function dbToParticipant(dbp: DBParticipant): Participant {
+export function dbToParticipant(dbp: DBParticipant): Participant {
   return {
     ...dbp,
     is_staff: dbp.is_staff === 1,

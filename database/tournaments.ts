@@ -1,6 +1,13 @@
 import { throwError } from "@/discord/error";
 import { openDatabase } from "./main";
-import { DBMatch, DBTeam, DBTournament } from "./model";
+import {
+  DBMatch,
+  DBTeam,
+  DBTournament,
+  type DBEnrollment,
+  type DBParticipant,
+} from "./model";
+import { dbToParticipant, type Participant } from "./participants";
 import type { Team } from "./teams";
 
 export type TournamentState = "created" | "opened" | "started" | "finished";
@@ -253,4 +260,29 @@ export async function getTournamentFromName(
     .get(tournamentName.toLowerCase().trim());
 
   return dbTournament ? dbToTournament(dbTournament) : null;
+}
+
+export async function getTournamentParticipants(
+  id: number,
+): Promise<Participant[]> {
+  const conn = await openDatabase();
+  const dbTeams = conn
+    .prepare<number, DBTeam>("SELECT * FROM teams WHERE tournament_id = ?")
+    .all(id);
+
+  const st_e = conn.prepare<number, DBEnrollment>(
+    "SELECT * FROM enrollments WHERE team_id = ?",
+  );
+  const st_p = conn.prepare<number, DBParticipant>(
+    "SELECT * FROM participants WHERE id = ?",
+  );
+
+  let dbParticipants: DBParticipant[] = [];
+  dbTeams.forEach((t) =>
+    st_e
+      .all(t.id)
+      .forEach((e) => dbParticipants.push(st_p.get(e.participant_id)!)),
+  );
+
+  return dbParticipants.map(dbToParticipant);
 }

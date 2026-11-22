@@ -1,34 +1,72 @@
 import {
   getParticipant,
   getParticipantFromDiscordId,
+  type Participant,
 } from "@/database/participants";
 import {
+  deleteEnrollment,
   getTeam,
   getTeamFromName,
   getTeamMembers,
-  insertTeamInDatabase,
+  insertEnrollment,
+  insertTeam,
   type Team,
 } from "@/database/teams";
-import { getTournament, getTournamentFromName } from "@/database/tournaments";
-import { ApplicationCommandOptionType, MessageFlags } from "discord.js";
-import type { DiscordCommand } from "../discord";
-import { throwError, type BotError } from "../error";
+import {
+  getTournament,
+  getTournamentFromName,
+  getTournamentParticipants,
+} from "@/database/tournaments";
+import {
+  ActionRowBuilder,
+  ApplicationCommandOptionType,
+  ButtonBuilder,
+  ButtonStyle,
+  MessageFlags,
+  type TextChannel,
+} from "discord.js";
+import {
+  client,
+  type ComponentInteraction,
+  type DiscordCommand,
+} from "../discord";
+import { throwError } from "../error";
+import { notify, USERS_CHANNEL_ID } from "../logging";
 
 async function teamDataAsString(id: number): Promise<string> {
   const team = await getTeam(id);
   return (
-    `## Données sur ${team.name}` +
+    `## Données sur ${team.name}\n` +
     `- \`tournoi\`: ${(await getTournament(team.tournament_id))?.name}\n` +
     `- \`nom\`: ${team.name}\n` +
-    `- \`capitaine\`: <@${(await getParticipant(id)).discord_id}>\n` +
-    `- \`équipiers\`: \n`
+    `- \`capitaine\`: <@${(await getParticipant(team.creator)).discord_id}>\n` +
+    `- \`équipiers\`: ${(await getTeamMembers(team.id)).map((m) => `<@${m.discord_id}>`).join(", ")}\n`
   );
 }
 
-function sendInvite(participant_id: number, team: Team) {
-  throwError({
-    type: "not_implemented",
-    message: "sendInvite() not implemented",
+async function sendTeamInvite(participant: Participant, team: Team) {
+  const accept = new ButtonBuilder()
+    .setCustomId(`team_invite:${participant.id}:${team.id}:accept`)
+    .setLabel("Accepter")
+    .setStyle(ButtonStyle.Success);
+
+  const refuse = new ButtonBuilder()
+    .setCustomId(`team_invite:${participant.id}:${team.id}:refuse`)
+    .setLabel("Refuser")
+    .setStyle(ButtonStyle.Secondary);
+
+  const row = new ActionRowBuilder<ButtonBuilder>().addComponents(
+    accept,
+    refuse,
+  );
+
+  const channel = (await client.channels.fetch(
+    USERS_CHANNEL_ID,
+  )) as TextChannel;
+
+  await channel.send({
+    content: `<@${participant.discord_id}>\nTu as été invité·e à rejoindre l'équipe **${team.name}** par <@${(await getParticipant(team.creator)).discord_id}>.\n\nAcceptes-tu l'invitation ?`,
+    components: [row],
   });
 }
 
@@ -53,20 +91,8 @@ const CREATE_TEAM: DiscordCommand = {
     await interaction.deferReply({ flags: MessageFlags.Ephemeral });
     const tournament_name = interaction.options.getString("tournoi");
     const team_name = interaction.options.getString("nom_equipe");
-    let creator;
-    try {
-      creator = await getParticipantFromDiscordId(interaction.user.id);
-    } catch (error) {
-      const bot_error = error as BotError;
-      if (bot_error.type == "not_found") {
-        await interaction.editReply(
-          "Tu ne fait pas partie des participants d'ICeLAN",
-        );
-        return;
-      } else {
-        throw error;
-      }
-    }
+    const creator = await getParticipantFromDiscordId(interaction.user.id);
+
     const tournament = await getTournamentFromName(tournament_name!);
     if (!tournament) {
       throwError({
@@ -74,17 +100,57 @@ const CREATE_TEAM: DiscordCommand = {
         message: "Le tournoi na pas été trouvé.",
       });
     }
-    const team_id = await insertTeamInDatabase({
+
+    // Check que le créateur ne fait pas déjà partie du tournoi
+    if (
+      (await getTournamentParticipants(tournament.id))
+        .map((p) => p.id)
+        .includes(creator.id)
+    ) {
+      throwError({
+        type: "invalid_data",
+        source: "user",
+        message: "Tu es déjà inscrit·e à ce tournoi.",
+      });
+    }
+
+    const team_id = await insertTeam({
       name: team_name!,
       creator: creator.id,
       tournament_id: tournament!.id,
     });
+    await insertEnrollment({ participant_id: creator.id, team_id: team_id });
 
     await interaction.editReply({ content: await teamDataAsString(team_id) });
   },
 };
 
-const INVITER: DiscordCommand = {
+const TEAM_DATA: DiscordCommand = {
+  name: "equipe_infos",
+  description: "Vois les infos sur une équipe.",
+  options: [
+    {
+      name: "equipe",
+      description: "L'équipe dont tu veux voir les infos",
+      type: ApplicationCommandOptionType.String,
+      required: true,
+    },
+  ],
+  async handler(interaction) {
+    await interaction.deferReply({ flags: MessageFlags.Ephemeral });
+    const team_name = interaction.options.getString("equipe");
+    const team = await getTeamFromName(team_name!);
+    if (!team) {
+      throwError({
+        type: "not_found",
+        message: "L'équipe n'a pas été trouvée.",
+      });
+    }
+    await interaction.editReply(await teamDataAsString(team.id));
+  },
+};
+
+const INVITE: DiscordCommand = {
   name: "inviter",
   description: "Invite un·e particpant·e à rejoindre une de tes équipes.",
   options: [
@@ -114,8 +180,10 @@ const INVITER: DiscordCommand = {
       });
     }
 
-    const creator = await getParticipant(team.creator);
-    if (creator.discord_id !== interaction.user.id) {
+    if (
+      team.creator !==
+      (await getParticipantFromDiscordId(interaction.user.id)).id
+    ) {
       throwError({
         type: "invalid_data",
         source: "user",
@@ -124,7 +192,9 @@ const INVITER: DiscordCommand = {
     }
 
     const participant = await getParticipantFromDiscordId(participant_user!.id);
-    if (participant.id in (await getTeamMembers(team.id))) {
+    if (
+      (await getTeamMembers(team.id)).map((p) => p.id).includes(participant.id)
+    ) {
       throwError({
         type: "invalid_data",
         source: "user",
@@ -132,11 +202,171 @@ const INVITER: DiscordCommand = {
       });
     }
 
-    sendInvite(participant.id, team);
+    if (team.confirmed) {
+      throwError({
+        type: "data_locked",
+        message: "Cette équipe ne peut plus être modifiée.",
+      });
+    }
+
+    if (
+      (await getTournamentParticipants(team.tournament_id))
+        .map((p) => p.id)
+        .includes(participant.id)
+    ) {
+      throwError({
+        type: "invalid_data",
+        source: "user",
+        message: `<@${participant.discord_id}> est déjà inscrit·e au tournoi.`,
+      });
+    }
+
+    sendTeamInvite(participant, team);
     await interaction.editReply(
-      `<@${participant!.id}> a été invité à rejoindre l'équipe ${team.name}`,
+      `<@${participant.discord_id}> a été invité à rejoindre l'équipe **${team.name}**.`,
     );
   },
 };
 
-export const TEAMS_COMMANDS = [CREATE_TEAM, INVITER];
+const KICK: DiscordCommand = {
+  name: "kicker",
+  description: "Kick un·e participant·e de ton équipe",
+  options: [
+    {
+      name: "equipe",
+      description: "L'équipe dont tu veut kicker la personne.",
+      type: ApplicationCommandOptionType.String,
+      required: true,
+    },
+    {
+      name: "participant",
+      description: "La personne que tu veut kicker.",
+      type: ApplicationCommandOptionType.User,
+      required: true,
+    },
+  ],
+  async handler(interaction) {
+    await interaction.deferReply({ flags: MessageFlags.Ephemeral });
+
+    const team_name = interaction.options.getString("equipe");
+    const participant_user = interaction.options.getUser("participant");
+    const team = await getTeamFromName(team_name!);
+
+    if (!team) {
+      throwError({
+        type: "not_found",
+        message: "L'équipe n'a pas été trouvée",
+      });
+    }
+
+    if (
+      team.creator !==
+      (await getParticipantFromDiscordId(interaction.user.id)).id
+    ) {
+      throwError({
+        type: "invalid_data",
+        source: "user",
+        message: "Tu n'es pas capitaine de l'équipe.",
+      });
+    }
+
+    const participant = await getParticipantFromDiscordId(participant_user!.id);
+    if (team.creator === participant.id) {
+      throwError({
+        type: "invalid_data",
+        source: "user",
+        message: "Tu ne peut pas te kicker toi même de ton équipe.",
+      });
+    }
+
+    if (team.confirmed) {
+      throwError({
+        type: "data_locked",
+        message: "Cette équipe ne peut plus être modifiée.",
+      });
+    }
+
+    await deleteEnrollment(participant.id, team.id);
+
+    // Check que la personne ne fait plus partie de l'équipe.
+    if (
+      (await getTeamMembers(team.id)).map((m) => m.id).includes(participant.id)
+    ) {
+      throwError({ type: "querry failed", message: "La fonction a échoué." });
+    }
+
+    await interaction.editReply({
+      content: `<@${participant.discord_id}> a été kické de l'équipe **${team.name}**.`,
+    });
+    await notify(
+      participant.id,
+      `Tu as été kické de l'équipe **${team.name}**.`,
+    );
+  },
+};
+
+const TEAM_INVITE: ComponentInteraction = {
+  name: "team_invite",
+  async handler(interaction, args) {
+    await interaction.deferReply({ flags: MessageFlags.Ephemeral });
+    const participant = await getParticipant(parseInt(args[0]));
+
+    if (interaction.user.id !== participant.discord_id) {
+      throwError({
+        type: "invalid_data",
+        source: "user",
+        message: "Ce message n'est pas destiné à toi.",
+      });
+    }
+
+    const team = await getTeam(parseInt(args[1]));
+    const accepted =
+      args[2] === "accept"
+        ? true
+        : args[2] === "refuse"
+          ? false
+          : throwError({
+              type: "invalid_data",
+              source: "other",
+              message: "customId error",
+            });
+
+    if (team.confirmed) {
+      await interaction.message.delete();
+      throwError({
+        type: "data_locked",
+        message: "Cette équipe ne peut plus être modifiée.",
+      });
+    }
+
+    if (
+      (await getTournamentParticipants(team.tournament_id))
+        .map((p) => p.id)
+        .includes(participant.id)
+    ) {
+      await interaction.message.delete();
+      throwError({
+        type: "invalid_data",
+        source: "user",
+        message: "Tu es déjà inscrit·e à ce tournoi.",
+      });
+    }
+
+    if (accepted)
+      insertEnrollment({ participant_id: participant.id, team_id: team.id });
+
+    await interaction.editReply({
+      content: accepted
+        ? `Tu as rejoint l'équipe **${team.name}**.`
+        : "Tu as refusé l'invitation.",
+    });
+    await interaction.message.delete();
+    await notify(
+      team.creator,
+      `<@${participant.discord_id}> a rejoint **${team.name}**.`,
+    );
+  },
+};
+
+export const TEAMS_COMMANDS = [CREATE_TEAM, TEAM_DATA, INVITE, KICK];
+export const TEAM_BUTTON_INTERACTIONS = [TEAM_INVITE];

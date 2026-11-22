@@ -21,12 +21,21 @@ function dbToTeam(dbt: DBTeam): Team {
   return { ...dbt, confirmed: dbt.confirmed == 1 };
 }
 
-export async function insertTeamInDatabase(t: NewTeam): Promise<number> {
+export async function insertTeam(t: NewTeam): Promise<number> {
   const conn = await openDatabase();
   const st = conn.prepare(
-    "INSERT INTO teams(name, creator, tournament_id) VALUES(?, ?, ?)",
+    "INSERT INTO teams(name, creator, tournament_id, confirmed) VALUES(?, ?, ?, ?)",
   );
-  return st.run(t.name, t.creator, t.tournament_id).lastInsertRowid as number;
+  return st.run(t.name, t.creator, t.tournament_id, 0)
+    .lastInsertRowid as number;
+}
+
+export async function insertEnrollment(e: Enrollment): Promise<number> {
+  const conn = await openDatabase();
+  const st = conn.prepare(
+    "INSERT INTO enrollments(participant_id, team_id) VALUES(?, ?)",
+  );
+  return st.run(e.participant_id, e.team_id).lastInsertRowid as number;
 }
 
 export async function getTeam(id: number): Promise<Team> {
@@ -55,4 +64,15 @@ export async function getTeamMembers(team_id: number): Promise<Participant[]> {
   return await Promise.all(
     enrollments.map((e) => getParticipant(e.participant_id)),
   );
+}
+
+export async function deleteEnrollment(
+  participant_id: number,
+  team_id: number,
+) {
+  const conn = await openDatabase();
+  const st = conn.prepare(
+    "DELETE FROM enrollments WHERE participant_id = ? AND team_id = ?",
+  );
+  return st.run(participant_id, team_id);
 }
