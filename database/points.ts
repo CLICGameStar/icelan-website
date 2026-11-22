@@ -53,6 +53,37 @@ export async function insertRankingPoints(rankingPoints: RankingPoint[]) {
     });
 }
 
+export async function getPoints(): Promise<RankingPoint[]> {
+    const conn = await open_database();
+    const st = conn.prepare(
+        "SELECT number_of_teams, rank, points FROM ranking_points"
+    );
+    let rps: RankingPoint[] = [];
+    st.all().map(o => {
+        let rp = rps.find(e => e.number_of_teams == o.number_of_teams);
+        if (rp === undefined) {
+            let ps = Array(o.number_of_teams);
+            ps[o.rank] = o.points;
+            rps.push({number_of_teams: o.number_of_teams, points: ps});
+        } else rp.points[o.rank] = o.points;
+    });
+    
+    console.log(rps);
+    return rps;
+}
+
+export async function getPointsForNumberOfTeam(number_of_teams: number): Promise<number[]> {
+    if (number_of_teams < 1) throwError({ type: "invalid number_of_team used (< 1)" });
+
+    const conn = await open_database();
+    const st = conn.prepare<number, number>(
+        "SELECT points FROM ranking_points WHERE number_of_teams = ?"
+    );
+    const ps = st.all(number_of_teams).map(o => o.points);
+    
+    return ps;
+}
+
 export async function getPointsForRankAndNumberOfTeam(number_of_teams: number, rank: number): Promise<number> {
     if (rank < 1) throwError({ type: "invalid rank used (< 1)" });
     if (number_of_teams < 1) throwError({ type: "invalid number_of_team used (< 1)" });
@@ -133,10 +164,31 @@ export async function testRankingPoints() {
         throwError({ type: "failed point test" });
     } else console.log("Test partial insert 2 passed!");
 
+    // should return [15, 10, 5]
+    let success = true;
+    const expected = [15, 10, 5];
+    let ps: number[];
+    try {
+        ps = await getPointsForNumberOfTeam(3);
+    } catch (error) {
+        ps = Array();
+        success = false
+    }
+    if (success && ps.length != 3) success = false;
+    for (let i = 0; i < ps.length && success; i++) {
+        if (ps[i] != expected[i]) success = false; 
+    }
+    if (success) console.log("Test get points for specific number of team passed!");
+    else throwError({type: "failed point test"});
+
+    // should return everything (rps and rps2 concatenated)
+    await getPoints();
+    
     // should throw error
     try {
         p = await getPointsForRankAndNumberOfTeam(3, -1);
-        console.log("testing bob")
+        
+        throwError({ type: "failed point test" });
     } catch (error) {
         console.log(error)
     }
@@ -144,6 +196,8 @@ export async function testRankingPoints() {
     // should throw error
     try {
         p = await getPointsForRankAndNumberOfTeam(4, 4);
+
+        throwError({ type: "failed point test" });
     } catch (error) {
         console.log(error)
     }
@@ -151,6 +205,8 @@ export async function testRankingPoints() {
     // should throw error
     try {
         p = await getPointsForRankAndNumberOfTeam(3, 5);
+        
+        throwError({ type: "failed point test" });
     } catch (error) {
         console.log(error)
     }
