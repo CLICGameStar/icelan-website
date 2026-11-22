@@ -42,7 +42,7 @@ export async function getTeam(id: number): Promise<Team> {
 export async function getTeamFromName(name: string): Promise<Team | null> {
   const conn = await openDatabase();
   const st = conn.prepare<string, DBTeam>("SELECT * FROM teams WHERE name = ?");
-  const team = st.get(name.toLowerCase().trim());
+  const team = st.get(name.trim());
   return team ? dbToTeam(team) : null;
 }
 

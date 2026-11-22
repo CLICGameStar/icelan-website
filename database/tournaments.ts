@@ -219,7 +219,7 @@ export async function getPopulatedTournamentFromName(
 
   const dbTournament = conn
     .prepare<string, DBTournament>("SELECT * FROM tournaments WHERE name = ?")
-    .get(tournamentName.toLowerCase().trim());
+    .get(tournamentName.trim());
 
   if (!dbTournament) return null;
 
