@@ -18,6 +18,8 @@ import { PARTICIPANTS_COMMANDS } from "./commands/participants";
 import { TEAM_BUTTON_INTERACTIONS, TEAMS_COMMANDS } from "./commands/teams";
 import type { BotError } from "./error";
 import { logToDiscord } from "./logging";
+import { testRankingPoints } from "@/database/points";
+import { POINTS_COMMANDS } from "./commands/points";
 
 export const client = new Client({
   intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMembers],
@@ -85,6 +87,7 @@ export async function startDiscordBot() {
     ...PARTICIPANTS_COMMANDS,
     ...LEADERBOARD_COMMANDS,
     ...TEAMS_COMMANDS,
+    ...POINTS_COMMANDS,
   ];
   const command_map: { [key: string]: DiscordCommand } = commands.reduce(
     (acc, v) => ({ [v.name]: v, ...acc }),
