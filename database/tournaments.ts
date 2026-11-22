@@ -1,3 +1,4 @@
+import { throwError } from "@/discord/error";
 import { open_database } from "./main";
 import { DBMatch, DBTeam, DBTournament } from "./model";
 import type { Team } from "./teams";
@@ -84,6 +85,7 @@ function dbToTournament(
   }
 
   const stage1 = collectStage(
+    dbTournament.id,
     dbTournament.format1,
     0,
     dbTournament.extra,
@@ -92,6 +94,7 @@ function dbToTournament(
   );
   const stage2 = dbTournament.format2
     ? collectStage(
+        dbTournament.id,
         dbTournament.format2,
         1,
         dbTournament.extra,
@@ -114,8 +117,9 @@ function dbToTournament(
 }
 
 function collectStage(
-  type: string,
   id: number,
+  type: string,
+  stage: number,
   extra: string | null,
   dbMatches: { [key: number]: DBMatch },
   matches: { [key: number]: Match },
@@ -125,16 +129,23 @@ function collectStage(
     case "double_elimination_bracket":
       return {
         type,
-        root:
-          Object.values(matches).find(
-            (m) =>
-              dbMatches[m.id].tournament_stage === id &&
-              m.next_winner === null &&
-              m.next_loser === null,
-          ) ||
-          (() => {
-            throw Error();
-          })(),
+        root: matches[
+          (
+            Object.values(dbMatches).find(
+              (m) =>
+                dbMatches[m.id].tournament_stage === stage &&
+                m.next_winner === null &&
+                m.next_loser === null,
+            ) ||
+            (() => {
+              throwError({
+                type: "invalid_data",
+                source: "database",
+                message: `tournament[${stage}] has no root match`,
+              });
+            })()
+          ).id
+        ],
       };
 
     case "round_robin":
@@ -144,12 +155,20 @@ function collectStage(
         winner_counts: extra
           ? parseInt(extra)
           : (() => {
-              throw new Error();
+              throwError({
+                type: "invalid_data",
+                source: "database",
+                message: `tournament[${stage}].extra is not an int`,
+              });
             })(),
       };
 
     default:
-      throw Error();
+      throwError({
+        type: "invalid_data",
+        source: "database",
+        message: `tournament[${stage}].type==${type}`,
+      });
   }
 }
 
