@@ -17,6 +17,7 @@ import { PARTICIPANTS_COMMANDS } from "./commands/participants";
 import { TEAMS_COMMANDS } from "./commands/teams";
 import type { BotError } from "./error";
 import { logToDiscord } from "./logging";
+import { testRankingPoints } from "@/database/points";
 
 export const client = new Client({
   intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMembers],
@@ -37,6 +38,12 @@ const discordGlobal = globalThis as typeof globalThis & {
 };
 
 export async function startDiscordBot() {
+  // START POINTS TEST, uncomment to test points functions
+
+  // await testRankingPoints();
+
+  // END POINTS TEST
+
   if (discordGlobal.discordBotStarted) return;
   discordGlobal.discordBotStarted = true;
 

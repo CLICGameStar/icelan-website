@@ -4,6 +4,15 @@ export type BotError = (
   | { type: "missing_env"; env: string }
   | { type: "not_found" }
   | { type: "not_implemented" }
+  | { type: "guild_not_found" }
+  | { type: "directus_participant_not_found" }
+  | { type: "db_participant_not_found" }
+  | { type: "db_ranking_points_query_failed"}
+  | { type: "invalid rank used (< 1)" }
+  | { type: "failed point test" }
+  | { type: "invalid number_of_team used (< 1)" }
+  | { type: "invalid number of points set (< 2)" }
+  | { type: "querry failed" }
 ) & { message?: string };
 
 export function throwError(error: BotError): never {

@@ -50,3 +50,10 @@ CREATE TABLE IF NOT EXISTS matchs (
     next_loser INTEGER,
     FOREIGN KEY (tournament_id) REFERENCES tournaments (id)
 );
+
+CREATE TABLE IF NOT EXISTS ranking_points(
+    id INTEGER PRIMARY KEY,
+    number_of_teams INTEGER,
+    rank INTEGER,
+    points INTEGER
+)
