@@ -98,10 +98,9 @@ export async function dropParticipantsTable() {
   st.run();
 }
 
-export async function deleteParticipant(discord_id: string) {
+export async function deleteParticipantFromDiscordId(discord_id: string) {
   const conn = await openDatabase();
-  const st = conn.prepare("DELETE FROM participants WHERE discord_id = ?");
-  st.run(discord_id);
+  conn.prepare("DELETE FROM participants WHERE discord_id = ?").run(discord_id);
 }
 
 export async function toggleStaffStatus(discord_id: string) {
