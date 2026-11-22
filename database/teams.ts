@@ -1,5 +1,5 @@
 import { throwError } from "@/discord/error";
-import { open_database } from "./main";
+import { openDatabase } from "./main";
 import type { DBEnrollment, DBTeam } from "./model";
 import { getParticipant, type Participant } from "./participants";
 
@@ -22,7 +22,7 @@ function dbToTeam(dbt: DBTeam): Team {
 }
 
 export async function insertTeamInDatabase(t: NewTeam): Promise<number> {
-  const conn = await open_database();
+  const conn = await openDatabase();
   const st = conn.prepare(
     "INSERT INTO teams(name, creator, tournament_id) VALUES(?, ?, ?)",
   );
@@ -30,7 +30,7 @@ export async function insertTeamInDatabase(t: NewTeam): Promise<number> {
 }
 
 export async function getTeam(id: number): Promise<Team> {
-  const conn = await open_database();
+  const conn = await openDatabase();
   const st = conn.prepare<number, DBTeam>("SELECT * FROM teams WHERE id = ?");
   const team = st.get(id);
   if (!team) {
@@ -40,14 +40,14 @@ export async function getTeam(id: number): Promise<Team> {
 }
 
 export async function getTeamFromName(name: string): Promise<Team | null> {
-  const conn = await open_database();
+  const conn = await openDatabase();
   const st = conn.prepare<string, DBTeam>("SELECT * FROM teams WHERE name = ?");
   const team = st.get(name.toLowerCase().trim());
   return team ? dbToTeam(team) : null;
 }
 
 export async function getTeamMembers(team_id: number): Promise<Participant[]> {
-  const conn = await open_database();
+  const conn = await openDatabase();
   const st = conn.prepare<number, DBEnrollment>(
     "SELECT * FROM enrollments WHERE team_id = ?",
   );

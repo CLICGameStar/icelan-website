@@ -1,4 +1,4 @@
-import { open_database } from "@/database/main";
+import { openDatabase } from "@/database/main";
 import {
   ApplicationCommandOptionType,
   Client,
@@ -49,7 +49,7 @@ export async function startDiscordBot() {
 
   client.once(Events.ClientReady, (readyClient) => {
     console.log(`Ready! Logged in as ${readyClient.user.tag}`);
-    open_database();
+    openDatabase();
   });
 
   const ping_command: DiscordCommand = {

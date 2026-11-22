@@ -1,5 +1,5 @@
 import { throwError } from "@/discord/error";
-import { open_database } from "./main";
+import { openDatabase } from "./main";
 import type { DBParticipant } from "./model";
 
 export type NewParticipant = {
@@ -15,7 +15,7 @@ export type NewParticipant = {
 export type Participant = NewParticipant & { id: number; points: number };
 
 export async function insertParticipantInDatabase(p: NewParticipant) {
-  const conn = await open_database();
+  const conn = await openDatabase();
   const st = conn.prepare(
     "INSERT INTO participants(first_name, family_name, username, discord_username, discord_id, is_staff, is_donator, points) VALUES(?, ?, ?, ?, ?, ?, ?, ?)",
   );
@@ -34,7 +34,7 @@ export async function insertParticipantInDatabase(p: NewParticipant) {
 export async function insertParticipantsInDatabase(
   participants: NewParticipant[],
 ) {
-  const conn = await open_database();
+  const conn = await openDatabase();
   const st = conn.prepare(
     "INSERT INTO participants(first_name, family_name, username, discord_username, discord_id, is_staff, is_donator, points) VALUES(?, ?, ?, ?, ?, ?, ?, ?)",
   );
@@ -61,7 +61,7 @@ function dbToParticipant(dbp: DBParticipant): Participant {
 }
 
 export async function getParticipants(): Promise<Participant[]> {
-  const conn = await open_database();
+  const conn = await openDatabase();
   const st = conn.prepare<[], DBParticipant>("SELECT * FROM participants");
   return st.all().map(dbToParticipant);
 }
@@ -69,7 +69,7 @@ export async function getParticipants(): Promise<Participant[]> {
 export async function getParticipantFromDiscordId(
   discord_id: string,
 ): Promise<Participant> {
-  const conn = await open_database();
+  const conn = await openDatabase();
   const st = conn.prepare<string, DBParticipant>(
     "SELECT * FROM participants WHERE discord_id = ?",
   );
@@ -81,7 +81,7 @@ export async function getParticipantFromDiscordId(
 }
 
 export async function getParticipant(id: number): Promise<Participant> {
-  const conn = await open_database();
+  const conn = await openDatabase();
   const st = conn.prepare<number, DBParticipant>(
     "SELECT * FROM participants WHERE id = ?",
   );
@@ -93,19 +93,19 @@ export async function getParticipant(id: number): Promise<Participant> {
 }
 
 export async function dropParticipantsTable() {
-  const conn = await open_database();
+  const conn = await openDatabase();
   const st = conn.prepare("DROP TABLE IF EXISTS participants");
   st.run();
 }
 
 export async function deleteParticipant(discord_id: string) {
-  const conn = await open_database();
+  const conn = await openDatabase();
   const st = conn.prepare("DELETE FROM participants WHERE discord_id = ?");
   st.run(discord_id);
 }
 
 export async function toggleStaffStatus(discord_id: string) {
-  const conn = await open_database();
+  const conn = await openDatabase();
   const st = conn.prepare(
     "UPDATE participants SET is_staff = NOT is_staff WHERE discord_id = ?",
   );
@@ -113,7 +113,7 @@ export async function toggleStaffStatus(discord_id: string) {
 }
 
 export async function toggleDonatorStatus(discord_id: string) {
-  const conn = await open_database();
+  const conn = await openDatabase();
   const st = conn.prepare(
     "UPDATE participants SET is_donator = NOT is_donator WHERE discord_id = ?",
   );

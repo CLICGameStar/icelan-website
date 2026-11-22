@@ -1,5 +1,5 @@
 import { throwError } from "@/discord/error";
-import { open_database } from "./main";
+import { openDatabase } from "./main";
 import { DBMatch, DBTeam, DBTournament } from "./model";
 import type { Team } from "./teams";
 
@@ -195,7 +195,7 @@ function dbToTournament(t: DBTournament): Tournament {
 export async function getPopulatedTournament(
   id: number,
 ): Promise<PopulatedTournament | null> {
-  const conn = await open_database();
+  const conn = await openDatabase();
 
   const dbTeams = conn
     .prepare<number, DBTeam>("SELECT * FROM teams WHERE tournament_id = ?")
@@ -215,7 +215,7 @@ export async function getPopulatedTournament(
 export async function getPopulatedTournamentFromName(
   tournamentName: string,
 ): Promise<PopulatedTournament | null> {
-  const conn = await open_database();
+  const conn = await openDatabase();
 
   const dbTournament = conn
     .prepare<string, DBTournament>("SELECT * FROM tournaments WHERE name = ?")
@@ -234,7 +234,7 @@ export async function getPopulatedTournamentFromName(
 }
 
 export async function getTournament(id: number): Promise<Tournament | null> {
-  const conn = await open_database();
+  const conn = await openDatabase();
 
   const dbTournament = conn
     .prepare<number, DBTournament>("SELECT * FROM tournaments WHERE id = ?")
@@ -246,7 +246,7 @@ export async function getTournament(id: number): Promise<Tournament | null> {
 export async function getTournamentFromName(
   tournamentName: string,
 ): Promise<Tournament | null> {
-  const conn = await open_database();
+  const conn = await openDatabase();
 
   const dbTournament = conn
     .prepare<string, DBTournament>("SELECT * FROM tournaments WHERE name = ?")
