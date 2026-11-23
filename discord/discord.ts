@@ -15,11 +15,12 @@ import {
 } from "discord.js";
 import { LEADERBOARD_COMMANDS } from "./commands/leaderboard";
 import { PARTICIPANTS_COMMANDS } from "./commands/participants";
+import { POINTS_COMMANDS } from "./commands/points";
 import { TEAM_BUTTON_INTERACTIONS, TEAMS_COMMANDS } from "./commands/teams";
+import { TOURNAMENT_COMMANDS } from "./commands/tournaments";
+import { USER_UTIL_COMMANDS } from "./commands/user_utils";
 import type { BotError } from "./error";
 import { logToDiscord } from "./logging";
-import { testRankingPoints } from "@/database/points";
-import { POINTS_COMMANDS } from "./commands/points";
 
 export const client = new Client({
   intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMembers],
@@ -88,6 +89,8 @@ export async function startDiscordBot() {
     ...LEADERBOARD_COMMANDS,
     ...TEAMS_COMMANDS,
     ...POINTS_COMMANDS,
+    ...USER_UTIL_COMMANDS,
+    ...TOURNAMENT_COMMANDS,
   ];
   const command_map: { [key: string]: DiscordCommand } = commands.reduce(
     (acc, v) => ({ [v.name]: v, ...acc }),

@@ -4,15 +4,14 @@ import {
   type Participant,
 } from "@/database/participants";
 import {
+  createTeam,
   deleteEnrollment,
-  deleteEnrollmentsFromTeamId,
   deleteTeam,
   getTeam,
   getTeamFromName,
   getTeamMembers,
   getTeams,
   insertEnrollment,
-  insertTeam,
   type Team,
 } from "@/database/teams";
 import {
@@ -40,12 +39,14 @@ import { notify, USERS_CHANNEL_ID } from "../logging";
 
 async function teamDataAsString(id: number): Promise<string> {
   const team = await getTeam(id);
+  const tournament = await getTournament(team.tournament_id);
   return (
     `## Données sur ${team.name}\n` +
-    `- \`tournoi\`: ${(await getTournament(team.tournament_id))?.name}\n` +
+    `- \`tournoi\`: ${tournament.name}\n` +
     `- \`nom\`: ${team.name}\n` +
+    `- \`taille requise de l'équipe\`: ${tournament.team_size}\n` +
     `- \`capitaine\`: <@${(await getParticipant(team.creator)).discord_id}>\n` +
-    `- \`équipiers\`: ${(await getTeamMembers(team.id)).map((m) => `<@${m.discord_id}>`).join(", ")}\n`
+    `- \`équipi·er·ères\`: ${(await getTeamMembers(team.id)).map((m) => `<@${m.discord_id}>`).join(", ")}\n`
   );
 }
 
@@ -80,12 +81,11 @@ async function _deleteTeam(id: number) {
   (await getTeamMembers(id)).forEach((m) =>
     notify(m.id, `L'équipe **${team.name}** a été supprimée.`),
   );
-  await deleteEnrollmentsFromTeamId(team.id);
   await deleteTeam(team.id);
 }
 
 const CREATE_TEAM: DiscordCommand = {
-  name: "equipe_creation",
+  name: "team_create",
   description: "Crée une équipe pour un tournoi.",
   options: [
     {
@@ -115,6 +115,14 @@ const CREATE_TEAM: DiscordCommand = {
       });
     }
 
+    if (tournament.team_size < 2) {
+      throwError({
+        type: "invalid_data",
+        source: "user",
+        message: "Ce tournoi ne se joue pas en équipes.",
+      });
+    }
+
     // Check que le créateur ne fait pas déjà partie du tournoi
     if (
       (await getTournamentParticipants(tournament.id))
@@ -128,19 +136,18 @@ const CREATE_TEAM: DiscordCommand = {
       });
     }
 
-    const team_id = await insertTeam({
+    const team_id = await createTeam({
       name: team_name!,
       creator: creator.id,
-      tournament_id: tournament!.id,
+      tournament_id: tournament.id,
     });
-    await insertEnrollment({ participant_id: creator.id, team_id: team_id });
 
     await interaction.editReply({ content: await teamDataAsString(team_id) });
   },
 };
 
 const DELETE_TEAM: DiscordCommand = {
-  name: "equipe_supprimer",
+  name: "team_delete",
   description: "Supprime une de tes équipes et désincrit la du tournoi",
   options: [
     {
@@ -204,11 +211,19 @@ const LIST_TEAMS: DiscordCommand = {
     await interaction.deferReply({ flags: MessageFlags.Ephemeral });
     const teams = await getTeams();
     const tournaments = await getTournaments();
+
+    await interaction.editReply(
+      `## Teams\nCount: \`${teams.length}\`\n` +
+        teams.map(
+          (t) =>
+            `- **${t.name}** du tournoi \`${tournaments.find((tour) => tour.id === t.tournament_id)!.name}\``,
+        ),
+    );
   },
 };
 
 const TEAM_DATA: DiscordCommand = {
-  name: "equipe_infos",
+  name: "team_info",
   description: "Vois les infos sur une équipe.",
   options: [
     {
@@ -233,7 +248,7 @@ const TEAM_DATA: DiscordCommand = {
 };
 
 const INVITE: DiscordCommand = {
-  name: "inviter",
+  name: "invite",
   description: "Invite un·e particpant·e à rejoindre une de tes équipes.",
   options: [
     {
@@ -273,6 +288,23 @@ const INVITE: DiscordCommand = {
       });
     }
 
+    if (team.confirmed) {
+      throwError({
+        type: "data_locked",
+        message: "Cette équipe ne peut plus être modifiée.",
+      });
+    }
+
+    if (
+      (await getTeamMembers(team.id)).length >=
+      (await getTournament(team.tournament_id)).team_size
+    ) {
+      throwError({
+        type: "other",
+        message: "L'équipe est pleine.",
+      });
+    }
+
     const participant = await getParticipantFromDiscordId(participant_user!.id);
     if (
       (await getTeamMembers(team.id)).map((p) => p.id).includes(participant.id)
@@ -281,13 +313,6 @@ const INVITE: DiscordCommand = {
         type: "invalid_data",
         source: "user",
         message: `<@${participant.discord_id}> fait déjà partie de l'équipe.`,
-      });
-    }
-
-    if (team.confirmed) {
-      throwError({
-        type: "data_locked",
-        message: "Cette équipe ne peut plus être modifiée.",
       });
     }
 
@@ -311,7 +336,7 @@ const INVITE: DiscordCommand = {
 };
 
 const KICK: DiscordCommand = {
-  name: "kicker",
+  name: "kick",
   description: "Kick un·e participant·e de ton équipe",
   options: [
     {
@@ -387,6 +412,65 @@ const KICK: DiscordCommand = {
   },
 };
 
+const LEAVE: DiscordCommand = {
+  name: "leave",
+  description: "Quitte une de tes équipes.",
+  options: [
+    {
+      name: "equipe",
+      description: "L'équipe que tu souhaite quitter.",
+      type: ApplicationCommandOptionType.String,
+      required: true,
+    },
+  ],
+  async handler(interaction) {
+    await interaction.deferReply({ flags: MessageFlags.Ephemeral });
+    const participant = await getParticipantFromDiscordId(interaction.user.id);
+    const team_name = interaction.options.getString("equipe");
+    const team = await getTeamFromName(team_name!);
+
+    if (!team) {
+      throwError({
+        type: "not_found",
+        message: "L'équipe n'a pas été trouvée.",
+      });
+    }
+
+    if (
+      !(await getTeamMembers(team.id)).map((m) => m.id).includes(participant.id)
+    ) {
+      throwError({
+        type: "invalid_data",
+        source: "user",
+        message: "Tu ne fait pas partie de cette équipe.",
+      });
+    }
+
+    if (team.confirmed) {
+      throwError({
+        type: "data_locked",
+        message: "Cette équipe ne peut plus être modifiée.",
+      });
+    }
+
+    if (team.creator === participant.id) {
+      throwError({
+        type: "invalid_data",
+        source: "user",
+        message: "Tu ne peut pas quitter une équipe dont tu es capitaine.",
+      });
+    }
+
+    await deleteEnrollment(participant.id, team.id);
+
+    if ((await getTeamMembers(team.id)).includes(participant)) {
+      throwError({ type: "querry failed" });
+    }
+
+    await interaction.editReply({ content: "Tu as quitté l'équipe." });
+  },
+};
+
 const TEAM_INVITE: ComponentInteraction = {
   name: "team_invite",
   async handler(interaction, args) {
@@ -410,17 +494,6 @@ const TEAM_INVITE: ComponentInteraction = {
       });
     }
 
-    const accepted =
-      args[2] === "accept"
-        ? true
-        : args[2] === "refuse"
-          ? false
-          : throwError({
-              type: "invalid_data",
-              source: "other",
-              message: "customId error",
-            });
-
     if (
       (await getTournamentParticipants(team.tournament_id))
         .map((p) => p.id)
@@ -433,6 +506,27 @@ const TEAM_INVITE: ComponentInteraction = {
         message: "Tu es déjà inscrit·e à ce tournoi.",
       });
     }
+
+    if (
+      (await getTeamMembers(team.id)).length >=
+      (await getTournament(team.tournament_id)).team_size
+    ) {
+      throwError({
+        type: "other",
+        message: "L'équipe est pleine.",
+      });
+    }
+
+    const accepted =
+      args[2] === "accept"
+        ? true
+        : args[2] === "refuse"
+          ? false
+          : throwError({
+              type: "invalid_data",
+              source: "other",
+              message: "customId error",
+            });
 
     if (accepted) {
       insertEnrollment({ participant_id: participant.id, team_id: team.id });
@@ -514,5 +608,6 @@ export const TEAMS_COMMANDS = [
   TEAM_DATA,
   INVITE,
   KICK,
+  LEAVE,
 ];
 export const TEAM_BUTTON_INTERACTIONS = [TEAM_INVITE, TEAM_DELETE];

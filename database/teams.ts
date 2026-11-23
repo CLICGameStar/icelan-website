@@ -1,7 +1,7 @@
 import { throwError } from "@/discord/error";
 import { openDatabase } from "./main";
-import type { DBEnrollment, DBTeam } from "./model";
-import { getParticipant, type Participant } from "./participants";
+import type { DBEnrollment, DBParticipant, DBTeam } from "./model";
+import { dbToParticipant, type Participant } from "./participants";
 
 export type NewTeam = {
   name: string;
@@ -21,13 +21,26 @@ function dbToTeam(dbt: DBTeam): Team {
   return { ...dbt, confirmed: dbt.confirmed == 1 };
 }
 
-export async function insertTeam(t: NewTeam): Promise<number> {
+export async function createTeam(t: NewTeam): Promise<number> {
   const conn = await openDatabase();
-  const st = conn.prepare(
-    "INSERT INTO teams(name, creator, tournament_id, confirmed) VALUES(?, ?, ?, ?)",
-  );
-  return st.run(t.name, t.creator, t.tournament_id, 0)
-    .lastInsertRowid as number;
+
+  const insert = conn.transaction((t: NewTeam) => {
+    const { lastInsertRowid } = conn
+      .prepare(
+        "INSERT INTO teams(name, creator, tournament_id, confirmed) VALUES (?, ?, ?, 0)",
+      )
+      .run(t.name, t.creator, t.tournament_id);
+
+    conn
+      .prepare(
+        `INSERT INTO enrollments (participant_id, team_id) VALUES (?, ?)`,
+      )
+      .run(t.creator, lastInsertRowid);
+
+    return Number(lastInsertRowid);
+  });
+
+  return insert(t);
 }
 
 export async function deleteTeam(id: number) {
@@ -45,7 +58,13 @@ export async function insertEnrollment(e: Enrollment): Promise<number> {
 
 export async function getTeam(id: number): Promise<Team> {
   const conn = await openDatabase();
-  const st = conn.prepare<number, DBTeam>("SELECT * FROM teams WHERE id = ?");
+  const st = conn.prepare<number, DBTeam>(`
+    SELECT t.*
+    FROM teams t
+    JOIN tournaments tr ON tr.id = t.tournament_id
+    WHERE tr.team_size > 1
+     AND t.id = ?`);
+
   const team = st.get(id);
   if (!team) {
     throwError({ type: "not_found", message: "DB Team not found" });
@@ -55,27 +74,58 @@ export async function getTeam(id: number): Promise<Team> {
 
 export async function getTeams(): Promise<Team[]> {
   const conn = await openDatabase();
-  const st = conn.prepare<[], DBTeam>("SELECT * FROM teams");
+  const st = conn.prepare<[], DBTeam>(`SELECT t.*
+    FROM teams t
+    JOIN tournaments tr ON tr.id = t.tournament_id
+    WHERE tr.team_size > 1`);
   const teams = st.all();
   return teams.map(dbToTeam);
 }
 
+export async function getTeamsFromParticpantId(
+  participant_id: number,
+): Promise<Team[]> {
+  const conn = await openDatabase();
+  return conn
+    .prepare<number, DBTeam>(
+      `SELECT t.*
+       FROM teams t
+       JOIN enrollments e ON e.team_id = t.id
+       JOIN tournaments tr ON tr.id = t.tournament_id
+       WHERE e.participant_id = ?
+        AND tr.team_size > 1`,
+    )
+    .all(participant_id)
+    .map(dbToTeam);
+}
+
 export async function getTeamFromName(name: string): Promise<Team | null> {
   const conn = await openDatabase();
-  const st = conn.prepare<string, DBTeam>("SELECT * FROM teams WHERE name = ?");
-  const team = st.get(name.trim());
+  const team = conn
+    .prepare<string, DBTeam>(
+      `
+      SELECT *
+      FROM teams t
+      JOIN tournaments tr ON tr.id = t.tournament_id
+      WHERE t.name = ?
+       AND tr.team_size > 1`,
+    )
+    .get(name.trim());
   return team ? dbToTeam(team) : null;
 }
 
 export async function getTeamMembers(team_id: number): Promise<Participant[]> {
   const conn = await openDatabase();
-  const st = conn.prepare<number, DBEnrollment>(
-    "SELECT * FROM enrollments WHERE team_id = ?",
-  );
-  const enrollments = st.all(team_id);
-  return await Promise.all(
-    enrollments.map((e) => getParticipant(e.participant_id)),
-  );
+
+  return conn
+    .prepare<number, DBParticipant>(
+      `SELECT p.*
+      FROM participants p
+      JOIN enrollments e ON e.participant_id = p.id
+      WHERE e.team_id = ?`,
+    )
+    .all(team_id)
+    .map(dbToParticipant);
 }
 
 export async function deleteEnrollment(
@@ -87,10 +137,4 @@ export async function deleteEnrollment(
     "DELETE FROM enrollments WHERE participant_id = ? AND team_id = ?",
   );
   return st.run(participant_id, team_id);
-}
-
-export async function deleteEnrollmentsFromTeamId(team_id: number) {
-  const conn = await openDatabase();
-  const st = conn.prepare("DELETE FROM enrollments WHERE team_id = ?");
-  return st.run(team_id);
 }
