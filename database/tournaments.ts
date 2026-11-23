@@ -240,14 +240,28 @@ export async function getPopulatedTournamentFromName(
   return dbToPopulatedTournament(dbTournament, dbTeams, dbMatches);
 }
 
-export async function getTournament(id: number): Promise<Tournament | null> {
+export async function getTournament(id: number): Promise<Tournament> {
   const conn = await openDatabase();
 
   const dbTournament = conn
     .prepare<number, DBTournament>("SELECT * FROM tournaments WHERE id = ?")
     .get(id);
 
-  return dbTournament ? dbToTournament(dbTournament) : null;
+  if (!dbTournament) {
+    throwError({ type: "not_found", message: "DB Tournament not found." });
+  }
+
+  return dbToTournament(dbTournament);
+}
+
+export async function getTournaments(): Promise<Tournament[]> {
+  const conn = await openDatabase();
+
+  const dbTournaments = conn
+    .prepare<[], DBTournament>("SELECT * FROM tournaments")
+    .all();
+
+  return dbTournaments.map(dbToTournament);
 }
 
 export async function getTournamentFromName(

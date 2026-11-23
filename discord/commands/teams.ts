@@ -19,6 +19,7 @@ import {
   getTournament,
   getTournamentFromName,
   getTournamentParticipants,
+  getTournaments,
 } from "@/database/tournaments";
 import {
   ActionRowBuilder,
@@ -202,16 +203,7 @@ const LIST_TEAMS: DiscordCommand = {
   async handler(interaction) {
     await interaction.deferReply({ flags: MessageFlags.Ephemeral });
     const teams = await getTeams();
-    await interaction.editReply({
-      content:
-        "## Teams\n" +
-        teams
-          .map(
-            async (t) =>
-              `- \`${t.name}\` in \`${(await getTournament(t.tournament_id))?.name}\`\n`,
-          )
-          .join(""),
-    });
+    const tournaments = await getTournaments();
   },
 };
 
