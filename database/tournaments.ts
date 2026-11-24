@@ -12,14 +12,19 @@ import type { Team } from "./teams";
 
 export type TournamentState = "created" | "opened" | "started" | "finished";
 
-export type PopulatedTournament = {
+type NewHelper<T extends boolean = false> = T extends true
+  ? {}
+  : { id: number };
+
+// T: set to true when this is a newly populated tournament (matches don't exist in DB yet, so no id)
+export type PopulatedTournament<T extends boolean = false> = {
   id: number;
   name: string;
   team_size: number;
   state: TournamentState;
-  stage1: Stage;
-  stage2: Stage | null;
-  current: Stage | null;
+  stage1: GenericStage<true, T>;
+  stage2: GenericStage<true, T> | null;
+  current: GenericStage<true, T> | null;
 };
 
 export type Tournament = {
@@ -27,40 +32,60 @@ export type Tournament = {
   name: string;
   team_size: number;
   state: TournamentState;
-  stage1: Stage["type"];
-  stage2: Stage["type"] | null;
+  stage1: GenericStage<false, false>;
+  stage2: GenericStage<false, false> | null;
 };
 
-export type SingleEliminationBracket = {
+export type SingleEliminationBracket<
+  P extends boolean,
+  T extends boolean = false,
+> = {
   type: "single_elimination_bracket";
-  root: Match;
-};
+} & (P extends true
+  ? {
+      root: Match<T>;
+    }
+  : {});
 
-export type DoubleEliminationBracket = {
+export type DoubleEliminationBracket<
+  P extends boolean,
+  T extends boolean = false,
+> = {
   type: "double_elimination_bracket";
-  root: Match;
-};
+} & (P extends true
+  ? {
+      root: Match<T>;
+    }
+  : {});
 
-export type RoundRobin = {
+export type RoundRobin<P extends boolean, T extends boolean = false> = {
   type: "round_robin";
-  matches: Match[];
-  winner_counts: number;
-};
 
-export type Stage =
-  | SingleEliminationBracket
-  | DoubleEliminationBracket
-  | RoundRobin;
+  winnerCount: number;
+} & (P extends true
+  ? {
+      matches: Match<T>[];
+    }
+  : {});
 
-export type Match = {
-  id: number;
-  tournament_id: number;
+type StageType = GenericStage<true>["type"];
+// P: whether it's populated or not
+type GenericStage<P extends boolean, T extends boolean = false> =
+  | SingleEliminationBracket<P, T>
+  | DoubleEliminationBracket<P, T>
+  | RoundRobin<P, T>;
+
+export type PopulatedStage<T extends boolean = false> = GenericStage<true, T>;
+export type Stage<T extends boolean = false> = GenericStage<false, T>;
+
+export type Match<T extends boolean = false> = {
+  tournamentId: number;
   teams: Team[] | null;
   scores: number[] | null;
-  next_winner: Match | null;
-  next_loser: Match | null;
-  previous: Match[] | null;
-};
+  next_winner: Match<T> | null;
+  next_loser: Match<T> | null;
+  previous: Match<T>[] | null;
+} & NewHelper<T>;
 
 function dbToPopulatedTournament(
   dbTournament: DBTournament,
@@ -139,7 +164,7 @@ function collectStage(
   extra: string | null,
   dbMatches: { [key: number]: DBMatch },
   matches: { [key: number]: Match },
-): Stage {
+): GenericStage<true> {
   switch (type) {
     case "single_elimination_bracket":
     case "double_elimination_bracket":
@@ -157,7 +182,7 @@ function collectStage(
               throwError({
                 type: "invalid_data",
                 source: "database",
-                message: `tournament[${stage}] has no root match`,
+                message: `tournament[${stage}] has no root matches`,
               });
             })()
           ).id
@@ -168,7 +193,7 @@ function collectStage(
       return {
         type,
         matches: Object.values(matches),
-        winner_counts: extra
+        winnerCount: extra
           ? parseInt(extra)
           : (() => {
               throwError({
@@ -188,14 +213,33 @@ function collectStage(
   }
 }
 
+function mapStage(
+  format: StageType,
+  extra: string | null,
+): GenericStage<false> {
+  return format === "round_robin"
+    ? {
+        type: format,
+        winnerCount: parseInt(
+          extra ||
+            throwError({
+              type: "invalid_data",
+              source: "database",
+              message: "missing extra for round_robin tournament",
+            }),
+        ),
+      }
+    : { type: format };
+}
+
 function dbToTournament(t: DBTournament): Tournament {
   return {
     id: t.id,
     name: t.name,
     team_size: t.team_size,
     state: t.state as TournamentState,
-    stage1: t.format1 as Stage["type"],
-    stage2: t.format2 as Stage["type"] | null,
+    stage1: mapStage(t.format1 as StageType, t.extra),
+    stage2: t.format2 ? mapStage(t.format2 as StageType, t.extra) : null,
   };
 }
 
@@ -208,7 +252,7 @@ export async function getPopulatedTournament(
     .prepare<number, DBTeam>("SELECT * FROM teams WHERE tournament_id = ?")
     .all(id);
   const dbMatches = conn
-    .prepare<number, DBMatch>("SELECT * FROM matchs WHERE tournament_id = ?")
+    .prepare<number, DBMatch>("SELECT * FROM matches WHERE tournament_id = ?")
     .all(id);
   const dbTournament = conn
     .prepare<number, DBTournament>("SELECT * FROM tournaments WHERE id = ?")
@@ -234,7 +278,7 @@ export async function getPopulatedTournamentFromName(
     .prepare<number, DBTeam>("SELECT * FROM teams WHERE tournament_id = ?")
     .all(dbTournament.id);
   const dbMatches = conn
-    .prepare<number, DBMatch>("SELECT * FROM matchs WHERE tournament_id = ?")
+    .prepare<number, DBMatch>("SELECT * FROM matches WHERE tournament_id = ?")
     .all(dbTournament.id);
 
   return dbToPopulatedTournament(dbTournament, dbTeams, dbMatches);

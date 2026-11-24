@@ -21,6 +21,17 @@ import { TOURNAMENT_COMMANDS } from "./commands/tournaments";
 import { USER_UTIL_COMMANDS } from "./commands/user_utils";
 import type { BotError } from "./error";
 import { logToDiscord } from "./logging";
+import {
+  generateDoubleEliminationBracket,
+  generateSingleEliminationBracket,
+} from "@/database/brackets";
+import { getTeamsForTournament } from "@/database/teams";
+import util from "util";
+import {
+  DoubleEliminationBracket,
+  getPopulatedTournament,
+  getTournament,
+} from "@/database/tournaments";
 
 export const client = new Client({
   intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMembers],
@@ -49,6 +60,14 @@ const discordGlobal = globalThis as typeof globalThis & {
 
 export async function startDiscordBot() {
   // START POINTS TEST, uncomment to test points functions
+
+  generateDoubleEliminationBracket({
+    tournamentId: 1,
+    stage: 0,
+    count: 8,
+    teams: await getTeamsForTournament(1),
+  });
+  const t = await getPopulatedTournament(1);
 
   // await testRankingPoints();
 

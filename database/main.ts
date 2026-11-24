@@ -5,6 +5,9 @@ import { readFile } from "node:fs/promises";
 async function readMigration(): Promise<string> {
   return await readFile("database/migration.sql", "utf-8");
 }
+async function readSeed(): Promise<string> {
+  return await readFile("database/seed.sql", "utf-8");
+}
 
 var conn: Database | null = null;
 
@@ -20,6 +23,12 @@ export async function openDatabase(): Promise<Database> {
     console.log("Migrating...");
     conn.exec(await readMigration());
     console.log("Migration done!");
+
+    if (process.env["NODE_ENV"] === "development") {
+      console.log("Seeding...");
+      conn.exec(await readSeed());
+      console.log("Seeding done!");
+    }
 
     const violations = conn.pragma("foreign_key_check");
     console.log("[DATABASE]: Violations\n" + JSON.stringify(violations));

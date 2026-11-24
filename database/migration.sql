@@ -57,4 +57,4 @@ CREATE TABLE IF NOT EXISTS ranking_points(
     number_of_teams INTEGER,
     rank INTEGER,
     points INTEGER
-)
+);

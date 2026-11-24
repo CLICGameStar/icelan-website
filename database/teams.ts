@@ -99,6 +99,15 @@ export async function getTeamsFromParticpantId(
     .map(dbToTeam);
 }
 
+export async function getTeamsForTournament(id: number): Promise<Team[]> {
+  const conn = await openDatabase();
+  const st = conn.prepare<number, DBTeam>(
+    "SELECT * FROM teams WHERE tournament_id = ?",
+  );
+  const teams = st.all(id);
+  return teams.map(dbToTeam);
+}
+
 export async function getTeamFromName(name: string): Promise<Team | null> {
   const conn = await openDatabase();
   const team = conn
