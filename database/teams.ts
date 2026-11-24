@@ -27,14 +27,12 @@ export async function createTeam(t: NewTeam): Promise<number> {
   const insert = conn.transaction((t: NewTeam) => {
     const { lastInsertRowid } = conn
       .prepare(
-        "INSERT INTO teams(name, creator, tournament_id, confirmed) VALUES (?, ?, ?, 0)",
+        "INSERT INTO teams(name, creator, tournament_id, confirmed) VALUES(?, ?, ?, 0)",
       )
       .run(t.name, t.creator, t.tournament_id);
 
     conn
-      .prepare(
-        `INSERT INTO enrollments (participant_id, team_id) VALUES (?, ?)`,
-      )
+      .prepare(`INSERT INTO enrollments (participant_id, team_id) VALUES(?, ?)`)
       .run(t.creator, lastInsertRowid);
 
     return Number(lastInsertRowid);
@@ -80,6 +78,16 @@ export async function getTeams(): Promise<Team[]> {
     WHERE tr.team_size > 1`);
   const teams = st.all();
   return teams.map(dbToTeam);
+}
+
+export async function getTeamsFromTournamentId(
+  tournament_id: number,
+): Promise<Team[]> {
+  const conn = await openDatabase();
+  return conn
+    .prepare<number, DBTeam>("SELECT * FROM teams WHERE tournament_id = ?")
+    .all(tournament_id)
+    .map(dbToTeam);
 }
 
 export async function getTeamsFromParticpantId(

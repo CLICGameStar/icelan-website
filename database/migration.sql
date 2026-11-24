@@ -12,11 +12,12 @@ CREATE TABLE IF NOT EXISTS participants (
 
 CREATE TABLE IF NOT EXISTS teams (
     id INTEGER PRIMARY KEY,
-    "name" TEXT UNIQUE NOT NULL,
+    "name" TEXT NOT NULL,
     creator INTEGER NOT NULL,
     tournament_id INTEGER NOT NULL,
     rank INTEGER,
     confirmed INTEGER NOT NULL,
+    UNIQUE (tournament_id, "name"),
     FOREIGN KEY (tournament_id) REFERENCES tournaments (id) ON DELETE CASCADE,
     FOREIGN KEY (creator) REFERENCES participants (id),
     FOREIGN KEY (creator, id) REFERENCES enrollments (participant_id, team_id) DEFERRABLE INITIALLY DEFERRED

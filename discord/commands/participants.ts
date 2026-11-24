@@ -93,10 +93,10 @@ const LOAD_PARTICIPANTS: DiscordCommand = {
       try {
         participants.push({
           id: 0,
-          family_name: p.family_name!,
-          first_name: p.first_name!,
-          username: p.icelan_username!,
-          discord_username: p.discord_username!,
+          family_name: p.family_name!.trim(),
+          first_name: p.first_name!.trim(),
+          username: p.icelan_username!.trim(),
+          discord_username: p.discord_username!.trim().toLowerCase(),
           discord_id: p_id,
           is_staff: false,
           is_donator: false,

@@ -36,3 +36,12 @@ export async function openDatabase(): Promise<Database> {
 
   return conn;
 }
+
+export async function rawSqlQuery(query: string): Promise<unknown> {
+  const conn = await openDatabase();
+  if (query.startsWith("SELECT")) {
+    return conn.prepare(query).all();
+  } else {
+    return conn.prepare(query).run();
+  }
+}

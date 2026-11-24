@@ -27,10 +27,10 @@ export type PopulatedTournament<T extends boolean = false> = {
   current: GenericStage<true, T> | null;
 };
 
-export type Tournament = {
-  id: number;
+export type NewTournament = {
   name: string;
   team_size: number;
+<<<<<<< HEAD
   state: TournamentState;
   stage1: GenericStage<false, false>;
   stage2: GenericStage<false, false> | null;
@@ -40,6 +40,15 @@ export type SingleEliminationBracket<
   P extends boolean,
   T extends boolean = false,
 > = {
+=======
+  stage1: Stage["type"];
+  stage2: Stage["type"] | null;
+};
+
+export type Tournament = NewTournament & { id: number; state: TournamentState };
+
+export type SingleEliminationBracket = {
+>>>>>>> 9c45031 (feat: uuuuh)
   type: "single_elimination_bracket";
 } & (P extends true
   ? {
@@ -343,4 +352,14 @@ export async function getTournamentParticipants(
   );
 
   return dbParticipants.map(dbToParticipant);
+}
+
+export async function createTournament(t: NewTournament): Promise<number> {
+  const conn = await openDatabase();
+  return conn
+    .prepare(
+      "INSERT INTO tournaments(name, team_size, state, format1, format2) VALUES(?, ?, ?, ?, ?)",
+    )
+    .run(t.name, t.team_size, "created", t.stage1, t.stage2)
+    .lastInsertRowid as number;
 }
