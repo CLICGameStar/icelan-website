@@ -1,4 +1,4 @@
-import { open_database } from "@/database/main";
+import { openDatabase } from "@/database/main";
 import {
   ApplicationCommandOptionType,
   Client,
@@ -9,16 +9,29 @@ import {
   REST,
   Routes,
   type APIApplicationCommandOption,
+  type ButtonInteraction,
   type CacheType,
   type ChatInputCommandInteraction,
 } from "discord.js";
 import { LEADERBOARD_COMMANDS } from "./commands/leaderboard";
 import { PARTICIPANTS_COMMANDS } from "./commands/participants";
-import { TEAMS_COMMANDS } from "./commands/teams";
+import { POINTS_COMMANDS } from "./commands/points";
+import { TEAM_BUTTON_INTERACTIONS, TEAMS_COMMANDS } from "./commands/teams";
+import { TOURNAMENT_COMMANDS } from "./commands/tournaments";
+import { USER_UTIL_COMMANDS } from "./commands/user_utils";
 import type { BotError } from "./error";
 import { logToDiscord } from "./logging";
-import { testRankingPoints } from "@/database/points";
-import { POINTS_COMMANDS } from "./commands/points";
+import {
+  generateDoubleEliminationBracket,
+  generateSingleEliminationBracket,
+} from "@/database/brackets";
+import { getTeamsForTournament } from "@/database/teams";
+import util from "util";
+import {
+  DoubleEliminationBracket,
+  getPopulatedTournament,
+  getTournament,
+} from "@/database/tournaments";
 
 export const client = new Client({
   intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMembers],
@@ -33,6 +46,13 @@ export interface DiscordCommand {
     interaction: ChatInputCommandInteraction<CacheType>,
   ) => Promise<void>;
 }
+export interface ComponentInteraction {
+  name: string;
+  handler: (
+    interaction: ButtonInteraction<CacheType>,
+    args: string[],
+  ) => Promise<void>;
+}
 
 const discordGlobal = globalThis as typeof globalThis & {
   discordBotStarted?: boolean;
@@ -40,6 +60,14 @@ const discordGlobal = globalThis as typeof globalThis & {
 
 export async function startDiscordBot() {
   // START POINTS TEST, uncomment to test points functions
+
+  generateDoubleEliminationBracket({
+    tournamentId: 1,
+    stage: 0,
+    count: 8,
+    teams: await getTeamsForTournament(1),
+  });
+  const t = await getPopulatedTournament(1);
 
   // await testRankingPoints();
 
@@ -50,7 +78,7 @@ export async function startDiscordBot() {
 
   client.once(Events.ClientReady, (readyClient) => {
     console.log(`Ready! Logged in as ${readyClient.user.tag}`);
-    open_database();
+    openDatabase();
   });
 
   const ping_command: DiscordCommand = {
@@ -80,11 +108,17 @@ export async function startDiscordBot() {
     ...LEADERBOARD_COMMANDS,
     ...TEAMS_COMMANDS,
     ...POINTS_COMMANDS,
+    ...USER_UTIL_COMMANDS,
+    ...TOURNAMENT_COMMANDS,
   ];
   const command_map: { [key: string]: DiscordCommand } = commands.reduce(
     (acc, v) => ({ [v.name]: v, ...acc }),
     {},
   );
+
+  const component_interactions = [...TEAM_BUTTON_INTERACTIONS];
+  const component_interaction_map: { [key: string]: ComponentInteraction } =
+    component_interactions.reduce((acc, v) => ({ [v.name]: v, ...acc }), {});
 
   const rest = new REST({ version: "10" }).setToken(
     process.env.DISCORD_APP_TOKEN!,
@@ -108,55 +142,108 @@ export async function startDiscordBot() {
   }
 
   client.on(Events.InteractionCreate, async (interaction) => {
-    if (!interaction.isChatInputCommand()) return;
+    if (interaction.isChatInputCommand()) {
+      try {
+        await command_map[interaction.commandName].handler(interaction);
+      } catch (error: any) {
+        console.log(error);
 
-    try {
-      await command_map[interaction.commandName].handler(interaction);
-    } catch (error: any) {
-      console.log(error);
+        await logToDiscord(
+          `[\`/${interaction.commandName}\`][<@${interaction.user.id}>] [ERROR]: ${JSON.stringify(error)}`.slice(
+            0,
+            2000,
+          ),
+        );
 
-      await logToDiscord(
-        `[\`/${interaction.commandName}\`][<@${interaction.user.id}>] [ERROR]: ${error}`.slice(
-          0,
-          2000,
-        ),
-      );
-
-      const bot_error = error as BotError;
-      let message;
-      if (bot_error.message) {
-        message = `[ERROR]: ${bot_error.message}`;
-      } else {
-        switch (bot_error.type) {
-          case "not_found":
-            message = `[ERROR]: Not found`;
-            break;
-          case "invalid_data":
-            message = `[ERROR]: Invalid data`;
-            break;
-          case "not_implemented":
-            message = `[ERROR]: Not implemented`;
-            break;
-          default:
-            message = `[ERROR]: Command failed`;
-            break;
+        const bot_error = error as BotError;
+        let message;
+        if (bot_error.message) {
+          message = `[ERROR]: ${bot_error.message}`;
+        } else {
+          switch (bot_error.type) {
+            case "not_found":
+              message = `[ERROR]: Not found`;
+              break;
+            case "invalid_data":
+              message = `[ERROR]: Invalid data`;
+              break;
+            case "not_implemented":
+              message = `[ERROR]: Not implemented`;
+              break;
+            default:
+              message = `[ERROR]: Command failed`;
+              break;
+          }
         }
-      }
-      if (interaction.deferred || interaction.replied) {
-        if (interaction.replied) {
-          await interaction.followUp({
+        if (interaction.deferred || interaction.replied) {
+          if (interaction.replied) {
+            await interaction.followUp({
+              content: message,
+              flags: MessageFlags.Ephemeral,
+            });
+          } else {
+            await interaction.editReply({ content: message });
+          }
+        } else {
+          await interaction.reply({
             content: message,
             flags: MessageFlags.Ephemeral,
           });
-        } else {
-          await interaction.editReply({ content: message });
         }
-      } else {
-        await interaction.reply({
-          content: message,
-          flags: MessageFlags.Ephemeral,
-        });
       }
+    } else if (interaction.isButton()) {
+      try {
+        await component_interaction_map[
+          interaction.customId.split(":")[0]
+        ].handler(interaction, interaction.customId.split(":").slice(1));
+      } catch (error: any) {
+        console.log(error);
+
+        await logToDiscord(
+          `[\`/${interaction.customId}\`][<@${interaction.user.id}>] [ERROR]: ${JSON.stringify(error)}`.slice(
+            0,
+            2000,
+          ),
+        );
+
+        const bot_error = error as BotError;
+        let message;
+        if (bot_error.message) {
+          message = `[ERROR]: ${bot_error.message}`;
+        } else {
+          switch (bot_error.type) {
+            case "not_found":
+              message = `[ERROR]: Not found`;
+              break;
+            case "invalid_data":
+              message = `[ERROR]: Invalid data`;
+              break;
+            case "not_implemented":
+              message = `[ERROR]: Not implemented`;
+              break;
+            default:
+              message = `[ERROR]: Command failed`;
+              break;
+          }
+        }
+        if (interaction.deferred || interaction.replied) {
+          if (interaction.replied) {
+            await interaction.followUp({
+              content: message,
+              flags: MessageFlags.Ephemeral,
+            });
+          } else {
+            await interaction.editReply({ content: message });
+          }
+        } else {
+          await interaction.reply({
+            content: message,
+            flags: MessageFlags.Ephemeral,
+          });
+        }
+      }
+    } else {
+      return;
     }
   });
 

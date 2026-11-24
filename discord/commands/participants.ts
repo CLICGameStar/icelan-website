@@ -1,5 +1,5 @@
 import {
-  deleteParticipant,
+  deleteParticipantFromDiscordId,
   dropParticipantsTable,
   getParticipantFromDiscordId,
   getParticipants,
@@ -51,7 +51,7 @@ async function participantDataAsString(discord_id: string): Promise<string> {
 async function participantsDataAsString(): Promise<string> {
   const participants = await getParticipants();
   return (
-    `## Participants\nNombre : \`${participants.length}\`` +
+    `## Participants\nNombre : \`${participants.length}\`\n` +
     participants
       .map((p) => `- ${p.is_staff ? "[STAFF]: " : ""}${p.username}\n`)
       .join("")
@@ -80,6 +80,7 @@ const LOAD_PARTICIPANTS: DiscordCommand = {
     let missing_participants: IcelanParticipant[] = [];
     let errors: string[] = [];
     for (const p of directus_participants) {
+      console.log(`Loading ${p.first_name}...`);
       const p_id = await getGuildMemberId(
         interaction.guild,
         p.discord_username!.trim(),
@@ -116,7 +117,7 @@ const LOAD_PARTICIPANTS: DiscordCommand = {
       content: (await participantsDataAsString())
         .concat(
           missing_participants.length > 0
-            ? "\n## Fails\n" +
+            ? `\n## Fails\nCount: \`${missing_participants.length}\`\n` +
                 missing_participants
                   .map(
                     (p) =>
@@ -244,7 +245,7 @@ const PARTICIPANT_DATA: DiscordCommand = {
 };
 
 const DELETE_PARTICIPANT: DiscordCommand = {
-  name: "delete_participant",
+  name: "participant_delete",
   description: "Deletes a participant from the database.",
   defaultMemberPermissions: PermissionFlagsBits.Administrator,
   options: [
@@ -259,13 +260,13 @@ const DELETE_PARTICIPANT: DiscordCommand = {
     await interaction.deferReply({ flags: MessageFlags.Ephemeral });
     const user = interaction.options.getUser("user");
 
-    await deleteParticipant(user?.id!);
+    await deleteParticipantFromDiscordId(user?.id!);
     await interaction.editReply(`<@${user?.id}> deleted`);
   },
 };
 
 const CREATE_PARTICIPANT: DiscordCommand = {
-  name: "create_participant",
+  name: "participant_create",
   description: "Creates a participant and adds it to the table.",
   defaultMemberPermissions: PermissionFlagsBits.Administrator,
   options: [
@@ -334,7 +335,7 @@ const CREATE_PARTICIPANT: DiscordCommand = {
 };
 
 const TOGGLE_STAFF: DiscordCommand = {
-  name: "toggle_staff",
+  name: "participant_toggle_staff",
   description: "Toggles the staff status of a participant in the database.",
   defaultMemberPermissions: PermissionFlagsBits.Administrator,
   options: [
@@ -358,7 +359,7 @@ const TOGGLE_STAFF: DiscordCommand = {
 };
 
 const TOGGLE_DONATOR: DiscordCommand = {
-  name: "toggle_donator",
+  name: "participant_toggle_donator",
   description: "Toggles the donator status of a participant in the database.",
   defaultMemberPermissions: PermissionFlagsBits.Administrator,
   options: [

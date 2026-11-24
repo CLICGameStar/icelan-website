@@ -17,16 +17,17 @@ CREATE TABLE IF NOT EXISTS teams (
     tournament_id INTEGER NOT NULL,
     rank INTEGER,
     confirmed INTEGER NOT NULL,
-    FOREIGN KEY (tournament_id) REFERENCES tournaments (id),
-    FOREIGN KEY (creator) REFERENCES participants (id)
+    FOREIGN KEY (tournament_id) REFERENCES tournaments (id) ON DELETE CASCADE,
+    FOREIGN KEY (creator) REFERENCES participants (id),
+    FOREIGN KEY (creator, id) REFERENCES enrollments (participant_id, team_id) DEFERRABLE INITIALLY DEFERRED
 );
 
 CREATE TABLE IF NOT EXISTS enrollments (
     participant_id INTEGER NOT NULL,
     team_id INTEGER NOT NULL,
     PRIMARY KEY (participant_id, team_id),
-    FOREIGN KEY (participant_id) REFERENCES participants(id),
-    FOREIGN KEY (team_id) REFERENCES teams(id)
+    FOREIGN KEY (participant_id) REFERENCES participants(id) ON DELETE CASCADE,
+    FOREIGN KEY (team_id) REFERENCES teams(id) ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS tournaments (
@@ -40,7 +41,7 @@ CREATE TABLE IF NOT EXISTS tournaments (
     extra TEXT
 );
 
-CREATE TABLE IF NOT EXISTS matchs (
+CREATE TABLE IF NOT EXISTS matches (
     id INTEGER PRIMARY KEY,
     tournament_id INTEGER NOT NULL,
     tournament_stage INTEGER NOT NULL,
@@ -48,7 +49,7 @@ CREATE TABLE IF NOT EXISTS matchs (
     scores TEXT,
     next_winner INTEGER,
     next_loser INTEGER,
-    FOREIGN KEY (tournament_id) REFERENCES tournaments (id)
+    FOREIGN KEY (tournament_id) REFERENCES tournaments (id) ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS ranking_points(
@@ -56,4 +57,4 @@ CREATE TABLE IF NOT EXISTS ranking_points(
     number_of_teams INTEGER,
     rank INTEGER,
     points INTEGER
-)
+);
