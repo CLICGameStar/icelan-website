@@ -13,6 +13,10 @@ import {
   type CacheType,
   type ChatInputCommandInteraction,
 } from "discord.js";
+import {
+  ADMIN_INTERACTION_COMPONENTS,
+  ADMIN_UTIL_COMMANDS,
+} from "./commands/admin_utils";
 import { LEADERBOARD_COMMANDS } from "./commands/leaderboard";
 import { PARTICIPANTS_COMMANDS } from "./commands/participants";
 import { POINTS_COMMANDS } from "./commands/points";
@@ -61,14 +65,6 @@ const discordGlobal = globalThis as typeof globalThis & {
 export async function startDiscordBot() {
   // START POINTS TEST, uncomment to test points functions
 
-  generateDoubleEliminationBracket({
-    tournamentId: 1,
-    stage: 0,
-    count: 8,
-    teams: await getTeamsForTournament(1),
-  });
-  const t = await getPopulatedTournament(1);
-
   // await testRankingPoints();
 
   // END POINTS TEST
@@ -110,13 +106,17 @@ export async function startDiscordBot() {
     ...POINTS_COMMANDS,
     ...USER_UTIL_COMMANDS,
     ...TOURNAMENT_COMMANDS,
+    ...ADMIN_UTIL_COMMANDS,
   ];
   const command_map: { [key: string]: DiscordCommand } = commands.reduce(
     (acc, v) => ({ [v.name]: v, ...acc }),
     {},
   );
 
-  const component_interactions = [...TEAM_BUTTON_INTERACTIONS];
+  const component_interactions = [
+    ...TEAM_BUTTON_INTERACTIONS,
+    ...ADMIN_INTERACTION_COMPONENTS,
+  ];
   const component_interaction_map: { [key: string]: ComponentInteraction } =
     component_interactions.reduce((acc, v) => ({ [v.name]: v, ...acc }), {});
 

@@ -12,80 +12,71 @@ import type { Team } from "./teams";
 
 export type TournamentState = "created" | "opened" | "started" | "finished";
 
-type NewHelper<T extends boolean = false> = T extends true
-  ? {}
-  : { id: number };
-
 // T: set to true when this is a newly populated tournament (matches don't exist in DB yet, so no id)
-export type PopulatedTournament<T extends boolean = false> = {
+export type PopulatedTournament = {
   id: number;
   name: string;
   team_size: number;
   state: TournamentState;
-  stage1: GenericStage<true, T>;
-  stage2: GenericStage<true, T> | null;
-  current: GenericStage<true, T> | null;
+  stage1: PopulatedStage;
+  stage2: PopulatedStage | null;
+  current: PopulatedStage | null;
+};
+
+export type NewTournament = {
+  name: string;
+  team_size: number;
+  stage1: Stage;
+  stage2: Stage | null;
 };
 
 export type Tournament = {
   id: number;
-  name: string;
-  team_size: number;
   state: TournamentState;
-  stage1: GenericStage<false, false>;
-  stage2: GenericStage<false, false> | null;
+} & NewTournament;
+
+export type SingleEliminationBracket = {
+  type: "single_elimination_bracket";
+};
+export type PopulatedSingleEliminationBracket = SingleEliminationBracket & {
+  root: Match;
 };
 
-export type SingleEliminationBracket<
-  P extends boolean,
-  T extends boolean = false,
-> = {
-  type: "single_elimination_bracket";
-} & (P extends true
-  ? {
-      root: Match<T>;
-    }
-  : {});
-
-export type DoubleEliminationBracket<
-  P extends boolean,
-  T extends boolean = false,
-> = {
+export type DoubleEliminationBracket = {
   type: "double_elimination_bracket";
-} & (P extends true
-  ? {
-      root: Match<T>;
-    }
-  : {});
+};
+export type PopulatedDoubleEliminationBracket = DoubleEliminationBracket & {
+  root: Match;
+};
 
-export type RoundRobin<P extends boolean, T extends boolean = false> = {
+export type RoundRobin = {
   type: "round_robin";
-
   winnerCount: number;
-} & (P extends true
-  ? {
-      matches: Match<T>[];
-    }
-  : {});
+};
+export type PopulatedRoundRobin = RoundRobin & {
+  matches: Match[];
+};
 
-type StageType = GenericStage<true>["type"];
-// P: whether it's populated or not
-type GenericStage<P extends boolean, T extends boolean = false> =
-  | SingleEliminationBracket<P, T>
-  | DoubleEliminationBracket<P, T>
-  | RoundRobin<P, T>;
+export type StageType = Stage["type"];
 
-export type PopulatedStage<T extends boolean = false> = GenericStage<true, T>;
-export type Stage<T extends boolean = false> = GenericStage<false, T>;
+export type PopulatedStage =
+  | PopulatedSingleEliminationBracket
+  | PopulatedDoubleEliminationBracket
+  | PopulatedRoundRobin;
+export type Stage =
+  | SingleEliminationBracket
+  | DoubleEliminationBracket
+  | RoundRobin;
 
-export type Match<T extends boolean = false> = {
+export type Match = {
+  id: number;
   tournamentId: number;
   teams: Team[] | null;
   scores: number[] | null;
-  next_winner: Match<T> | null;
-  next_loser: Match<T> | null;
-  previous: Match<T>[] | null;
-} & NewHelper<T>;
+  next_winner: Match | null;
+  next_loser: Match | null;
+  previous: Match[] | null;
+};
 
 function dbToPopulatedTournament(
   dbTournament: DBTournament,
@@ -164,7 +155,7 @@ function collectStage(
   extra: string | null,
   dbMatches: { [key: number]: DBMatch },
   matches: { [key: number]: Match },
-): GenericStage<true> {
+): PopulatedStage {
   switch (type) {
     case "single_elimination_bracket":
     case "double_elimination_bracket":
@@ -213,10 +204,7 @@ function collectStage(
   }
 }
 
-function mapStage(
-  format: StageType,
-  extra: string | null,
-): GenericStage<false> {
+function mapStage(format: StageType, extra: string | null): Stage {
   return format === "round_robin"
     ? {
         type: format,
@@ -343,4 +331,14 @@ export async function getTournamentParticipants(
   );
 
   return dbParticipants.map(dbToParticipant);
+}
+
+export async function createTournament(t: NewTournament): Promise<number> {
+  const conn = await openDatabase();
+  return conn
+    .prepare(
+      "INSERT INTO tournaments(name, team_size, state, format1, format2) VALUES(?, ?, ?, ?, ?)",
+    )
+    .run(t.name, t.team_size, "created", t.stage1, t.stage2)
+    .lastInsertRowid as number;
 }
