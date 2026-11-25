@@ -3,6 +3,7 @@ import { getTeamsFromParticpantId } from "@/database/teams";
 import { getTournaments } from "@/database/tournaments";
 import { MessageFlags } from "discord.js";
 import type { DiscordCommand } from "../discord";
+import { getRank } from "./leaderboard";
 
 const USER_INFO: DiscordCommand = {
   name: "user_info",
@@ -16,6 +17,7 @@ const USER_INFO: DiscordCommand = {
       content:
         "## Tes infos\n" +
         `- Pseudo ICeLAN : ${p.username}\n` +
+        `- Ton classement : \`${p.is_staff ? "staff" : await getRank(p.id)}\`` +
         `### Tes équipes\n` +
         teams.map(
           (t) =>

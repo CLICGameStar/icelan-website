@@ -50,7 +50,7 @@ CREATE TABLE IF NOT EXISTS matches (
     scores TEXT,
     next_winner INTEGER,
     next_loser INTEGER,
-    FOREIGN KEY (tournament_id) REFERENCES tournaments (id) ON DELETE CASCADE
+    FOREIGN KEY (tournament_id) REFERENCES tournaments (id)
 );
 
 CREATE TABLE IF NOT EXISTS ranking_points(

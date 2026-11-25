@@ -1,6 +1,5 @@
 import {
   deleteParticipantFromDiscordId,
-  dropParticipantsTable,
   getParticipantFromDiscordId,
   getParticipants,
   insertParticipantInDatabase,
@@ -53,7 +52,7 @@ async function participantsDataAsString(): Promise<string> {
   return (
     `## Participants\nNombre : \`${participants.length}\`\n` +
     participants
-      .map((p) => `- ${p.is_staff ? "[STAFF]: " : ""}${p.username}\n`)
+      .map((p) => `- ${p.is_staff ? "[STAFF]: " : ""}<@${p.discord_id}>\n`)
       .join("")
   );
 }
@@ -112,33 +111,19 @@ const LOAD_PARTICIPANTS: DiscordCommand = {
     }
 
     await insertParticipantsInDatabase(participants);
+    console.log(`Loaded ${participants.length}`);
 
     await interaction.editReply({
-      content: (await participantsDataAsString())
-        .concat(
-          missing_participants.length > 0
-            ? `\n## Fails\nCount: \`${missing_participants.length}\`\n` +
-                missing_participants
-                  .map(
-                    (p) =>
-                      `- @${p.discord_username?.toLowerCase()} is not on the server\n`,
-                  )
-                  .join("")
-            : "",
-        )
-        .concat(errors.length > 0 ? "\n## Errors\n" + errors.join("\n") : ""),
+      content:
+        `Loaded \`${participants.length}\` participants.\n` +
+        (missing_participants.length > 0
+          ? `## Fails\nCount: \`${missing_participants.length}\`\n` +
+            missing_participants
+              .map((p) => `- @${p.discord_username?.toLowerCase()}\n`)
+              .join("")
+          : "") +
+        (errors.length > 0 ? "\n## Errors\n" + errors.join("\n") : ""),
     });
-  },
-};
-
-const DROP_PARTICIPANTS: DiscordCommand = {
-  name: "drop_participants",
-  description: "Drops the participants table in the database.",
-  defaultMemberPermissions: PermissionFlagsBits.Administrator,
-  async handler(interaction) {
-    await interaction.deferReply({ flags: MessageFlags.Ephemeral });
-    await dropParticipantsTable();
-    await interaction.editReply("Table dropped");
   },
 };
 
@@ -385,7 +370,6 @@ const TOGGLE_DONATOR: DiscordCommand = {
 export const PARTICIPANTS_COMMANDS = [
   LOAD_PARTICIPANTS,
   LOAD_PARTICIPANT_MANUALLY,
-  DROP_PARTICIPANTS,
   LIST_PARTICIPANTS,
   PARTICIPANT_DATA,
   DELETE_PARTICIPANT,

@@ -8,7 +8,7 @@ import {
   deleteEnrollment,
   deleteTeam,
   getTeam,
-  getTeamFromName,
+  getTeamFromNameAndTournamentName,
   getTeamMembers,
   getTeams,
   insertEnrollment,
@@ -123,6 +123,14 @@ const CREATE_TEAM: DiscordCommand = {
       });
     }
 
+    if (tournament.state !== "opened") {
+      throwError({
+        type: "invalid_data",
+        source: "user",
+        message: "Les inscriptions pour ce tournoi ne sont pas ouvertes.",
+      });
+    }
+
     // Check que le créateur ne fait pas déjà partie du tournoi
     if (
       (await getTournamentParticipants(tournament.id))
@@ -151,6 +159,12 @@ const DELETE_TEAM: DiscordCommand = {
   description: "Supprime une de tes équipes et désincrit la du tournoi",
   options: [
     {
+      name: "tournoi",
+      description: "Le tournoi de l'équipe que tu souhaite supprimer.",
+      type: ApplicationCommandOptionType.String,
+      required: true,
+    },
+    {
       name: "equipe",
       description: "L'équipe que tu souhaite supprimer.",
       type: ApplicationCommandOptionType.String,
@@ -160,8 +174,12 @@ const DELETE_TEAM: DiscordCommand = {
   async handler(interaction) {
     await interaction.deferReply({ flags: MessageFlags.Ephemeral });
 
+    const tournament_name = interaction.options.getString("tournoi");
     const team_name = interaction.options.getString("equipe");
-    const team = await getTeamFromName(team_name!);
+    const team = await getTeamFromNameAndTournamentName(
+      team_name!,
+      tournament_name!,
+    );
 
     if (!team) {
       throwError({
@@ -227,6 +245,12 @@ const TEAM_DATA: DiscordCommand = {
   description: "Vois les infos sur une équipe.",
   options: [
     {
+      name: "tournoi",
+      description: "Le tournoi de l'équipe.",
+      type: ApplicationCommandOptionType.String,
+      required: true,
+    },
+    {
       name: "equipe",
       description: "L'équipe dont tu veux voir les infos",
       type: ApplicationCommandOptionType.String,
@@ -236,7 +260,11 @@ const TEAM_DATA: DiscordCommand = {
   async handler(interaction) {
     await interaction.deferReply({ flags: MessageFlags.Ephemeral });
     const team_name = interaction.options.getString("equipe");
-    const team = await getTeamFromName(team_name!);
+    const tournament_name = interaction.options.getString("tournoi");
+    const team = await getTeamFromNameAndTournamentName(
+      team_name!,
+      tournament_name!,
+    );
     if (!team) {
       throwError({
         type: "not_found",
@@ -251,6 +279,12 @@ const INVITE: DiscordCommand = {
   name: "invite",
   description: "Invite un·e particpant·e à rejoindre une de tes équipes.",
   options: [
+    {
+      name: "tournoi",
+      description: "Le tournoi de l'équipe.",
+      type: ApplicationCommandOptionType.String,
+      required: true,
+    },
     {
       name: "equipe",
       description: "L'équipe dans laquelle tu souhaite l'inviter.",
@@ -268,7 +302,11 @@ const INVITE: DiscordCommand = {
     await interaction.deferReply({ flags: MessageFlags.Ephemeral });
     const participant_user = interaction.options.getUser("participant");
     const team_name = interaction.options.getString("equipe");
-    const team = await getTeamFromName(team_name!);
+    const tournament_name = interaction.options.getString("tournoi");
+    const team = await getTeamFromNameAndTournamentName(
+      team_name!,
+      tournament_name!,
+    );
 
     if (!team) {
       throwError({
@@ -346,6 +384,12 @@ const KICK: DiscordCommand = {
       required: true,
     },
     {
+      name: "tournoi",
+      description: "Le tournoi de cette équipe.",
+      type: ApplicationCommandOptionType.String,
+      required: true,
+    },
+    {
       name: "participant",
       description: "La personne que tu veut kicker.",
       type: ApplicationCommandOptionType.User,
@@ -356,8 +400,12 @@ const KICK: DiscordCommand = {
     await interaction.deferReply({ flags: MessageFlags.Ephemeral });
 
     const team_name = interaction.options.getString("equipe");
+    const tournament_name = interaction.options.getString("tournoi");
     const participant_user = interaction.options.getUser("participant");
-    const team = await getTeamFromName(team_name!);
+    const team = await getTeamFromNameAndTournamentName(
+      team_name!,
+      tournament_name!,
+    );
 
     if (!team) {
       throwError({
@@ -417,6 +465,12 @@ const LEAVE: DiscordCommand = {
   description: "Quitte une de tes équipes.",
   options: [
     {
+      name: "tournoi",
+      description: "Le tournoi de l'équipe.",
+      type: ApplicationCommandOptionType.String,
+      required: true,
+    },
+    {
       name: "equipe",
       description: "L'équipe que tu souhaite quitter.",
       type: ApplicationCommandOptionType.String,
@@ -427,7 +481,11 @@ const LEAVE: DiscordCommand = {
     await interaction.deferReply({ flags: MessageFlags.Ephemeral });
     const participant = await getParticipantFromDiscordId(interaction.user.id);
     const team_name = interaction.options.getString("equipe");
-    const team = await getTeamFromName(team_name!);
+    const tournament_name = interaction.options.getString("tournoi");
+    const team = await getTeamFromNameAndTournamentName(
+      team_name!,
+      tournament_name!,
+    );
 
     if (!team) {
       throwError({

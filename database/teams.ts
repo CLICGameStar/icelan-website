@@ -116,18 +116,22 @@ export async function getTeamsForTournament(id: number): Promise<Team[]> {
   return teams.map(dbToTeam);
 }
 
-export async function getTeamFromName(name: string): Promise<Team | null> {
+export async function getTeamFromNameAndTournamentName(
+  team_name: string,
+  tournament_name: string,
+): Promise<Team | null> {
   const conn = await openDatabase();
   const team = conn
-    .prepare<string, DBTeam>(
+    .prepare<[string, string], DBTeam>(
       `
-      SELECT *
+      SELECT t.*
       FROM teams t
       JOIN tournaments tr ON tr.id = t.tournament_id
       WHERE t.name = ?
+       AND tr.name = ?
        AND tr.team_size > 1`,
     )
-    .get(name.trim());
+    .get(team_name.trim(), tournament_name.trim());
   return team ? dbToTeam(team) : null;
 }
 

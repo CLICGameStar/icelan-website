@@ -339,6 +339,12 @@ export async function createTournament(t: NewTournament): Promise<number> {
     .prepare(
       "INSERT INTO tournaments(name, team_size, state, format1, format2) VALUES(?, ?, ?, ?, ?)",
     )
-    .run(t.name, t.team_size, "created", t.stage1, t.stage2)
+    .run(t.name, t.team_size, "created", t.stage1.type, t.stage2?.type)
+    .lastInsertRowid as number;
+}
+
+export async function deleteTournament(id: number): Promise<number> {
+  const conn = await openDatabase();
+  return conn.prepare("DELETE FROM tournaments WHERE id = ?").run(id)
     .lastInsertRowid as number;
 }

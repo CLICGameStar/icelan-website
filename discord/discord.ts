@@ -25,17 +25,6 @@ import { TOURNAMENT_COMMANDS } from "./commands/tournaments";
 import { USER_UTIL_COMMANDS } from "./commands/user_utils";
 import type { BotError } from "./error";
 import { logToDiscord } from "./logging";
-import {
-  generateDoubleEliminationBracket,
-  generateSingleEliminationBracket,
-} from "@/database/brackets";
-import { getTeamsForTournament } from "@/database/teams";
-import util from "util";
-import {
-  DoubleEliminationBracket,
-  getPopulatedTournament,
-  getTournament,
-} from "@/database/tournaments";
 
 export const client = new Client({
   intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMembers],
@@ -148,14 +137,19 @@ export async function startDiscordBot() {
       } catch (error: any) {
         console.log(error);
 
-        await logToDiscord(
-          `[\`/${interaction.commandName}\`][<@${interaction.user.id}>] [ERROR]: ${JSON.stringify(error)}`.slice(
-            0,
-            2000,
-          ),
-        );
-
         const bot_error = error as BotError;
+
+        if (
+          !(bot_error.type === "invalid_data" && bot_error.source === "user")
+        ) {
+          await logToDiscord(
+            `[\`/${interaction.commandName}\`][<@${interaction.user.id}>] [ERROR]: ${JSON.stringify(error)}`.slice(
+              0,
+              2000,
+            ),
+          );
+        }
+
         let message;
         if (bot_error.message) {
           message = `[ERROR]: ${bot_error.message}`;

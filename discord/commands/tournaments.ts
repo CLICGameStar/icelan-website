@@ -1,12 +1,13 @@
 import { getTeams, getTeamsFromTournamentId } from "@/database/teams";
 import {
   createTournament,
+  deleteTournament,
   getTournament,
   getTournamentFromName,
   getTournamentParticipants,
   getTournaments,
-  StageType,
   type Stage,
+  type TournamentState,
 } from "@/database/tournaments";
 import {
   ApplicationCommandOptionType,
@@ -26,8 +27,8 @@ async function tournamentDataAsString(id: number): Promise<string> {
     `- \`name\`: ${tournament.name}\n` +
     `- \`team_size\`: ${tournament.team_size}\n` +
     `- \`state\`: ${tournament.state}\n` +
-    `- \`stage1\`: ${tournament.stage1}\n` +
-    `- \`stage2\`: ${tournament.stage2}\n` +
+    `- \`stage1\`: ${tournament.stage1.type}\n` +
+    `- \`stage2\`: ${tournament.stage2?.type}\n` +
     `### Teams\n` +
     `Amount: \`${teams.length}\`\n` +
     teams.map((t) => `- **${t.name}**\n`).join("") +
@@ -164,6 +165,42 @@ const CREATE_TOURNAMENT: DiscordCommand = {
   },
 };
 
+const DELETE_TOURNAMENT: DiscordCommand = {
+  name: "tournament_delete",
+  description: "Delete a tournament",
+  defaultMemberPermissions: PermissionFlagsBits.Administrator,
+  options: [
+    {
+      name: "tournament",
+      description: "Tournament you want to delete.",
+      type: ApplicationCommandOptionType.String,
+      required: true,
+    },
+  ],
+  async handler(interaction) {
+    await interaction.deferReply({ flags: MessageFlags.Ephemeral });
+    const tournament_name = interaction.options.getString("tournament");
+    const tournament = await getTournamentFromName(tournament_name!);
+    if (!tournament) {
+      throwError({ type: "not_found", message: "DB Tournament not found" });
+    }
+
+    if (
+      !(["created", "opened"] as TournamentState[]).includes(tournament.state)
+    ) {
+      throwError({
+        type: "invalid_data",
+        source: "user",
+        message: `\`${tournament.name}\` has ${tournament.state} and can't be deleted.`,
+      });
+    }
+
+    await deleteTournament(tournament.id);
+
+    await interaction.editReply({ content: "Tournament deleted." });
+  },
+};
+
 const TOURNAMENT_DATA: DiscordCommand = {
   name: "tournament_data",
   description: "Show data about a tournament.",
@@ -193,4 +230,5 @@ export const TOURNAMENT_COMMANDS = [
   LIST_TOURNAMENTS,
   CREATE_TOURNAMENT,
   TOURNAMENT_DATA,
+  DELETE_TOURNAMENT,
 ];
