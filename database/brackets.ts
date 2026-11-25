@@ -11,17 +11,19 @@ import { DBMatch, DBTournament } from "./model";
 
 const POWERS = [1, 2, 4, 8, 16, 32, 64, 128];
 
+type GenerationOpts = {
+  tournamentId: number;
+  count: number;
+  stage: number;
+  teams?: Team[];
+};
+
 export async function generateSingleEliminationBracket({
   tournamentId,
   count,
   stage,
   ...opts
-}: {
-  tournamentId: number;
-  count: number;
-  stage: number;
-  teams?: Team[];
-}) {
+}: GenerationOpts) {
   const conn = await openDatabase();
   const insertMatchSt = conn.prepare<
     [number, number, string | null, number | null, number | null],
@@ -111,12 +113,7 @@ export async function generateDoubleEliminationBracket({
   stage,
   tournamentId,
   ...opts
-}: {
-  count: number;
-  stage: number;
-  tournamentId: number;
-  teams?: Team[];
-}) {
+}: GenerationOpts) {
   const conn = await openDatabase();
   const insertMatchSt = conn.prepare<
     [number, number, string | null, number | null, number | null],
@@ -295,42 +292,29 @@ export async function generateDoubleEliminationBracket({
   }
 }
 
-function generateRoundRobinBracket(
-  tournamentId: number,
-  teams: Team[],
-  winnerCount: number,
-): PopulatedStage<true> {}
+function generateRoundRobinBracket(opts: GenerationOpts) {}
 
-function constructTournament(
+export function constructTournamentStages(
   tournament: Tournament,
   teams: Team[],
-): PopulatedTournament<true> {
-  let stage1: PopulatedStage<true>;
-  let stage2: PopulatedStage<true> | null = null;
-
+) {
+  const opts1 = {
+    count: teams.length,
+    tournamentId: tournament.id,
+    stage: 0,
+    teams,
+  };
   switch (tournament.stage1.type) {
     case "single_elimination_bracket":
-      stage1 = generateSingleEliminationBracket({
-        count: teams.length,
-        tournamentId: tournament.id,
-        teams,
-      });
+      generateSingleEliminationBracket(opts1);
       break;
 
     case "double_elimination_bracket":
-      stage1 = generateDoubleEliminationBracket({
-        count: teams.length,
-        tournamentId: tournament.id,
-        teams,
-      });
+      generateDoubleEliminationBracket(opts1);
       break;
 
     case "round_robin":
-      stage1 = generateRoundRobinBracket(
-        tournament.id,
-        teams,
-        tournament.stage1.winnerCount,
-      );
+      generateRoundRobinBracket(opts1);
       break;
 
     default:

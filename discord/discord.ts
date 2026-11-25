@@ -65,14 +65,6 @@ const discordGlobal = globalThis as typeof globalThis & {
 export async function startDiscordBot() {
   // START POINTS TEST, uncomment to test points functions
 
-  generateDoubleEliminationBracket({
-    tournamentId: 1,
-    stage: 0,
-    count: 8,
-    teams: await getTeamsForTournament(1),
-  });
-  const t = await getPopulatedTournament(1);
-
   // await testRankingPoints();
 
   // END POINTS TEST
