@@ -72,7 +72,8 @@ export async function getTeam(id: number): Promise<Team> {
 
 export async function getTeams(): Promise<Team[]> {
   const conn = await openDatabase();
-  const st = conn.prepare<[], DBTeam>(`SELECT t.*
+  const st = conn.prepare<[], DBTeam>(`
+    SELECT t.*
     FROM teams t
     JOIN tournaments tr ON tr.id = t.tournament_id
     WHERE tr.team_size > 1`);

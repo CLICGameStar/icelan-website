@@ -10,7 +10,7 @@ import {
 import { dbToParticipant, type Participant } from "./participants";
 import type { Team } from "./teams";
 
-export type TournamentState = "created" | "opened" | "started" | "finished";
+export type TournamentState = "opened" | "started" | "finished";
 
 // T: set to true when this is a newly populated tournament (matches don't exist in DB yet, so no id)
 export type PopulatedTournament = {
@@ -328,14 +328,35 @@ export async function getTournamentParticipants(
   return dbParticipants.map(dbToParticipant);
 }
 
+export async function getTournamentsFromParticipantId(
+  participant_id: number,
+): Promise<Tournament[]> {
+  const conn = await openDatabase();
+  return conn
+    .prepare<number, DBTournament>(
+      `SELECT tr.*
+    FROM tournaments tr
+    JOIN teams t ON t.tournament_id = tr.id
+    JOIN enrollments e ON e.team_id = t.id
+    WHERE e.participant_id = ?`,
+    )
+    .all(participant_id)
+    .map(dbToTournament);
+}
+
 export async function createTournament(t: NewTournament): Promise<number> {
   const conn = await openDatabase();
   return conn
     .prepare(
       "INSERT INTO tournaments(name, team_size, state, format1, format2) VALUES(?, ?, ?, ?, ?)",
     )
-    .run(t.name, t.team_size, "created", t.stage1.type, t.stage2?.type)
-    .lastInsertRowid as number;
+    .run(
+      t.name,
+      t.team_size,
+      "opened" as TournamentState,
+      t.stage1.type,
+      t.stage2?.type,
+    ).lastInsertRowid as number;
 }
 
 export async function deleteTournament(id: number): Promise<number> {

@@ -1,6 +1,9 @@
 import { getParticipantFromDiscordId } from "@/database/participants";
 import { getTeamsFromParticpantId } from "@/database/teams";
-import { getTournaments } from "@/database/tournaments";
+import {
+  getTournaments,
+  getTournamentsFromParticipantId,
+} from "@/database/tournaments";
 import { MessageFlags } from "discord.js";
 import type { DiscordCommand } from "../discord";
 import { getRank } from "./leaderboard";
@@ -13,6 +16,7 @@ const USER_INFO: DiscordCommand = {
     const p = await getParticipantFromDiscordId(interaction.user.id);
     const teams = await getTeamsFromParticpantId(p.id);
     const tournaments = await getTournaments();
+    const tr = await getTournamentsFromParticipantId(p.id);
     await interaction.editReply({
       content:
         "## Tes infos\n" +
@@ -22,7 +26,9 @@ const USER_INFO: DiscordCommand = {
         teams.map(
           (t) =>
             `- ${t.creator === p.id ? "Capitaine de " : "Équipi·er·ère de "}**${t.name}** pour le tournoi \`${tournaments.find((tour) => tour.id === t.tournament_id)!.name}\`\n`,
-        ),
+        ) +
+        `### Tournois auquels tu es inscrit·e\n` +
+        tr.map((t) => `- \`${t.name}\`\n`).join(""),
     });
   },
 };
