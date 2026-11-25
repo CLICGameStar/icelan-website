@@ -78,9 +78,9 @@ const CREATE_TOURNAMENT: DiscordCommand = {
       required: true,
     },
     {
-      name: "first_stage_format",
+      name: "format",
       description:
-        "The format of the first stage or the whole tournament if there is only one.",
+        "The format of the tournament",
       type: ApplicationCommandOptionType.String,
       required: true,
       choices: [
@@ -96,28 +96,10 @@ const CREATE_TOURNAMENT: DiscordCommand = {
           name: "Round Robin",
           value: "round_robin",
         },
-      ],
-    },
-    {
-      name: "rr_winner_count",
-      description: "The number of teams going to the next stage.",
-      type: ApplicationCommandOptionType.Number,
-      required: false,
-    },
-    {
-      name: "second_stage_format",
-      description: "The format of the second stage. Leave null if none.",
-      type: ApplicationCommandOptionType.String,
-      required: false,
-      choices: [
         {
-          name: "Single Elimination Bracket",
-          value: "single_elimination_bracket",
-        },
-        {
-          name: "Double Elimination Bracket",
-          value: "double_elimination_bracket",
-        },
+          name: "Round Robin pool and single elim. bracket finale",
+          value: "rr_pool_seb_finales"
+        }
       ],
     },
   ],
@@ -125,38 +107,44 @@ const CREATE_TOURNAMENT: DiscordCommand = {
     await interaction.deferReply({ flags: MessageFlags.Ephemeral });
     const tournament_name = interaction.options.getString("name");
     const team_size = interaction.options.getNumber("team_size");
-    const format1 = interaction.options.getString("first_stage_format");
-    const rr_winner_count = interaction.options.getNumber("rr_winner_count");
-    const format2 = interaction.options.getString("second_stage_format");
+    const format = interaction.options.getString("format");
 
-    const makeStage = (format: string): Stage => {
-      if (format === "round_robin") {
-        if (!rr_winner_count) {
-          throwError({
-            type: "invalid_data",
-            source: "user",
-            message: "missing winner count",
-          });
-        }
-
-        return {
-          type: format,
-          winnerCount: rr_winner_count,
+    let stage1: Stage;
+    let stage2: Stage | null = null;
+    switch (format) {
+      case "rr_pool_seb_finales": 
+        stage1 = {
+          type: "round_robin",
+          winnerCount: 0,
         };
-      } else {
-        return {
-          type: format as
-            | "single_elimination_bracket"
-            | "double_elimination_bracket",
+        stage2 = {type: "single_elimination_bracket"};
+        break;
+      case "single_elimination_bracket":
+        stage1 = {type: "single_elimination_bracket"};
+        break;
+      case "double_elimination_bracket":
+        stage1 = {type: "double_elimination_bracket"};
+        break;
+      case "round_robin":
+        stage1 = {
+          type: "round_robin",
+          winnerCount: 0
         };
-      }
-    };
-
+        break;
+      default:
+        throwError({
+          type: "invalid_data",
+          source: "user",
+          message: "Invalid tournament format received: " + format
+        });
+        break;
+    }
+    
     const tournament_id = await createTournament({
       name: tournament_name!,
       team_size: team_size!,
-      stage1: makeStage(format1!),
-      stage2: makeStage(format2!),
+      stage1: stage1,
+      stage2: stage2,
     });
 
     await interaction.editReply({

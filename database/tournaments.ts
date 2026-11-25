@@ -209,12 +209,7 @@ function mapStage(format: StageType, extra: string | null): Stage {
     ? {
         type: format,
         winnerCount: parseInt(
-          extra ||
-            throwError({
-              type: "invalid_data",
-              source: "database",
-              message: "missing extra for round_robin tournament",
-            }),
+          extra ?? "0"
         ),
       }
     : { type: format };
