@@ -20,19 +20,12 @@ import {
 import { LEADERBOARD_COMMANDS } from "./commands/leaderboard";
 import { PARTICIPANTS_COMMANDS } from "./commands/participants";
 import { POINTS_COMMANDS } from "./commands/points";
+import { REGISTRATIONS_COMMANDS } from "./commands/registrations";
 import { TEAM_BUTTON_INTERACTIONS, TEAMS_COMMANDS } from "./commands/teams";
 import { TOURNAMENT_COMMANDS } from "./commands/tournaments";
 import { USER_UTIL_COMMANDS } from "./commands/user_utils";
 import type { BotError } from "./error";
 import { logToDiscord } from "./logging";
-import {
-  fillTeams,
-  generateDoubleEliminationBracket,
-  generateSingleEliminationBracket,
-} from "@/database/brackets";
-import util from "util";
-import { getPopulatedTournament, getTournament } from "@/database/tournaments";
-import { DBMatch, DBTeam } from "@/database/model";
 
 export const client = new Client({
   intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMembers],
@@ -104,6 +97,7 @@ export async function startDiscordBot() {
     ...USER_UTIL_COMMANDS,
     ...TOURNAMENT_COMMANDS,
     ...ADMIN_UTIL_COMMANDS,
+    ...REGISTRATIONS_COMMANDS,
   ];
   const command_map: { [key: string]: DiscordCommand } = commands.reduce(
     (acc, v) => ({ [v.name]: v, ...acc }),

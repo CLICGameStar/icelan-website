@@ -110,8 +110,9 @@ const CREATE_TEAM: DiscordCommand = {
     const tournament = await getTournamentFromName(tournament_name!);
     if (!tournament) {
       throwError({
-        type: "not_found",
-        message: "Le tournoi na pas été trouvé.",
+        type: "invalid_data",
+        source: "user",
+        message: `\`${tournament_name}\` n'a pas été trouvé.`,
       });
     }
 
@@ -183,8 +184,9 @@ const DELETE_TEAM: DiscordCommand = {
 
     if (!team) {
       throwError({
-        type: "not_found",
-        message: "L'équipe n'a pas été trouvée.",
+        type: "invalid_data",
+        source: "user",
+        message: `L'équipe **${team_name}** du tournoi \`${tournament_name}\` n'a pas été trouvée.`,
       });
     }
 
@@ -267,8 +269,9 @@ const TEAM_DATA: DiscordCommand = {
     );
     if (!team) {
       throwError({
-        type: "not_found",
-        message: "L'équipe n'a pas été trouvée.",
+        type: "invalid_data",
+        source: "user",
+        message: `L'équipe **${team_name}** du tournoi \`${tournament_name}\` n'a pas été trouvée.`,
       });
     }
     await interaction.editReply(await teamDataAsString(team.id));
@@ -310,8 +313,9 @@ const INVITE: DiscordCommand = {
 
     if (!team) {
       throwError({
-        type: "not_found",
-        message: "L'équipe n'a pas été trouvée.",
+        type: "invalid_data",
+        source: "user",
+        message: `L'équipe **${team_name}** du tournoi \`${tournament_name}\` n'a pas été trouvée.`,
       });
     }
 
@@ -409,8 +413,9 @@ const KICK: DiscordCommand = {
 
     if (!team) {
       throwError({
-        type: "not_found",
-        message: "L'équipe n'a pas été trouvée",
+        type: "invalid_data",
+        source: "user",
+        message: `L'équipe **${team_name}** du tournoi \`${tournament_name}\` n'a pas été trouvée.`,
       });
     }
 
@@ -489,8 +494,9 @@ const LEAVE: DiscordCommand = {
 
     if (!team) {
       throwError({
-        type: "not_found",
-        message: "L'équipe n'a pas été trouvée.",
+        type: "invalid_data",
+        source: "user",
+        message: `L'équipe **${team_name}** du tournoi \`${tournament_name}\` n'a pas été trouvée.`,
       });
     }
 
