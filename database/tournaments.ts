@@ -57,8 +57,7 @@ export type PopulatedRoundRobin = RoundRobin & {
   matches: Match[];
 };
 
-type StageType = Stage["type"];
-// P: whether it's populated or not
+export type StageType = Stage["type"];
 
 export type PopulatedStage =
   | PopulatedSingleEliminationBracket

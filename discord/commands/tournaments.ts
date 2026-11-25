@@ -5,6 +5,7 @@ import {
   getTournamentFromName,
   getTournamentParticipants,
   getTournaments,
+  StageType,
   type Stage,
 } from "@/database/tournaments";
 import {
@@ -127,11 +128,34 @@ const CREATE_TOURNAMENT: DiscordCommand = {
     const rr_winner_count = interaction.options.getNumber("rr_winner_count");
     const format2 = interaction.options.getString("second_stage_format");
 
+    const makeStage = (format: string): Stage => {
+      if (format === "round_robin") {
+        if (!rr_winner_count) {
+          throwError({
+            type: "invalid_data",
+            source: "user",
+            message: "missing winner count",
+          });
+        }
+
+        return {
+          type: format,
+          winnerCount: rr_winner_count,
+        };
+      } else {
+        return {
+          type: format as
+            | "single_elimination_bracket"
+            | "double_elimination_bracket",
+        };
+      }
+    };
+
     const tournament_id = await createTournament({
       name: tournament_name!,
       team_size: team_size!,
-      stage1: format1! as Stage["type"],
-      stage2: format2! as Stage["type"],
+      stage1: makeStage(format1!),
+      stage2: makeStage(format2!),
     });
 
     await interaction.editReply({
