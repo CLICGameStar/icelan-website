@@ -54,15 +54,15 @@ export async function insertRankingPoints(rankingPoints: RankingPoint[]) {
 }
 
 export async function getPoints(): Promise<RankingPoint[]> {
-    const conn = await open_database();
+    const conn = await openDatabase();
     const st = conn.prepare(
         "SELECT number_of_teams, rank, points FROM ranking_points"
     );
     let rps: RankingPoint[] = [];
-    st.all().map(o => {
+    st.all().forEach(o => {
         let rp = rps.find(e => e.number_of_teams == o.number_of_teams);
         if (rp === undefined) {
-            let ps = Array(o.number_of_teams);
+            let ps = Array(o.number_of_teams).fill(0);
             ps[o.rank] = o.points;
             rps.push({number_of_teams: o.number_of_teams, points: ps});
         } else rp.points[o.rank] = o.points;
@@ -75,7 +75,7 @@ export async function getPoints(): Promise<RankingPoint[]> {
 export async function getPointsForNumberOfTeam(number_of_teams: number): Promise<number[]> {
     if (number_of_teams < 1) throwError({ type: "invalid number_of_team used (< 1)" });
 
-    const conn = await open_database();
+    const conn = await openDatabase();
     const st = conn.prepare<number, number>(
         "SELECT points FROM ranking_points WHERE number_of_teams = ?"
     );

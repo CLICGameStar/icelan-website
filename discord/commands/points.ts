@@ -1,6 +1,6 @@
 import { ApplicationCommandOptionType, CacheType, ChatInputCommandInteraction, MessageFlags, PermissionFlagsBits } from "discord.js";
 import { DiscordCommand } from "../discord";
-import { insertRankingPoints, RankingPoint } from "@/database/points";
+import { getPoints, getPointsForNumberOfTeam, getPointsForRankAndNumberOfTeam, insertRankingPoints, RankingPoint } from "@/database/points";
 import { throwError } from "../error";
 import { describe } from "node:test";
 
@@ -116,8 +116,53 @@ const ADD_POINTS_GIVEN_NUMBER_OF_TEAM: DiscordCommand = {
         }
     },
 };
+
+const GET_RANKING_POINTS: DiscordCommand = {
+    name: "get_ranking_points",
+    description: "Return the points corresponding to the arguments",
+    defaultMemberPermissions: PermissionFlagsBits.Administrator,
+    options: [
+        {
+            name: "number_of_team",
+            description: "List of number of team for which to return points. Format: x1 ... xN",
+            type: ApplicationCommandOptionType.String,
+        },
+        {
+            name: "rank",
+            description: "List of rank for which to return points. Format: x1 ... xN",
+            type: ApplicationCommandOptionType.String,
+        }
+    ],
+    async handler(interaction) {
+        await interaction.deferReply({ flags: MessageFlags.Ephemeral });
+
+        const nots = (interaction.options.getString("number_of_team") ?? "").split(" ").map(s => Number(s));
+        const rank = (interaction.options.getString("rank") ?? "").split(" ").map(s => Number(s));
+
+        let rpsString = "";
+        try {
+            const rps = (await getPoints()).sort((rp1, rp2) => rp1.number_of_teams - rp2.number_of_teams);
+            for (let i = 0; i < rps.length; i++) {
+                const rp = rps[i];
+                const not = rp.number_of_teams;
+                if (nots.includes(not) || nots[0] == 0) {
+                    rpsString += `Number of team: ${not}, points: ${
+                        rank[0] == 0  
+                            ? rp.points.map(p => `${rp.points.indexOf(p) != 0 ? " " : ""}${rp.points.indexOf(p) + 1}: ${p}`)
+                            : rp.points.filter(p => rank.includes(rp.points.indexOf(p) + 1)).map(p => `${rp.points.indexOf(p) != 0 ? " " : ""}${rp.points.indexOf(p) + 1}: ${p}`)
+                    }\n`
+                }
+            }
+        } catch(error) {
+            rpsString = "An error occured: " + error;
+        }
+
+        await interaction.editReply({content: rpsString});
+    }
+}
     
 export const POINTS_COMMANDS = [
     ADD_POINTS_GIVEN_NUMBER_OF_TEAM,
     SET_RANKING_POINTS,
+    GET_RANKING_POINTS,
 ];
