@@ -97,6 +97,12 @@ const CREATE_TOURNAMENT: DiscordCommand = {
       ],
     },
     {
+      name: "rr_winner_count",
+      description: "The number of teams going to the next stage.",
+      type: ApplicationCommandOptionType.Number,
+      required: false,
+    },
+    {
       name: "second_stage_format",
       description: "The format of the second stage. Leave null if none.",
       type: ApplicationCommandOptionType.String,
@@ -110,10 +116,6 @@ const CREATE_TOURNAMENT: DiscordCommand = {
           name: "Double Elimination Bracket",
           value: "double_elimination_bracket",
         },
-        {
-          name: "Round Robin",
-          value: "round_robin",
-        },
       ],
     },
   ],
@@ -122,6 +124,7 @@ const CREATE_TOURNAMENT: DiscordCommand = {
     const tournament_name = interaction.options.getString("name");
     const team_size = interaction.options.getNumber("team_size");
     const format1 = interaction.options.getString("first_stage_format");
+    const rr_winner_count = interaction.options.getNumber("rr_winner_count");
     const format2 = interaction.options.getString("second_stage_format");
 
     const tournament_id = await createTournament({
