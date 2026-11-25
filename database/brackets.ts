@@ -19,21 +19,19 @@ export async function generateSingleEliminationBracket({
 }: GenerationOpts) {
   const conn = await openDatabase();
   const insertMatchSt = conn.prepare<
-    [number, number, string | null, number | null, number | null],
+    [number, number, number | null, number | null],
     DBMatch
   >(
-    "INSERT INTO matches(tournament_id, tournament_stage, teams, scores, next_winner, next_loser) VALUES (?, ?, ?, NULL, ?, ?) RETURNING *",
+    "INSERT INTO matches(tournament_id, tournament_stage, next_winner, next_loser) VALUES (?, ?, ?, ?) RETURNING *",
   );
 
   const insertMatch = (props: {
-    teams?: Team[];
     nextWinner?: number;
     nextLoser?: number;
   }): DBMatch =>
     insertMatchSt.get(
       tournamentId,
       stage,
-      props.teams ? props.teams.map((t) => t.id.toString()).join(":") : null,
       props.nextWinner || null,
       props.nextLoser || null,
     )!;
@@ -62,21 +60,19 @@ export async function generateDoubleEliminationBracket({
 }: GenerationOpts) {
   const conn = await openDatabase();
   const insertMatchSt = conn.prepare<
-    [number, number, string | null, number | null, number | null],
+    [number, number, number | null, number | null],
     DBMatch
   >(
-    "INSERT INTO matches(tournament_id, tournament_stage, teams, scores, next_winner, next_loser) VALUES (?, ?, ?, NULL, ?, ?) RETURNING *",
+    "INSERT INTO matches(tournament_id, tournament_stage,  next_winner, next_loser) VALUES (?, ?, ?, ?) RETURNING *",
   );
 
   const insertMatch = (props: {
-    teams?: Team[];
     nextWinner?: number;
     nextLoser?: number;
   }): DBMatch =>
     insertMatchSt.get(
       tournamentId,
       stage,
-      props.teams ? props.teams.map((t) => t.id.toString()).join(":") : null,
       props.nextWinner || null,
       props.nextLoser || null,
     )!;
@@ -136,9 +132,6 @@ function generateRoundRobinBracket(opts: GenerationOpts) {}
 // TODO: shuffle team order
 export async function fillTeams(matches: DBMatch[], teams: DBTeam[]) {
   const conn = await openDatabase();
-  const updateMatchTeamsSt = conn.prepare<[string | null, number], DBMatch>(
-    "UPDATE matches SET teams = ? WHERE id = ? RETURNING *",
-  );
   const updateMatchWinnerSt = conn.prepare<[number | null, number], DBMatch>(
     "UPDATE matches SET next_winner = ? WHERE id = ? RETURNING *",
   );
@@ -147,6 +140,9 @@ export async function fillTeams(matches: DBMatch[], teams: DBTeam[]) {
   );
   const deleteMatchSt = conn.prepare<[number]>(
     "DELETE FROM matches WHERE ID = ?",
+  );
+  const insertTeamMatch = conn.prepare<[number, number]>(
+    "INSERT INTO team_matches(match_id, team_id) VALUES (?, ?)",
   );
 
   const preds: { [id: string]: number[] } = {};
@@ -162,9 +158,9 @@ export async function fillTeams(matches: DBMatch[], teams: DBTeam[]) {
     (acc, v) => ({ ...acc, [v.id]: v }),
     {},
   );
-  const lastLayer = Object.keys(preds)
-    .filter((id) => preds[id].length == 0)
-    .map((id) => matchesMap[id]);
+  const lastLayer = matches.filter(
+    (m) => !(m.id in preds) || preds[m.id].length == 0,
+  );
 
   const layerMatchCount = lastLayer.length;
 
@@ -224,11 +220,10 @@ export async function fillTeams(matches: DBMatch[], teams: DBTeam[]) {
     }
   }
 
-  for (const kv of Object.keys(teamsPerMatch)) {
-    updateMatchTeamsSt.run(
-      teamsPerMatch[kv].map((v) => v.id).join(":"),
-      parseInt(kv),
-    );
+  for (const matchId of Object.keys(teamsPerMatch)) {
+    for (const team of teamsPerMatch[matchId]) {
+      insertTeamMatch.run(parseInt(matchId), team.id);
+    }
   }
 }
 

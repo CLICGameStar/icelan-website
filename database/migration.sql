@@ -46,11 +46,18 @@ CREATE TABLE IF NOT EXISTS matches (
     id INTEGER PRIMARY KEY,
     tournament_id INTEGER NOT NULL,
     tournament_stage INTEGER NOT NULL,
-    teams TEXT,
-    scores TEXT,
     next_winner INTEGER,
     next_loser INTEGER,
     FOREIGN KEY (tournament_id) REFERENCES tournaments (id)
+);
+
+CREATE TABLE IF NOT EXISTS team_matches (
+    match_id INTEGER NOT NULL,
+    team_id INTEGER NOT NULL,
+    score INTEGER,
+    PRIMARY KEY (match_id, team_id),
+    FOREIGN KEY (match_id) REFERENCES matches(id),
+    FOREIGN KEY (team_id) REFERENCES teams(id)
 );
 
 CREATE TABLE IF NOT EXISTS ranking_points(
