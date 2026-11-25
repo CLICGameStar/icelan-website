@@ -1,13 +1,8 @@
 import { Team } from "@/database/teams";
-import {
-  PopulatedTournament,
-  PopulatedStage,
-  Tournament,
-  Match,
-} from "@/database/tournaments";
+import { Tournament } from "@/database/tournaments";
 import { throwError } from "@/discord/error";
 import { openDatabase } from "./main";
-import { DBMatch, DBTournament } from "./model";
+import { DBMatch, DBTeam } from "./model";
 
 const POWERS = [1, 2, 4, 8, 16, 32, 64, 128];
 
@@ -15,14 +10,12 @@ type GenerationOpts = {
   tournamentId: number;
   count: number;
   stage: number;
-  teams?: Team[];
 };
 
 export async function generateSingleEliminationBracket({
   tournamentId,
   count,
   stage,
-  ...opts
 }: GenerationOpts) {
   const conn = await openDatabase();
   const insertMatchSt = conn.prepare<
@@ -30,12 +23,6 @@ export async function generateSingleEliminationBracket({
     DBMatch
   >(
     "INSERT INTO matches(tournament_id, tournament_stage, teams, scores, next_winner, next_loser) VALUES (?, ?, ?, NULL, ?, ?) RETURNING *",
-  );
-  const updateMatchSt = conn.prepare<[string | null, number], DBMatch>(
-    "UPDATE matches SET teams = ? WHERE id = ? RETURNING *",
-  );
-  const deleteMatchSt = conn.prepare<[number]>(
-    "DELETE FROM matches WHERE ID = ?",
   );
 
   const insertMatch = (props: {
@@ -49,11 +36,6 @@ export async function generateSingleEliminationBracket({
       props.teams ? props.teams.map((t) => t.id.toString()).join(":") : null,
       props.nextWinner || null,
       props.nextLoser || null,
-    )!;
-  const updateMatch = (props: { id: number; teams?: Team[] }): DBMatch =>
-    updateMatchSt.get(
-      props.teams ? props.teams.map((t) => t.id.toString()).join(":") : null,
-      props.id,
     )!;
 
   const depth = POWERS.indexOf(POWERS.filter((v) => v >= count)[0]) - 1;
@@ -71,48 +53,12 @@ export async function generateSingleEliminationBracket({
     allMatches = [...allMatches, ...layer];
     nextLayer = layer;
   }
-
-  const lastLayer = nextLayer;
-
-  if (opts.teams) {
-    const teams = opts.teams;
-    const layerMatchCount = lastLayer.length;
-
-    const teamsPerMatch: { [id: number]: Team[] } = {};
-    for (let i = 0; i < teams.length; ++i) {
-      const matches = lastLayer[i % layerMatchCount];
-      if (!(matches.id in teamsPerMatch)) teamsPerMatch[matches.id] = [];
-      teamsPerMatch[matches.id].push(teams[i]);
-    }
-
-    for (const matches of lastLayer) {
-      const matchTeams = teamsPerMatch[matches.id];
-      if (matchTeams.length > 1) {
-        updateMatch({ id: matches.id, teams: teamsPerMatch[matches.id] });
-      } else {
-        if (matchTeams.length == 1) {
-          teamsPerMatch[matches.next_winner!] = [
-            ...(teamsPerMatch[matches.next_winner!] || []),
-            ...matchTeams,
-          ];
-
-          updateMatch({
-            id: matches.next_winner!,
-            teams: teamsPerMatch[matches.next_winner!],
-          });
-        }
-
-        deleteMatchSt.run(matches.id);
-      }
-    }
-  }
 }
 
 export async function generateDoubleEliminationBracket({
   count,
   stage,
   tournamentId,
-  ...opts
 }: GenerationOpts) {
   const conn = await openDatabase();
   const insertMatchSt = conn.prepare<
@@ -120,18 +66,6 @@ export async function generateDoubleEliminationBracket({
     DBMatch
   >(
     "INSERT INTO matches(tournament_id, tournament_stage, teams, scores, next_winner, next_loser) VALUES (?, ?, ?, NULL, ?, ?) RETURNING *",
-  );
-  const updateMatchTeamsSt = conn.prepare<[string | null, number], DBMatch>(
-    "UPDATE matches SET teams = ? WHERE id = ? RETURNING *",
-  );
-  const updateMatchWinnerSt = conn.prepare<[number | null, number], DBMatch>(
-    "UPDATE matches SET next_winner = ? WHERE id = ? RETURNING *",
-  );
-  const updateMatchLoserSt = conn.prepare<[number | null, number], DBMatch>(
-    "UPDATE matches SET next_loser = ? WHERE id = ? RETURNING *",
-  );
-  const deleteMatchSt = conn.prepare<[number]>(
-    "DELETE FROM matches WHERE ID = ?",
   );
 
   const insertMatch = (props: {
@@ -195,104 +129,108 @@ export async function generateDoubleEliminationBracket({
     winnerNextLayer = winnerLayer;
     loserNextLayer = loserLayer;
   }
-
-  const lastLayer = winnerNextLayer;
-  const matches: { [id: string]: DBMatch } = allMatches.reduce(
-    (acc, v) => ({ ...acc, [v.id]: v }),
-    {},
-  );
-  if (opts.teams) {
-    const teams = opts.teams;
-    const layerMatchCount = lastLayer.length;
-
-    const teamsPerMatch: { [id: string]: Team[] } = {};
-    for (let i = 0; i < teams.length; ++i) {
-      const matches = lastLayer[i % layerMatchCount];
-      if (!(matches.id in teamsPerMatch)) teamsPerMatch[matches.id] = [];
-      teamsPerMatch[matches.id].push(teams[i]);
-    }
-
-    const preds: { [id: string]: number[] } = {};
-    for (const m of allMatches) {
-      const addPred = (id: number) => {
-        preds[id] = [...(preds[id] || []), m.id];
-      };
-      if (m.next_winner) addPred(m.next_winner);
-      if (m.next_loser) addPred(m.next_loser);
-    }
-    console.log(preds);
-    console.log(teamsPerMatch);
-
-    while (true) {
-      console.log("flowchart LR");
-      for (const m of Object.values(matches)) {
-        if (m.next_winner) {
-          console.log(`    ${m.id} --> ${m.next_winner}`);
-        }
-        if (m.next_loser) {
-          console.log(`    ${m.id} .-> ${m.next_loser}`);
-        }
-      }
-
-      const collapsable = Object.values(matches).filter(
-        (m) =>
-          (teamsPerMatch[m.id.toString()] || []).length +
-            (preds[m.id] || []).length <=
-          1,
-      );
-      console.log(collapsable);
-      if (collapsable.length === 0) {
-        break;
-      }
-
-      for (const m of collapsable) {
-        if ((preds[m.id] || []).length > 0) {
-          const p = matches[preds[m.id][0]];
-          if (p.next_winner === m.id) {
-            p.next_winner = m.next_winner;
-            updateMatchWinnerSt.run(m.next_winner, p.id);
-          }
-          if (p.next_loser === m.id) {
-            p.next_loser = m.next_winner;
-            updateMatchLoserSt.run(m.next_winner, p.id);
-          }
-
-          if (m.next_winner) {
-            preds[m.next_winner] = [
-              ...preds[m.next_winner].filter((v) => v !== m.id),
-              p.id,
-            ];
-          }
-          if (m.next_loser) {
-            preds[m.next_loser] = [
-              ...preds[m.next_loser].filter((v) => v !== m.id),
-              p.id,
-            ];
-          }
-        } else if ((teamsPerMatch[m.id] || []).length > 0) {
-          teamsPerMatch[m.next_winner!] = [
-            ...teamsPerMatch[m.id],
-            ...(teamsPerMatch[m.next_winner!] || []),
-          ];
-        }
-
-        deleteMatchSt.run(m.id);
-        delete matches[m.id];
-        delete preds[m.id];
-        delete teamsPerMatch[m.id];
-      }
-    }
-
-    for (const kv of Object.keys(teamsPerMatch)) {
-      updateMatchTeamsSt.run(
-        teamsPerMatch[kv].map((v) => v.id).join(":"),
-        parseInt(kv),
-      );
-    }
-  }
 }
 
 function generateRoundRobinBracket(opts: GenerationOpts) {}
+
+// TODO: shuffle team order
+export async function fillTeams(matches: DBMatch[], teams: DBTeam[]) {
+  const conn = await openDatabase();
+  const updateMatchTeamsSt = conn.prepare<[string | null, number], DBMatch>(
+    "UPDATE matches SET teams = ? WHERE id = ? RETURNING *",
+  );
+  const updateMatchWinnerSt = conn.prepare<[number | null, number], DBMatch>(
+    "UPDATE matches SET next_winner = ? WHERE id = ? RETURNING *",
+  );
+  const updateMatchLoserSt = conn.prepare<[number | null, number], DBMatch>(
+    "UPDATE matches SET next_loser = ? WHERE id = ? RETURNING *",
+  );
+  const deleteMatchSt = conn.prepare<[number]>(
+    "DELETE FROM matches WHERE ID = ?",
+  );
+
+  const preds: { [id: string]: number[] } = {};
+  for (const m of matches) {
+    const addPred = (id: number) => {
+      preds[id] = [...(preds[id] || []), m.id];
+    };
+    if (m.next_winner) addPred(m.next_winner);
+    if (m.next_loser) addPred(m.next_loser);
+  }
+
+  const matchesMap: { [id: string]: DBMatch } = matches.reduce(
+    (acc, v) => ({ ...acc, [v.id]: v }),
+    {},
+  );
+  const lastLayer = Object.keys(preds)
+    .filter((id) => preds[id].length == 0)
+    .map((id) => matchesMap[id]);
+
+  const layerMatchCount = lastLayer.length;
+
+  const teamsPerMatch: { [id: string]: DBTeam[] } = {};
+  for (let i = 0; i < teams.length; ++i) {
+    const matches = lastLayer[i % layerMatchCount];
+    if (!(matches.id in teamsPerMatch)) teamsPerMatch[matches.id] = [];
+    teamsPerMatch[matches.id].push(teams[i]);
+  }
+
+  while (true) {
+    const collapsable = Object.values(matchesMap).filter(
+      (m) =>
+        (teamsPerMatch[m.id.toString()] || []).length +
+          (preds[m.id] || []).length <=
+        1,
+    );
+    if (collapsable.length === 0) {
+      break;
+    }
+
+    for (const m of collapsable) {
+      if ((preds[m.id] || []).length > 0) {
+        const p = matchesMap[preds[m.id][0]];
+        if (p.next_winner === m.id) {
+          p.next_winner = m.next_winner;
+          updateMatchWinnerSt.run(m.next_winner, p.id);
+        }
+        if (p.next_loser === m.id) {
+          p.next_loser = m.next_winner;
+          updateMatchLoserSt.run(m.next_winner, p.id);
+        }
+
+        if (m.next_winner) {
+          preds[m.next_winner] = [
+            ...preds[m.next_winner].filter((v) => v !== m.id),
+            p.id,
+          ];
+        }
+        if (m.next_loser) {
+          preds[m.next_loser] = [
+            ...preds[m.next_loser].filter((v) => v !== m.id),
+            p.id,
+          ];
+        }
+      } else if ((teamsPerMatch[m.id] || []).length > 0) {
+        teamsPerMatch[m.next_winner!] = [
+          ...teamsPerMatch[m.id],
+          ...(teamsPerMatch[m.next_winner!] || []),
+        ];
+      }
+
+      deleteMatchSt.run(m.id);
+      delete matchesMap[m.id];
+      delete preds[m.id];
+      delete teamsPerMatch[m.id];
+    }
+  }
+
+  for (const kv of Object.keys(teamsPerMatch)) {
+    updateMatchTeamsSt.run(
+      teamsPerMatch[kv].map((v) => v.id).join(":"),
+      parseInt(kv),
+    );
+  }
+}
 
 export function constructTournamentStages(
   tournament: Tournament,
