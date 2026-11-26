@@ -17,7 +17,7 @@ export type Team = NewTeam & {
 
 export type Enrollment = DBEnrollment;
 
-function dbToTeam(dbt: DBTeam): Team {
+export function dbToTeam(dbt: DBTeam): Team {
   return { ...dbt, confirmed: dbt.confirmed == 1 };
 }
 

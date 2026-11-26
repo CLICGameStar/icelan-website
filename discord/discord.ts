@@ -26,6 +26,7 @@ import { TOURNAMENT_COMMANDS } from "./commands/tournaments";
 import { USER_UTIL_COMMANDS } from "./commands/user_utils";
 import type { BotError } from "./error";
 import { logToDiscord } from "./logging";
+import { testStartTournament } from "@/database/tournaments";
 
 export const client = new Client({
   intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMembers],
@@ -56,6 +57,7 @@ export async function startDiscordBot() {
   // START POINTS TEST, uncomment to test points functions
 
   // await testRankingPoints();
+  await testStartTournament();
 
   // END POINTS TEST
 

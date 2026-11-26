@@ -28,6 +28,7 @@ export interface DBTournament {
   id: number;
   name: string;
   team_size: number;
+  match_size: number;
   state: string;
   format1: string;
   format2: string | null;

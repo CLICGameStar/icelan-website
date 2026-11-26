@@ -7,8 +7,11 @@ import {
   type DBEnrollment,
   type DBParticipant,
 } from "./model";
-import { dbToParticipant, type Participant } from "./participants";
-import type { Team } from "./teams";
+import { dbToParticipant, insertParticipantInDatabase, NewParticipant, type Participant } from "./participants";
+import { createTeam, NewTeam, type Team } from "./teams";
+import { fillTeams, generateDoubleEliminationBracket, generateRoundRobinBracket, generateSingleEliminationBracket } from "./brackets";
+import { notifyMatchParticipant } from "./match";
+import { register } from "./registrations";
 
 export type TournamentState = "opened" | "started" | "finished";
 
@@ -26,6 +29,7 @@ export type PopulatedTournament = {
 export type NewTournament = {
   name: string;
   team_size: number;
+  match_size: number;
   stage1: Stage;
   stage2: Stage | null;
 };
@@ -33,6 +37,7 @@ export type NewTournament = {
 export type Tournament = {
   id: number;
   state: TournamentState;
+  current: number | null;
 } & NewTournament;
 
 export type SingleEliminationBracket = {
@@ -126,13 +131,13 @@ function dbToPopulatedTournament(
   );
   const stage2 = dbTournament.format2
     ? collectStage(
-        dbTournament.id,
-        dbTournament.format2,
-        1,
-        dbTournament.extra,
-        dbMatchMap,
-        matchMap,
-      )
+      dbTournament.id,
+      dbTournament.format2,
+      1,
+      dbTournament.extra,
+      dbMatchMap,
+      matchMap,
+    )
     : null;
 
   return {
@@ -187,12 +192,12 @@ function collectStage(
         winnerCount: extra
           ? parseInt(extra)
           : (() => {
-              throwError({
-                type: "invalid_data",
-                source: "database",
-                message: `tournament[${stage}].extra is not an int`,
-              });
-            })(),
+            throwError({
+              type: "invalid_data",
+              source: "database",
+              message: `tournament[${stage}].extra is not an int`,
+            });
+          })(),
       };
 
     default:
@@ -207,11 +212,11 @@ function collectStage(
 function mapStage(format: StageType, extra: string | null): Stage {
   return format === "round_robin"
     ? {
-        type: format,
-        winnerCount: parseInt(
-          extra ?? "0"
-        ),
-      }
+      type: format,
+      winnerCount: parseInt(
+        extra ?? "0"
+      ),
+    }
     : { type: format };
 }
 
@@ -220,9 +225,11 @@ function dbToTournament(t: DBTournament): Tournament {
     id: t.id,
     name: t.name,
     team_size: t.team_size,
+    match_size: t.match_size,
     state: t.state as TournamentState,
     stage1: mapStage(t.format1 as StageType, t.extra),
     stage2: t.format2 ? mapStage(t.format2 as StageType, t.extra) : null,
+    current: t.current,
   };
 }
 
@@ -303,6 +310,18 @@ export async function getTournamentFromName(
   return dbTournament ? dbToTournament(dbTournament) : null;
 }
 
+export async function getTournamentTeams(id: number): Promise<DBTeam[]> {
+  return (await openDatabase()).prepare<number, DBTeam>(
+    "SELECT * FROM teams WHERE tournament_id = ?"
+  ).all(id);
+}
+
+export async function getTournamentMatchs(id: number, stage: number): Promise<DBMatch[]> {
+  return (await openDatabase()).prepare<[number, number], DBMatch>(
+    "SELECT * FROM matches WHERE tournament_id = ? AND tournament_stage = ?"
+  ).all(id, stage);
+}
+
 export async function getTournamentParticipants(
   id: number,
 ): Promise<Participant[]> {
@@ -344,15 +363,52 @@ export async function getTournamentsFromParticipantId(
     .map(dbToTournament);
 }
 
+export async function startTournament(name: string) {
+  const t = await getTournamentFromName(name) || throwError({ type: "not_found" });
+  const teams = await getTournamentTeams(t.id) ?? [];
+
+  const generationOption = {
+    tournamentId: t.id,
+    count: teams.length,
+    stage: 0
+  };
+
+  switch (t.stage1.type) {
+    case "single_elimination_bracket":
+      await generateSingleEliminationBracket(generationOption);
+      break;
+    case "double_elimination_bracket":
+      await generateDoubleEliminationBracket(generationOption);
+      break;
+    case "round_robin":
+      await generateRoundRobinBracket(generationOption);
+  };
+
+  let matches = await getTournamentMatchs(t.id, 0) ?? [];
+
+  await fillTeams(matches, teams);
+  
+  const conn = await openDatabase();
+  conn.prepare(
+    "UPDATE tournaments SET current = ?, state = ? WHERE id = ?"
+  ).run(0, "started", t.id);
+
+  matches = await getTournamentMatchs(t.id, 0) ?? [];
+  for (let i = 0; i < matches.length; i++) {
+    await notifyMatchParticipant(matches[i], t.match_size, t.name);
+  }
+}
+
 export async function createTournament(t: NewTournament): Promise<number> {
   const conn = await openDatabase();
   return conn
     .prepare(
-      "INSERT INTO tournaments(name, team_size, state, format1, format2) VALUES(?, ?, ?, ?, ?)",
+      "INSERT INTO tournaments(name, team_size, match_size, state, format1, format2) VALUES(?, ?, ?, ?, ?, ?)",
     )
     .run(
       t.name,
       t.team_size,
+      t.match_size,
       "opened" as TournamentState,
       t.stage1.type,
       t.stage2?.type,
@@ -363,4 +419,40 @@ export async function deleteTournament(id: number): Promise<number> {
   const conn = await openDatabase();
   return conn.prepare("DELETE FROM tournaments WHERE id = ?").run(id)
     .lastInsertRowid as number;
+}
+
+export async function testStartTournament() {
+  (await openDatabase()).prepare("DELETE FROM enrollments").run();
+  (await openDatabase()).prepare("DELETE FROM participants").run();
+  (await openDatabase()).prepare("DELETE FROM team_matches").run();
+  (await openDatabase()).prepare("DELETE FROM matches").run();
+  (await openDatabase()).prepare("DELETE FROM tournaments").run();
+
+  await createTournament({
+    name: "test",
+    team_size: 1,
+    match_size: 2,
+    stage1: {type: "single_elimination_bracket"},
+    stage2: null,
+  });
+
+  const tTest = await getTournamentFromName("test");
+
+  let newParticipants: NewParticipant[] = [];
+  for (let i = 0; i < 8; i++) {
+    console.log(i)
+    const np: NewParticipant = {
+      first_name: `name_${i}`,
+      family_name: `familiyname_${i}`,
+      username: `username_${i}`,
+      discord_username: `discordusername_${i}`,
+      discord_id: `${i}`,
+      is_staff: true,
+      is_donator: false
+    }; 
+
+    await insertParticipantInDatabase(np);
+    await register(i, tTest!.id);
+    newParticipants.push(np);
+  }
 }

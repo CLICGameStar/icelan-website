@@ -35,6 +35,7 @@ CREATE TABLE IF NOT EXISTS tournaments (
     id INTEGER PRIMARY KEY,
     "name" TEXT UNIQUE NOT NULL,
     team_size INTEGER NOT NULL,
+    match_size INTEGER NOT NULL,
     state TEXT NOT NULL,
     format1 TEXT NOT NULL,
     format2 TEXT,

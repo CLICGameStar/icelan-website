@@ -6,6 +6,7 @@ import {
   getTournamentFromName,
   getTournamentParticipants,
   getTournaments,
+  startTournament,
   type Stage,
   type TournamentState,
 } from "@/database/tournaments";
@@ -26,6 +27,7 @@ async function tournamentDataAsString(id: number): Promise<string> {
     `- \`id\`: ${tournament.id}\n` +
     `- \`name\`: ${tournament.name}\n` +
     `- \`team_size\`: ${tournament.team_size}\n` +
+    `- \`match_size\`: ${tournament.match_size}\n` +
     `- \`state\`: ${tournament.state}\n` +
     `- \`stage1\`: ${tournament.stage1.type}\n` +
     `- \`stage2\`: ${tournament.stage2?.type}\n` +
@@ -102,12 +104,19 @@ const CREATE_TOURNAMENT: DiscordCommand = {
         }
       ],
     },
+    {
+      name: "match_size",
+      description: "Number of opponent in one match",
+      type: ApplicationCommandOptionType.Number,
+    },
   ],
   async handler(interaction) {
     await interaction.deferReply({ flags: MessageFlags.Ephemeral });
-    const tournament_name = interaction.options.getString("name");
-    const team_size = interaction.options.getNumber("team_size");
-    const format = interaction.options.getString("format");
+
+    const tournament_name = interaction.options.getString("name") ?? "";
+    const team_size = interaction.options.getNumber("team_size") ?? 1;
+    const format = interaction.options.getString("format") ?? "single_elimination_bracket";
+    const match_size = interaction.options.getNumber("match_size") ?? 2;
 
     let stage1: Stage;
     let stage2: Stage | null = null;
@@ -137,12 +146,12 @@ const CREATE_TOURNAMENT: DiscordCommand = {
           source: "user",
           message: "Invalid tournament format received: " + format
         });
-        break;
     }
     
     const tournament_id = await createTournament({
       name: tournament_name!,
       team_size: team_size!,
+      match_size: match_size,
       stage1: stage1,
       stage2: stage2,
     });
@@ -214,9 +223,38 @@ const TOURNAMENT_DATA: DiscordCommand = {
   },
 };
 
+const START_TOURNAMENT: DiscordCommand = {
+  name: "start_tournament",
+  description: "Start a tournament",
+  defaultMemberPermissions: PermissionFlagsBits.Administrator,
+  options: [
+    {
+      name: "name",
+      description: "Name of the tournament to start",
+      type: ApplicationCommandOptionType.String,
+      required: true,
+    }
+  ],
+  async handler(interaction) {
+    const name = interaction.options.getString("name") ?? "";
+    await interaction.deferReply({flags: MessageFlags.Ephemeral});
+
+    
+    try {
+      startTournament(name);
+
+      await interaction.editReply({content: `Tournament ${name} successfully started. 
+        Registration to the tournament are now blocked.`});
+    } catch(error) {
+      //TODO handle errors
+    }
+  }
+}
+
 export const TOURNAMENT_COMMANDS = [
   LIST_TOURNAMENTS,
   CREATE_TOURNAMENT,
   TOURNAMENT_DATA,
   DELETE_TOURNAMENT,
+  START_TOURNAMENT
 ];

@@ -127,7 +127,9 @@ export async function generateDoubleEliminationBracket({
   }
 }
 
-function generateRoundRobinBracket(opts: GenerationOpts) {}
+export async function generateRoundRobinBracket(opts: GenerationOpts) {
+  throwError({type: "not_implemented", message: "generateRoundRobinBracket not implemented."});
+}
 
 // TODO: shuffle team order
 export async function fillTeams(matches: DBMatch[], teams: DBTeam[]) {
