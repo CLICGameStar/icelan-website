@@ -21,12 +21,14 @@ const USER_INFO: DiscordCommand = {
       content:
         "## Tes infos\n" +
         `- Pseudo ICeLAN : ${p.username}\n` +
-        `- Ton classement : \`${p.is_staff ? "staff" : await getRank(p.id)}\`` +
+        `- Ton classement : \`${p.is_staff ? "staff" : await getRank(p.id)}\`\n` +
         `### Tes équipes\n` +
-        teams.map(
-          (t) =>
-            `- ${t.creator === p.id ? "Capitaine de " : "Équipi·er·ère de "}**${t.name}** pour le tournoi \`${tournaments.find((tour) => tour.id === t.tournament_id)!.name}\`\n`,
-        ) +
+        teams
+          .map(
+            (t) =>
+              `- ${t.creator === p.id ? "Capitaine de " : "Équipier·e de "}**${t.name}** pour le tournoi \`${tournaments.find((tour) => tour.id === t.tournament_id)!.name}\`\n`,
+          )
+          .join("") +
         `### Tournois auquels tu es inscrit·e\n` +
         tr.map((t) => `- \`${t.name}\`\n`).join(""),
     });

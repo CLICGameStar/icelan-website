@@ -61,8 +61,16 @@ CREATE TABLE IF NOT EXISTS team_matches (
 );
 
 CREATE TABLE IF NOT EXISTS ranking_points(
-    id INTEGER PRIMARY KEY,
     number_of_teams INTEGER,
     rank INTEGER,
-    points INTEGER
+    points INTEGER,
+    PRIMARY KEY (number_of_teams, rank)
+);
+
+CREATE TABLE IF NOT EXISTS bonus_points(
+    id INTEGER PRIMARY KEY,
+    participant_id INTEGER NOT NULL,
+    points INTEGER NOT NULL,
+    justification TEXT,
+    FOREIGN KEY (participant_id) REFERENCES participants(id) ON DELETE CASCADE
 );

@@ -9,6 +9,7 @@ import {
   deleteTeam,
   getTeam,
   getTeamFromNameAndTournamentName,
+  getTeamFromTournamentNameAndCreator,
   getTeamMembers,
   getTeams,
   insertEnrollment,
@@ -27,6 +28,7 @@ import {
   ButtonStyle,
   MessageFlags,
   PermissionFlagsBits,
+  type GuildMemberRoleManager,
   type TextChannel,
 } from "discord.js";
 import {
@@ -36,6 +38,7 @@ import {
 } from "../discord";
 import { throwError } from "../error";
 import { notify, USERS_CHANNEL_ID } from "../logging";
+import { getTournamentRole } from "./tournaments";
 
 async function teamDataAsString(id: number): Promise<string> {
   const team = await getTeam(id);
@@ -46,7 +49,7 @@ async function teamDataAsString(id: number): Promise<string> {
     `- \`nom\`: ${team.name}\n` +
     `- \`taille requise de l'équipe\`: ${tournament.team_size}\n` +
     `- \`capitaine\`: <@${(await getParticipant(team.creator)).discord_id}>\n` +
-    `- \`équipi·er·ères\`: ${(await getTeamMembers(team.id)).map((m) => `<@${m.discord_id}>`).join(", ")}\n`
+    `- \`équipier·e·s\`: ${(await getTeamMembers(team.id)).map((m) => `<@${m.discord_id}>`).join(", ")}\n`
   );
 }
 
@@ -71,21 +74,22 @@ async function sendTeamInvite(participant: Participant, team: Team) {
   )) as TextChannel;
 
   await channel.send({
-    content: `<@${participant.discord_id}>\nTu as été invité·e à rejoindre l'équipe **${team.name}** par <@${(await getParticipant(team.creator)).discord_id}>.\n\nAcceptes-tu l'invitation ?`,
+    content: `<@${participant.discord_id}>\nTu as été invité·e à rejoindre l'équipe **${team.name}** pour le tournoi \`${(await getTournament(team.tournament_id)).name}\`  par <@${(await getParticipant(team.creator)).discord_id}>.\n\nAcceptes-tu l'invitation ?`,
     components: [row],
   });
 }
 
 async function _deleteTeam(id: number) {
   const team = await getTeam(id);
-  (await getTeamMembers(id)).forEach((m) =>
-    notify(m.id, `L'équipe **${team.name}** a été supprimée.`),
-  );
-  await deleteTeam(team.id);
+  (notify(
+    (await getTeamMembers(team.id)).map((m) => m.id),
+    `L'équipe **${team.name}** pour \`${(await getTournament(team.tournament_id)).name}\` a été supprimée.`,
+  ),
+    await deleteTeam(team.id));
 }
 
 const CREATE_TEAM: DiscordCommand = {
-  name: "team_create",
+  name: "create_team",
   description: "Crée une équipe pour un tournoi.",
   options: [
     {
@@ -151,12 +155,19 @@ const CREATE_TEAM: DiscordCommand = {
       tournament_id: tournament.id,
     });
 
+    const tournament_role = await getTournamentRole(
+      tournament.id,
+      interaction.guild!,
+    );
+
+    (interaction.member!.roles as GuildMemberRoleManager).add(tournament_role);
+
     await interaction.editReply({ content: await teamDataAsString(team_id) });
   },
 };
 
 const DELETE_TEAM: DiscordCommand = {
-  name: "team_delete",
+  name: "delete_team",
   description: "Supprime une de tes équipes et désincrit la du tournoi",
   options: [
     {
@@ -225,7 +236,7 @@ const DELETE_TEAM: DiscordCommand = {
 
 const LIST_TEAMS: DiscordCommand = {
   name: "list_teams",
-  description: "Lists all of the teams",
+  description: "[ADMIN] Lists all of the teams",
   defaultMemberPermissions: PermissionFlagsBits.Administrator,
   async handler(interaction) {
     await interaction.deferReply({ flags: MessageFlags.Ephemeral });
@@ -234,10 +245,12 @@ const LIST_TEAMS: DiscordCommand = {
 
     await interaction.editReply(
       `## Teams\nCount: \`${teams.length}\`\n` +
-        teams.map(
-          (t) =>
-            `- **${t.name}** du tournoi \`${tournaments.find((tour) => tour.id === t.tournament_id)!.name}\``,
-        ),
+        teams
+          .map(
+            (t) =>
+              `- **${t.name}** du tournoi \`${tournaments.find((tour) => tour.id === t.tournament_id)!.name}\`\n`,
+          )
+          .join(""),
     );
   },
 };
@@ -289,12 +302,6 @@ const INVITE: DiscordCommand = {
       required: true,
     },
     {
-      name: "equipe",
-      description: "L'équipe dans laquelle tu souhaite l'inviter.",
-      type: ApplicationCommandOptionType.String,
-      required: true,
-    },
-    {
       name: "participant",
       description: "La personne que tu souhaite inviter.",
       type: ApplicationCommandOptionType.User,
@@ -304,18 +311,17 @@ const INVITE: DiscordCommand = {
   async handler(interaction) {
     await interaction.deferReply({ flags: MessageFlags.Ephemeral });
     const participant_user = interaction.options.getUser("participant");
-    const team_name = interaction.options.getString("equipe");
     const tournament_name = interaction.options.getString("tournoi");
-    const team = await getTeamFromNameAndTournamentName(
-      team_name!,
+    const team = await getTeamFromTournamentNameAndCreator(
       tournament_name!,
+      (await getParticipantFromDiscordId(interaction.user.id)).id,
     );
 
     if (!team) {
       throwError({
         type: "invalid_data",
         source: "user",
-        message: `L'équipe **${team_name}** du tournoi \`${tournament_name}\` n'a pas été trouvée.`,
+        message: `Ton équipe du tournoi \`${tournament_name}\` n'a pas été trouvée.`,
       });
     }
 
@@ -337,10 +343,8 @@ const INVITE: DiscordCommand = {
       });
     }
 
-    if (
-      (await getTeamMembers(team.id)).length >=
-      (await getTournament(team.tournament_id)).team_size
-    ) {
+    const tournament = await getTournament(team.tournament_id);
+    if ((await getTeamMembers(team.id)).length >= tournament.team_size) {
       throwError({
         type: "other",
         message: "L'équipe est pleine.",
@@ -359,7 +363,7 @@ const INVITE: DiscordCommand = {
     }
 
     if (
-      (await getTournamentParticipants(team.tournament_id))
+      (await getTournamentParticipants(tournament.id))
         .map((p) => p.id)
         .includes(participant.id)
     ) {
@@ -372,7 +376,7 @@ const INVITE: DiscordCommand = {
 
     sendTeamInvite(participant, team);
     await interaction.editReply(
-      `<@${participant.discord_id}> a été invité à rejoindre l'équipe **${team.name}**.`,
+      `<@${participant.discord_id}> a été invité à rejoindre l'équipe **${team.name}** pour le tournoi \`${tournament.name}\`.`,
     );
   },
 };
@@ -459,7 +463,7 @@ const KICK: DiscordCommand = {
       content: `<@${participant.discord_id}> a été kické de l'équipe **${team.name}**.`,
     });
     await notify(
-      participant.id,
+      [participant.id],
       `Tu as été kické de l'équipe **${team.name}**.`,
     );
   },
@@ -595,19 +599,19 @@ const TEAM_INVITE: ComponentInteraction = {
     if (accepted) {
       insertEnrollment({ participant_id: participant.id, team_id: team.id });
       await interaction.editReply({
-        content: `Tu as rejoint l'équipe **${team.name}**.`,
+        content: `Tu as rejoint l'équipe **${team.name}** pour \`${(await getTournament(team.tournament_id)).name}\`.`,
       });
       await notify(
-        team.creator,
-        `<@${participant.discord_id}> a rejoint **${team.name}**.`,
+        [team.creator],
+        `<@${participant.discord_id}> a rejoint **${team.name}** pour \`${(await getTournament(team.tournament_id)).name}\`.`,
       );
     } else {
       await interaction.editReply({
-        content: `Tu as refusé l'invitation.`,
+        content: `Tu as refusé l'invitation à rejoindre **${team.name}** pour \`${(await getTournament(team.tournament_id)).name}\`.`,
       });
       await notify(
-        team.creator,
-        `<@${participant.discord_id}> a refusé l'invitation.`,
+        [team.creator],
+        `<@${participant.discord_id}> a refusé l'invitation à rejoindre **${team.name}** pour \`${(await getTournament(team.tournament_id)).name}\`.`,
       );
     }
     await interaction.message.delete();
@@ -653,7 +657,7 @@ const TEAM_DELETE: ComponentInteraction = {
     if (supprimer) {
       await _deleteTeam(team.id);
       await interaction.update({
-        content: `L'équipe **${team.name}** a été supprimée`,
+        content: `L'équipe **${team.name}** pour \`${(await getTournament(team.tournament_id)).name}\` a été supprimée`,
         components: [],
       });
     } else {

@@ -136,6 +136,25 @@ export async function getTeamFromNameAndTournamentName(
   return team ? dbToTeam(team) : null;
 }
 
+export async function getTeamFromTournamentNameAndCreator(
+  tournament_name: string,
+  creator_id: number,
+): Promise<Team | null> {
+  const conn = await openDatabase();
+  const team = conn
+    .prepare<[number, string], DBTeam>(
+      `
+      SELECT t.*
+      FROM teams t
+      JOIN tournaments tr ON tr.id = t.tournament_id
+      WHERE t.creator = ?
+       AND tr.name = ?
+       AND tr.team_size > 1`,
+    )
+    .get(creator_id, tournament_name.trim());
+  return team ? dbToTeam(team) : null;
+}
+
 export async function getTeamMembers(team_id: number): Promise<Participant[]> {
   const conn = await openDatabase();
 

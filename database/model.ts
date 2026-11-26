@@ -46,8 +46,14 @@ export interface DBMatch {
 }
 
 export interface DBRankingPoints {
-  id: number;
   number_of_teams: number;
   rank: number;
   points: number;
+}
+
+export interface DBBonusPoints {
+  id: number;
+  participant_id: number;
+  points: number;
+  justification: string;
 }
