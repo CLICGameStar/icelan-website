@@ -28,6 +28,7 @@ import {
   ButtonStyle,
   MessageFlags,
   PermissionFlagsBits,
+  type Guild,
   type GuildMemberRoleManager,
   type TextChannel,
 } from "discord.js";
@@ -38,7 +39,7 @@ import {
 } from "../discord";
 import { throwError } from "../error";
 import { notify, USERS_CHANNEL_ID } from "../logging";
-import { getTournamentRole } from "./tournaments";
+import { getGuildMember } from "./participants";
 
 async function teamDataAsString(id: number): Promise<string> {
   const team = await getTeam(id);
@@ -79,10 +80,20 @@ async function sendTeamInvite(participant: Participant, team: Team) {
   });
 }
 
-async function _deleteTeam(id: number) {
+async function _deleteTeam(id: number, guild: Guild) {
   const team = await getTeam(id);
+  const members = await getTeamMembers(team.id);
+  const tournament = await getTournament(team.tournament_id);
+
+  members.forEach(async (m) =>
+    (
+      (await getGuildMember(guild, m.discord_username))
+        .roles as GuildMemberRoleManager
+    ).remove(tournament.role_id),
+  );
+
   (notify(
-    (await getTeamMembers(team.id)).map((m) => m.id),
+    members.map((m) => m.id),
     `L'équipe **${team.name}** pour \`${(await getTournament(team.tournament_id)).name}\` a été supprimée.`,
   ),
     await deleteTeam(team.id));
@@ -155,12 +166,9 @@ const CREATE_TEAM: DiscordCommand = {
       tournament_id: tournament.id,
     });
 
-    const tournament_role = await getTournamentRole(
-      tournament.id,
-      interaction.guild!,
+    (interaction.member!.roles as GuildMemberRoleManager).add(
+      tournament.role_id,
     );
-
-    (interaction.member!.roles as GuildMemberRoleManager).add(tournament_role);
 
     await interaction.editReply({ content: await teamDataAsString(team_id) });
   },
@@ -459,6 +467,12 @@ const KICK: DiscordCommand = {
       throwError({ type: "querry failed", message: "La fonction a échoué." });
     }
 
+    (
+      (await (
+        await getGuildMember(interaction.guild!, participant.discord_username)
+      ).roles) as GuildMemberRoleManager
+    ).remove((await getTournament(team.tournament_id)).role_id);
+
     await interaction.editReply({
       content: `<@${participant.discord_id}> a été kické de l'équipe **${team.name}**.`,
     });
@@ -535,6 +549,10 @@ const LEAVE: DiscordCommand = {
       throwError({ type: "querry failed" });
     }
 
+    (interaction.member!.roles as GuildMemberRoleManager).remove(
+      (await getTournament(team.tournament_id)).role_id,
+    );
+
     await interaction.editReply({ content: "Tu as quitté l'équipe." });
   },
 };
@@ -575,10 +593,8 @@ const TEAM_INVITE: ComponentInteraction = {
       });
     }
 
-    if (
-      (await getTeamMembers(team.id)).length >=
-      (await getTournament(team.tournament_id)).team_size
-    ) {
+    const tournament = await getTournament(team.tournament_id);
+    if ((await getTeamMembers(team.id)).length >= tournament.team_size) {
       throwError({
         type: "other",
         message: "L'équipe est pleine.",
@@ -598,6 +614,10 @@ const TEAM_INVITE: ComponentInteraction = {
 
     if (accepted) {
       insertEnrollment({ participant_id: participant.id, team_id: team.id });
+
+      (interaction.member!.roles as GuildMemberRoleManager).add(
+        (await getTournament(team.tournament_id)).role_id,
+      );
       await interaction.editReply({
         content: `Tu as rejoint l'équipe **${team.name}** pour \`${(await getTournament(team.tournament_id)).name}\`.`,
       });
@@ -655,7 +675,7 @@ const TEAM_DELETE: ComponentInteraction = {
             });
 
     if (supprimer) {
-      await _deleteTeam(team.id);
+      await _deleteTeam(team.id, interaction.guild!);
       await interaction.update({
         content: `L'équipe **${team.name}** pour \`${(await getTournament(team.tournament_id)).name}\` a été supprimée`,
         components: [],

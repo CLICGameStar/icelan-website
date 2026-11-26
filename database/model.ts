@@ -27,6 +27,7 @@ export interface DBEnrollment {
 export interface DBTournament {
   id: number;
   name: string;
+  role_id: string;
   team_size: number;
   state: string;
   format1: string;

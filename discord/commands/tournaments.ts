@@ -13,8 +13,6 @@ import {
   ApplicationCommandOptionType,
   MessageFlags,
   PermissionFlagsBits,
-  type Guild,
-  type Role,
 } from "discord.js";
 import type { DiscordCommand } from "../discord";
 import { throwError } from "../error";
@@ -24,7 +22,7 @@ async function tournamentDataAsString(id: number): Promise<string> {
   const teams = await getTeamsFromTournamentId(id);
   const participants = await getTournamentParticipants(id);
   return (
-    `## Data about \`${tournament.name}\`\n` +
+    `## Data about <@&${tournament.role_id}>\n` +
     `- \`id\`: ${tournament.id}\n` +
     `- \`name\`: ${tournament.name}\n` +
     `- \`team_size\`: ${tournament.team_size}\n` +
@@ -38,23 +36,6 @@ async function tournamentDataAsString(id: number): Promise<string> {
     `Amount: \`${participants.length}\`\n` +
     participants.map((p) => `- <@${p.discord_id}>`).join("")
   );
-}
-
-export async function getTournamentRole(
-  id: number,
-  guild: Guild,
-): Promise<Role> {
-  const tournament = await getTournament(id);
-  let role = (await guild.roles.fetch()).find(
-    (r) => r.name === tournament.name,
-  );
-  if (role) {
-    return role;
-  } else {
-    return guild.roles.create({
-      name: tournament.name,
-    });
-  }
 }
 
 const LIST_TOURNAMENTS: DiscordCommand = {
@@ -160,6 +141,11 @@ const CREATE_TOURNAMENT: DiscordCommand = {
 
     const tournament_id = await createTournament({
       name: tournament_name!,
+      role_id: (
+        await interaction.guild!.roles.create({
+          name: tournament_name!,
+        })
+      ).id,
       team_size: team_size!,
       stage1: stage1,
       stage2: stage2,
@@ -202,6 +188,8 @@ const DELETE_TOURNAMENT: DiscordCommand = {
     }
 
     await deleteTournament(tournament.id);
+
+    interaction.guild?.roles.delete(tournament.role_id);
 
     await interaction.editReply({ content: "Tournament deleted." });
   },

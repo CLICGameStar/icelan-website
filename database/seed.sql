@@ -6,9 +6,9 @@ INSERT INTO participants(id, first_name, family_name, username, discord_username
 INSERT INTO participants(id, first_name, family_name, username, discord_username, discord_id, is_staff, is_donator) VALUES(5, 'Adrien', 'Jengal', 'Ryukriss', 'ryukriss', '525348977755947014', 1, 0)  ON CONFLICT DO NOTHING;
 INSERT INTO participants(id, first_name, family_name, username, discord_username, discord_id, is_staff, is_donator) VALUES(6, 'Gregory', 'Blanc', 'greg', 'gregvblanc', '577922006704586771', 1, 0)  ON CONFLICT DO NOTHING;
 
-INSERT INTO tournaments(id, "name", team_size, state, format1) VALUES(1, 'lol', 5, 'opened', 'single_elimination_bracket') ON CONFLICT DO NOTHING;
-INSERT INTO tournaments(id, "name", team_size, state, format1) VALUES(2, 'mk8dx', 1, 'opened', 'single_elimination_bracket') ON CONFLICT DO NOTHING;
-INSERT INTO tournaments(id, "name", team_size, state, format1) VALUES(3, 'rl', 2, 'opened', 'single_elimination_bracket') ON CONFLICT DO NOTHING;
+INSERT INTO tournaments(id, "name", role_id, team_size, state, format1) VALUES(1, 'lol', '1575655985224228954', 5, 'opened', 'single_elimination_bracket') ON CONFLICT DO NOTHING;
+INSERT INTO tournaments(id, "name", role_id, team_size, state, format1) VALUES(2, 'mk8dx', '1575655915128885410', 1, 'opened', 'single_elimination_bracket') ON CONFLICT DO NOTHING;
+INSERT INTO tournaments(id, "name", role_id, team_size, state, format1) VALUES(3, 'rl', '1575656025825083572', 2, 'opened', 'single_elimination_bracket') ON CONFLICT DO NOTHING;
 
 INSERT INTO teams(id, "name", creator, tournament_id, confirmed) VALUES(1, 'T1', 1, 1, 0) ON CONFLICT DO NOTHING;
 INSERT INTO teams(id, "name", creator, tournament_id, confirmed) VALUES(2, 'Vroom', 1, 3, 0) ON CONFLICT DO NOTHING;

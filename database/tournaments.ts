@@ -16,6 +16,7 @@ export type TournamentState = "opened" | "started" | "finished";
 export type PopulatedTournament = {
   id: number;
   name: string;
+  role_id: string;
   team_size: number;
   state: TournamentState;
   stage1: PopulatedStage;
@@ -26,6 +27,7 @@ export type PopulatedTournament = {
 export type NewTournament = {
   name: string;
   team_size: number;
+  role_id: string;
   stage1: Stage;
   stage2: Stage | null;
 };
@@ -138,6 +140,7 @@ function dbToPopulatedTournament(
   return {
     id: dbTournament.id,
     name: dbTournament.name,
+    role_id: dbTournament.role_id,
     team_size: dbTournament.team_size,
     state: dbTournament.state as TournamentState,
     stage1,
@@ -208,9 +211,7 @@ function mapStage(format: StageType, extra: string | null): Stage {
   return format === "round_robin"
     ? {
         type: format,
-        winnerCount: parseInt(
-          extra ?? "0"
-        ),
+        winnerCount: parseInt(extra ?? "0"),
       }
     : { type: format };
 }
@@ -219,6 +220,7 @@ function dbToTournament(t: DBTournament): Tournament {
   return {
     id: t.id,
     name: t.name,
+    role_id: t.role_id,
     team_size: t.team_size,
     state: t.state as TournamentState,
     stage1: mapStage(t.format1 as StageType, t.extra),

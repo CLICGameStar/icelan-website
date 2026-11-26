@@ -16,9 +16,25 @@ import {
   MessageFlags,
   PermissionFlagsBits,
   type Guild,
+  type GuildMember,
 } from "discord.js";
 import type { DiscordCommand } from "../discord";
 import { throwError } from "../error";
+
+export async function getGuildMember(
+  guild: Guild,
+  username: string,
+): Promise<GuildMember> {
+  const member = await (
+    await guild.members.fetch({ query: username, limit: 10 })
+  ).find((m) => m.user.username.toLowerCase() === username.toLowerCase());
+
+  if (!member) {
+    throwError({ type: "not_found", message: "GuildMember not found." });
+  }
+
+  return member;
+}
 
 async function getGuildMemberId(
   guild: Guild,
