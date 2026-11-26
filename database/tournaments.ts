@@ -350,10 +350,11 @@ export async function createTournament(t: NewTournament): Promise<number> {
   const conn = await openDatabase();
   return conn
     .prepare(
-      "INSERT INTO tournaments(name, team_size, state, format1, format2) VALUES(?, ?, ?, ?, ?)",
+      "INSERT INTO tournaments(name, role_id, team_size, state, format1, format2) VALUES(?, ?, ?, ?, ?, ?)",
     )
     .run(
       t.name,
+      t.role_id,
       t.team_size,
       "opened" as TournamentState,
       t.stage1.type,

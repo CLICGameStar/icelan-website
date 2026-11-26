@@ -139,13 +139,22 @@ const CREATE_TOURNAMENT: DiscordCommand = {
         break;
     }
 
-    const tournament_id = await createTournament({
-      name: tournament_name!,
-      role_id: (
+    let role_id =
+      (await interaction.guild!.roles.fetch()).find(
+        (r) => r.name === tournament_name,
+      )?.id ?? null;
+
+    if (!role_id) {
+      role_id = (
         await interaction.guild!.roles.create({
           name: tournament_name!,
         })
-      ).id,
+      ).id;
+    }
+
+    const tournament_id = await createTournament({
+      name: tournament_name!,
+      role_id: role_id,
       team_size: team_size!,
       stage1: stage1,
       stage2: stage2,
@@ -261,7 +270,7 @@ const TOURNAMENT_INFO: DiscordCommand = {
     if (tournament.team_size === 1) {
       await interaction.editReply({
         content:
-          `## Infos sur le tournoi \`${tournament?.name}\`\n` +
+          `## Infos sur le tournoi <@&${tournament.role_id}>\n` +
           `- \`nom\`: ${tournament.name}\n` +
           `- \`statut\`: ${statut}\n` +
           `### Participants\n` +
@@ -271,7 +280,7 @@ const TOURNAMENT_INFO: DiscordCommand = {
     } else {
       await interaction.editReply({
         content:
-          `## Infos sur le tournoi \`${tournament?.name}\`\n` +
+          `## Infos sur le tournoi <@&${tournament.role_id}>\n` +
           `- \`nom\`: ${tournament.name}\n` +
           `- \`taille des équipes\`: ${tournament.team_size}\n` +
           `- \`statut\`: ${statut}\n` +
