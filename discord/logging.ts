@@ -1,4 +1,4 @@
-import { getParticipant } from "@/database/participants";
+import { getParticipant, type Participant } from "@/database/participants";
 import type { TextChannel } from "discord.js";
 import { client } from "./discord";
 
@@ -10,11 +10,15 @@ export async function logToDiscord(error: string) {
   await channel!.send(error);
 }
 
-export async function notify(participant_id: number, message: string) {
+export async function notify(participants_ids: number[], message: string) {
   const channel = (await client.channels.fetch(
     USERS_CHANNEL_ID,
   )) as TextChannel;
+  const participants: Participant[] = await Promise.all(
+    participants_ids.map((id) => getParticipant(id)),
+  );
   await channel!.send(
-    `<@${(await getParticipant(participant_id)).discord_id}>\n` + message,
+    `Hey ${participants.map((p) => `<@${p.discord_id}>`).join(", ")} !\n` +
+      message,
   );
 }

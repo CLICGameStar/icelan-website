@@ -71,7 +71,7 @@ export async function startDiscordBot() {
 
   const ping_command: DiscordCommand = {
     name: "ping",
-    description: "Replies with Pong!",
+    description: "[ADMIN] Replies with Pong!",
     defaultMemberPermissions: PermissionFlagsBits.Administrator,
     options: [
       {

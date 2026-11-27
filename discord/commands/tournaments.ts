@@ -23,7 +23,7 @@ async function tournamentDataAsString(id: number): Promise<string> {
   const teams = await getTeamsFromTournamentId(id);
   const participants = await getTournamentParticipants(id);
   return (
-    `## Data about \`${tournament.name}\`\n` +
+    `## Data about <@&${tournament.role_id}>\n` +
     `- \`id\`: ${tournament.id}\n` +
     `- \`name\`: ${tournament.name}\n` +
     `- \`team_size\`: ${tournament.team_size}\n` +
@@ -63,8 +63,8 @@ const LIST_TOURNAMENTS: DiscordCommand = {
 };
 
 const CREATE_TOURNAMENT: DiscordCommand = {
-  name: "tournament_create",
-  description: "Create a new tournament",
+  name: "create_tournament",
+  description: "[ADMIN] Create a new tournament",
   defaultMemberPermissions: PermissionFlagsBits.Administrator,
   options: [
     {
@@ -81,8 +81,7 @@ const CREATE_TOURNAMENT: DiscordCommand = {
     },
     {
       name: "format",
-      description:
-        "The format of the tournament",
+      description: "The format of the tournament",
       type: ApplicationCommandOptionType.String,
       required: true,
       choices: [
@@ -100,8 +99,8 @@ const CREATE_TOURNAMENT: DiscordCommand = {
         },
         {
           name: "Round Robin pool and single elim. bracket finale",
-          value: "rr_pool_seb_finales"
-        }
+          value: "rr_pool_seb_finales",
+        },
       ],
     },
     {
@@ -121,35 +120,49 @@ const CREATE_TOURNAMENT: DiscordCommand = {
     let stage1: Stage;
     let stage2: Stage | null = null;
     switch (format) {
-      case "rr_pool_seb_finales": 
+      case "rr_pool_seb_finales":
         stage1 = {
           type: "round_robin",
           winnerCount: 0,
         };
-        stage2 = {type: "single_elimination_bracket"};
+        stage2 = { type: "single_elimination_bracket" };
         break;
       case "single_elimination_bracket":
-        stage1 = {type: "single_elimination_bracket"};
+        stage1 = { type: "single_elimination_bracket" };
         break;
       case "double_elimination_bracket":
-        stage1 = {type: "double_elimination_bracket"};
+        stage1 = { type: "double_elimination_bracket" };
         break;
       case "round_robin":
         stage1 = {
           type: "round_robin",
-          winnerCount: 0
+          winnerCount: 0,
         };
         break;
       default:
         throwError({
           type: "invalid_data",
           source: "user",
-          message: "Invalid tournament format received: " + format
+          message: "Invalid tournament format received: " + format,
         });
     }
-    
+
+    let role_id =
+      (await interaction.guild!.roles.fetch()).find(
+        (r) => r.name === tournament_name,
+      )?.id ?? null;
+
+    if (!role_id) {
+      role_id = (
+        await interaction.guild!.roles.create({
+          name: tournament_name!,
+        })
+      ).id;
+    }
+
     const tournament_id = await createTournament({
       name: tournament_name!,
+      role_id: role_id,
       team_size: team_size!,
       match_size: match_size,
       stage1: stage1,
@@ -163,8 +176,8 @@ const CREATE_TOURNAMENT: DiscordCommand = {
 };
 
 const DELETE_TOURNAMENT: DiscordCommand = {
-  name: "tournament_delete",
-  description: "Delete a tournament",
+  name: "delete_tournament",
+  description: "[ADMIN] Delete a tournament",
   defaultMemberPermissions: PermissionFlagsBits.Administrator,
   options: [
     {
@@ -194,13 +207,15 @@ const DELETE_TOURNAMENT: DiscordCommand = {
 
     await deleteTournament(tournament.id);
 
+    interaction.guild?.roles.delete(tournament.role_id);
+
     await interaction.editReply({ content: "Tournament deleted." });
   },
 };
 
 const TOURNAMENT_DATA: DiscordCommand = {
   name: "tournament_data",
-  description: "Show data about a tournament.",
+  description: "[ADMIN] Show data about a tournament.",
   defaultMemberPermissions: PermissionFlagsBits.Administrator,
   options: [
     {
@@ -251,10 +266,77 @@ const START_TOURNAMENT: DiscordCommand = {
   }
 }
 
+const TOURNAMENT_INFO: DiscordCommand = {
+  name: "tournament_info",
+  description: "Voit toutes les infos en lien avec un tournoi.",
+  options: [
+    {
+      name: "tournoi",
+      description: "Le tournoi dont tu souhaite voir les infos.",
+      type: ApplicationCommandOptionType.String,
+      required: true,
+    },
+  ],
+  async handler(interaction) {
+    await interaction.deferReply({ flags: MessageFlags.Ephemeral });
+    const team_name = interaction.options.getString("tournoi");
+    const tournament = await getTournamentFromName(team_name!);
+    if (!tournament) {
+      throwError({
+        type: "invalid_data",
+        source: "user",
+        message: `Le tournoi \`${team_name}\` n'a pas été trouvé.`,
+      });
+    }
+    const teams = await getTeamsFromTournamentId(tournament.id);
+    const participants = await getTournamentParticipants(tournament.id);
+
+    let statut;
+    switch (tournament.state) {
+      case "opened":
+        statut = "Inscriptions ouvertes";
+        break;
+      case "started":
+        statut = "En cours";
+        break;
+      case "finished":
+        statut = "Terminé";
+        break;
+    }
+
+    if (tournament.team_size === 1) {
+      await interaction.editReply({
+        content:
+          `## Infos sur le tournoi <@&${tournament.role_id}>\n` +
+          `- \`nom\`: ${tournament.name}\n` +
+          `- \`statut\`: ${statut}\n` +
+          `### Participants\n` +
+          `Nombre: \`${participants.length}\`\n` +
+          participants.map((p) => `- <@${p.discord_id}>\n`).join(""),
+      });
+    } else {
+      await interaction.editReply({
+        content:
+          `## Infos sur le tournoi <@&${tournament.role_id}>\n` +
+          `- \`nom\`: ${tournament.name}\n` +
+          `- \`taille des équipes\`: ${tournament.team_size}\n` +
+          `- \`statut\`: ${statut}\n` +
+          `### Équipes\n` +
+          `Nombre: \`${teams.length}\`\n` +
+          teams.map((t) => `- **${t.name}**\n`).join("") +
+          `### Participants\n` +
+          `Nombre: \`${participants.length}\`\n` +
+          participants.map((p) => `- <@${p.discord_id}>`).join(""),
+      });
+    }
+  },
+};
+
 export const TOURNAMENT_COMMANDS = [
   LIST_TOURNAMENTS,
   CREATE_TOURNAMENT,
   TOURNAMENT_DATA,
+  TOURNAMENT_INFO,
   DELETE_TOURNAMENT,
   START_TOURNAMENT
 ];

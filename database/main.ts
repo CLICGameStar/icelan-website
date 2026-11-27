@@ -18,7 +18,6 @@ export async function openDatabase(): Promise<Database> {
         throwError({ type: "missing_env", env: "DATABASE_FILE" }),
       { fileMustExist: false },
     );
-    conn.pragma("foreign_keys = ON");
 
     console.log("Migrating...");
     conn.exec(await readMigration());
@@ -30,6 +29,7 @@ export async function openDatabase(): Promise<Database> {
       console.log("Seeding done!");
     }
 
+    conn.pragma("foreign_keys = ON");
     const violations = conn.pragma("foreign_key_check");
     console.log("[DATABASE]: Violations\n" + JSON.stringify(violations));
   }

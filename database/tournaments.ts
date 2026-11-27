@@ -19,6 +19,7 @@ export type TournamentState = "opened" | "started" | "finished";
 export type PopulatedTournament = {
   id: number;
   name: string;
+  role_id: string;
   team_size: number;
   state: TournamentState;
   stage1: PopulatedStage;
@@ -30,6 +31,7 @@ export type NewTournament = {
   name: string;
   team_size: number;
   match_size: number;
+  role_id: string;
   stage1: Stage;
   stage2: Stage | null;
 };
@@ -143,6 +145,7 @@ function dbToPopulatedTournament(
   return {
     id: dbTournament.id,
     name: dbTournament.name,
+    role_id: dbTournament.role_id,
     team_size: dbTournament.team_size,
     state: dbTournament.state as TournamentState,
     stage1,
@@ -224,6 +227,7 @@ function dbToTournament(t: DBTournament): Tournament {
   return {
     id: t.id,
     name: t.name,
+    role_id: t.role_id,
     team_size: t.team_size,
     match_size: t.match_size,
     state: t.state as TournamentState,
@@ -405,10 +409,11 @@ export async function createTournament(t: NewTournament): Promise<number> {
   const conn = await openDatabase();
   return conn
     .prepare(
-      "INSERT INTO tournaments(name, team_size, match_size, state, format1, format2) VALUES(?, ?, ?, ?, ?, ?)",
+      "INSERT INTO tournaments(name, role_id, team_size, match_size, state, format1, format2) VALUES(?, ?, ?, ?, ?, ?)",
     )
     .run(
       t.name,
+      t.role_id,
       t.team_size,
       t.match_size,
       "opened" as TournamentState,
@@ -435,6 +440,7 @@ export async function testStartTournament() {
 
   await createTournament({
     name: "test",
+    role_id: "test",
     team_size: 1,
     match_size: 2,
     stage1: {type: "single_elimination_bracket"},

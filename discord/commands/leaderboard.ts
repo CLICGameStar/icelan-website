@@ -12,18 +12,18 @@ export async function getRank(id: number): Promise<number> {
     .findIndex((p) => p.id == id);
 }
 
-const TOP_10: DiscordCommand = {
-  name: "top_10",
-  description: "Vois le top 10 des participants.",
+const TOP_20: DiscordCommand = {
+  name: "top_20",
+  description: "Vois le top 20 des participants.",
   async handler(interaction) {
     await interaction.deferReply({ flags: MessageFlags.Ephemeral });
     await interaction.editReply({
       content:
-        "## Top 10\n" +
+        "## Top 20\n" +
         (await getParticipants())
           .filter((p) => !p.is_staff)
           .sort((a, b) => a.points - b.points)
-          .slice(0, 10)
+          .slice(0, 20)
           .map((p, i) => `${i}. ${p.username} | <@${p.discord_id}>\n`)
           .join(""),
     });
@@ -57,4 +57,4 @@ const RANK: DiscordCommand = {
   },
 };
 
-export const LEADERBOARD_COMMANDS = [TOP_10, RANK];
+export const LEADERBOARD_COMMANDS = [TOP_20, RANK];

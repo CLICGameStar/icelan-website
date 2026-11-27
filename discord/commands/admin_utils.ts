@@ -18,7 +18,7 @@ import { LOG_CHANNEL_ID } from "../logging";
 
 const SQL_QUERY: DiscordCommand = {
   name: "sql_query",
-  description: "Run directly an SQL query.",
+  description: "[ADMIN] Run directly an SQL query.",
   defaultMemberPermissions: PermissionFlagsBits.Administrator,
   options: [
     {

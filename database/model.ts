@@ -27,6 +27,7 @@ export interface DBEnrollment {
 export interface DBTournament {
   id: number;
   name: string;
+  role_id: string;
   team_size: number;
   match_size: number;
   state: string;
@@ -46,9 +47,21 @@ export interface DBMatch {
   next_loser: number | null;
 }
 
+export interface DBMatchRR {
+  id: number,
+  tournament_id: number,
+  tournament_stage: number,
+}
+
 export interface DBRankingPoints {
-  id: number;
   number_of_teams: number;
   rank: number;
   points: number;
+}
+
+export interface DBBonusPoints {
+  id: number;
+  participant_id: number;
+  points: number;
+  justification: string;
 }

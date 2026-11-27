@@ -4,7 +4,11 @@ import {
   getTournamentFromName,
   getTournamentParticipants,
 } from "@/database/tournaments";
-import { ApplicationCommandOptionType, MessageFlags } from "discord.js";
+import {
+  ApplicationCommandOptionType,
+  MessageFlags,
+  type GuildMemberRoleManager,
+} from "discord.js";
 import type { DiscordCommand } from "../discord";
 import { throwError } from "../error";
 
@@ -56,6 +60,10 @@ const REGISTER: DiscordCommand = {
     const participant = await getParticipantFromDiscordId(interaction.user.id);
 
     await register(participant.id, tournament.id);
+
+    (interaction.member!.roles as GuildMemberRoleManager).add(
+      tournament.role_id,
+    );
 
     // Check
     if (
@@ -126,6 +134,10 @@ const UNREGISTER: DiscordCommand = {
     ) {
       throwError({ type: "querry failed", message: "L'opération a échoué" });
     }
+
+    (interaction.member!.roles as GuildMemberRoleManager).remove(
+      tournament.role_id,
+    );
 
     await interaction.editReply({ content: "Tu a été désinscrit du tournoi." });
   },
