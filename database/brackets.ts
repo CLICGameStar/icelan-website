@@ -129,6 +129,7 @@ export async function generateDoubleEliminationBracket({
 
 export async function generateRoundRobinBracket(opts: GenerationOpts) {
   throwError({type: "not_implemented", message: "generateRoundRobinBracket not implemented."});
+  
 }
 
 // TODO: shuffle team order
