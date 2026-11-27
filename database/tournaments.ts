@@ -7,7 +7,7 @@ import {
   type DBEnrollment,
   type DBParticipant,
 } from "./model";
-import { dbToParticipant, insertParticipantInDatabase, NewParticipant, type Participant } from "./participants";
+import { dbToParticipant, getParticipantFromDiscordId, insertParticipantInDatabase, NewParticipant, type Participant } from "./participants";
 import { createTeam, NewTeam, type Team } from "./teams";
 import { fillTeams, generateDoubleEliminationBracket, generateRoundRobinBracket, generateSingleEliminationBracket } from "./brackets";
 import { notifyMatchParticipant } from "./match";
@@ -373,6 +373,8 @@ export async function startTournament(name: string) {
     stage: 0
   };
 
+  console.log(`generation options: t_id = ${generationOption.tournamentId}, count: ${generationOption.count}`);
+
   switch (t.stage1.type) {
     case "single_elimination_bracket":
       await generateSingleEliminationBracket(generationOption);
@@ -422,6 +424,9 @@ export async function deleteTournament(id: number): Promise<number> {
 }
 
 export async function testStartTournament() {
+  console.log("setup test ...");
+
+  (await openDatabase()).prepare("DELETE FROM teams").run();
   (await openDatabase()).prepare("DELETE FROM enrollments").run();
   (await openDatabase()).prepare("DELETE FROM participants").run();
   (await openDatabase()).prepare("DELETE FROM team_matches").run();
@@ -438,9 +443,8 @@ export async function testStartTournament() {
 
   const tTest = await getTournamentFromName("test");
 
-  let newParticipants: NewParticipant[] = [];
+  let participants: Participant[] = [];
   for (let i = 0; i < 8; i++) {
-    console.log(i)
     const np: NewParticipant = {
       first_name: `name_${i}`,
       family_name: `familiyname_${i}`,
@@ -452,7 +456,13 @@ export async function testStartTournament() {
     }; 
 
     await insertParticipantInDatabase(np);
-    await register(i, tTest!.id);
-    newParticipants.push(np);
+
+    const p = await getParticipantFromDiscordId(`${i}`);
+    await register(p.id, tTest!.id);
+    participants.push(p);
   }
+
+  console.log("setup finished")
+
+  await startTournament(tTest!.name);
 }
