@@ -46,6 +46,12 @@ export interface DBMatch {
   next_loser: number | null;
 }
 
+export interface DBMatchRR {
+  id: number,
+  tournament_id: number,
+  tournament_stage: number,
+}
+
 export interface DBRankingPoints {
   number_of_teams: number;
   rank: number;
