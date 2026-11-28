@@ -10,30 +10,27 @@ import { dbToParticipant, type Participant } from "./participants";
 import { Team } from "./teams";
 
 export type TournamentState = "opened" | "started" | "finished";
-export type SpeedrunState = "started" | "finished";
+
+/**
+ * Competition hierarchy:
+ * 
+ * competition: name, startdate, duration, teams, computeRanks()
+ *   |_speedrun: state
+ *   |_tournament: state, stage, team_size, match_size
+ *     |_single_stage: matches[][]  
+ *     | |_knockout: 
+ *     | | |_single_elim: 
+ *     | | |_double_elim: 
+ *     | |_roundrobin: round, match_per_round
+ *     | |_manual: 
+ *     |_hybrid: stages: single_stage[]
+ */
 
 interface Competition {
   name: string ;
-  team_size: number;
   start_date?: Date;
   duration?: number; // represent tournament duration in hour 
   teams: Team[];
-}
-
-class Speedrun implements Competition {
-  name: string = "";
-  teams: Team[] = [];
-  team_size: number = 0;
-  start_date?: Date;
-  duration?: number; // represent tournament duration in hour 
-
-  state: SpeedrunState = "started";
-}
-
-interface Tournament extends Competition {
-  state: TournamentState;
-  teams: Team[];
-  matchsize: number;
 }
 
 function dbToTournament(t: DBTournament): Tournament {
